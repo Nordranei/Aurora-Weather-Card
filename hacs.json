@@ -1,0 +1,7 @@
+{
+  "name": "Aurora Weather Card",
+  "content_in_root": false,
+  "filename": "dist/aurora-weather-card.js",
+  "render_readme": true,
+  "homeassistant": "2026.7.0"
+}
