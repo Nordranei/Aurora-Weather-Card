@@ -53,7 +53,7 @@ function weatherIcon(condition) {
     'clear-night': '🌙',
     'cloudy': '☁️',
     'exceptional': '⚠️',
-    'fog': '🌁',
+    'fog': '☁️',
     'hail': '🌨️',
     'lightning': '⚡️',
     'lightning-rainy': '⛈️',
