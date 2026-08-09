@@ -10,6 +10,22 @@ This project follows Semantic Versioning.
 
 
 
+\# v1.0.1
+
+
+
+\## Fixed
+
+
+
+\- Fixed fog icon rendering on Windows browsers.
+
+\- Updated README feature list.
+
+\- Removed outdated 72-hour forecast references.
+
+
+
 \## \[1.0.0] - 2026-08-09
 
 

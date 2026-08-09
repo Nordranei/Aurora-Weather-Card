@@ -14,20 +14,20 @@ Aurora Weather Card combines modern weather visualization with a calm Scandinavi
 
 ---
 
-# Features
+## Features
 
-- 🌡️ Temperature forecast graph
-- 🌧️ Precipitation graph
-- 💨 Wind graph
-- 🌬️ Wind gust graph
-- ☁️ Hourly weather icons
-- 📈 24 / 48 / 72 hour forecast
-- 📱 Responsive layout
-- 🌙 Light & Dark Mode
-- 🔍 Expandable detailed view
-- ⚙️ Visual configuration editor
-- 🎨 Aurora Static
-- ✨ Aurora Dynamic foundation
+- Temperature forecast graph
+- Precipitation graph
+- Wind graph
+- Wind gust graph
+- Hourly weather icons
+- 24 / 48 hour forecast
+- Responsive layout
+- Light & Dark Mode
+- Expandable detailed view
+- Visual configuration editor
+- Aurora Static
+- Aurora Dynamic Foundation
 
 ---
 
