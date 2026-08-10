@@ -4,128 +4,99 @@ A premium weather card for Home Assistant.
 
 Aurora Weather Card combines modern weather visualization with a calm Scandinavian-inspired design.
 
-> **Information first. Atmosphere second.**
-
----
-
-# Preview
-
-![Aurora Weather Card](screenshots/normal-dark.png)
-
----
+> Information first. Atmosphere second.
 
 ## Features
 
 - Temperature forecast graph
-- Precipitation graph
-- Wind graph
-- Wind gust graph
+- Precipitation graph with dynamic scale
+- Wind and wind-gust graphs
+- Wind direction indicators
+- Wind values displayed in m/s
 - Hourly weather icons
 - 24 / 48 hour forecast
-- Responsive layout
-- Light & Dark Mode
-- Expandable detailed view
+- Responsive desktop, tablet and mobile layout
+- Expandable detailed 48-hour view
+- Weather information tiles in expanded view
 - Visual configuration editor
 - Aurora Static
-- Aurora Dynamic Foundation
+- Aurora Dynamic Atmosphere
+- Day atmosphere
+- Animated Northern Lights night atmosphere
+- Seasonal atmosphere support
 
----
+## Weather data
 
-# Screenshots
+Aurora Weather Card currently uses a Home Assistant `weather.*` entity as its data source.
+MET Norway / Met.no is recommended, but another compatible Home Assistant weather entity can be used.
 
-## Normal View
+## Installation
 
-![Normal View](screenshots/normal-dark.png)
+### HACS
 
----
+When installed through HACS, Aurora Weather Card uses:
 
-## Expanded View
+`aurora-weather-card.js`
 
-![Expanded View](screenshots/expanded-dark.png)
+### Manual installation
 
----
+Copy:
 
-## Visual Configuration Editor
+`dist/aurora-weather-card.js`
 
-![Editor](screenshots/editor.png)
+to:
 
----
+`/config/www/aurora-weather-card/aurora-weather-card.js`
 
-## Light Mode
+Add the Lovelace resource:
 
-![Light Mode](screenshots/light-mode.png)
+`/local/aurora-weather-card/aurora-weather-card.js`
 
----
+Resource type:
 
-# Installation
+`JavaScript module`
 
-Copy the JavaScript file to:
+Reload the browser resources or restart Home Assistant if necessary.
 
-```text
-/config/www/aurora-weather-card/
-```
-
-Add the resource:
-
-```text
-/local/aurora-weather-card/aurora-weather-card.js
-```
-
-Resource Type:
-
-```text
-JavaScript Module
-```
-
-Restart Home Assistant (or reload browser resources).
-
----
-
-# Example
+## Example
 
 ```yaml
 type: custom:aurora-weather-card
 entity: weather.home
+location_name: Home
+hours: 48
+theme: aurora_dynamic
 ```
 
----
-
-# Configuration
+## Configuration
 
 | Option | Description |
-|---------|-------------|
-| Entity | Weather entity |
-| Location Name | Custom location name |
-| Forecast Hours | 24 / 48 / 72 |
-| Background | Aurora Static / Aurora Dynamic |
+| --- | --- |
+| `entity` | Home Assistant `weather.*` entity |
+| `location_name` | Custom location name shown in the card |
+| `hours` | Forecast period, 24 or 48 hours |
+| `theme` | Aurora theme/background selection |
 
----
+## v1.2 highlights
 
-# Design Philosophy
+Version 1.2 completes the dynamic atmosphere work planned after the first public release:
 
-Aurora Weather Card was created around one simple idea:
+- Refined compact card layout
+- Expanded 48-hour view
+- Improved graph spacing and scales
+- Dynamic precipitation scaling
+- Wind direction row
+- Expanded-view weather information tiles
+- Code-based inline SVG metric icons
+- Aurora Dynamic Atmosphere
+- Animated Northern Lights night mode
+- Day atmosphere
+- Seasonal atmosphere support
+- Responsive refinements for desktop, tablet and mobile
 
-> **Information first. Atmosphere second.**
+## Compatibility
 
-The weather should always be easy to read.
-Visual effects should support the information, never compete with it.
-
----
-
-# Roadmap
-
-## Version 1.1
-
-- 🌌 Aurora Dynamic Atmosphere Engine
-- 🍂 Seasonal backgrounds
-- 🌠 Northern Lights
-- 🎨 Additional themes
-
----
-
-# Compatibility
-
-- Home Assistant 2026.7+
+- Home Assistant 2026.8+
 - Sections Dashboard
 - Masonry Dashboard
 - Light Theme
@@ -134,16 +105,20 @@ Visual effects should support the information, never compete with it.
 - Tablet
 - Mobile
 
----
+## Design Philosophy
 
-# Credits
+Aurora Weather Card was created around one simple idea:
 
-Created by **Arne Aleksandersen**
+> Information first. Atmosphere second.
 
-Designed and developed in collaboration with **OpenAI ChatGPT** through extensive real-world testing in Home Assistant.
+The weather should always be easy to read. Visual effects should support the information, never compete with it.
 
----
+## Credits
 
-# License
+Created by Arne Aleksandersen.
+
+Designed and developed in collaboration with OpenAI ChatGPT through extensive real-world testing in Home Assistant.
+
+## License
 
 MIT License
