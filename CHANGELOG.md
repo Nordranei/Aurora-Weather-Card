@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 This project follows Semantic Versioning.
 
+## [1.3.0] - 2026-09-24
+
+### Added
+- Six GRAPH switches: temperature, precipitation, wind, wind gusts, wind direction and weather icons.
+- Hidden series also hide their legend entries in compact and expanded views.
+- Tabbed visual editor with CONFIG, APPEARANCE, GRAPH and ADVANCED.
+- Place-name search with coordinate and time-zone selection, plus manual fallback settings.
+- Location-aware clock and solar calculations.
+
+### Compatibility
+- All graph elements are enabled by default; 24/48-hour selection is preserved.
+- Existing `custom:aurora-weather-card` configurations and the HACS filename are preserved.
+- Location search does not change the forecast location of the selected weather entity.
+
 ## [1.2.0] - 2026-08-10
 
 ### Added

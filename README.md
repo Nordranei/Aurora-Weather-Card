@@ -35,6 +35,8 @@ Aurora Weather Card combines modern weather visualization with a calm Scandinavi
 - Expandable detailed 48-hour view
 - Weather information tiles in expanded view
 - Visual configuration editor
+- Six independent GRAPH switches, with matching legend visibility
+- Place-name search, local time-zone selection and manual location fallback
 - Aurora Static
 - Aurora Dynamic Atmosphere
 - Day atmosphere
@@ -97,6 +99,24 @@ theme: aurora_dynamic
 | `location_name` | Custom location name shown in the card |
 | `hours` | Forecast period, 24 or 48 hours |
 | `theme` | Aurora theme/background selection |
+| `show_temperature` | Show temperature graph and legend; default `true` |
+| `show_precipitation` | Show precipitation bars and legend; default `true` |
+| `show_wind` | Show wind graph and legend; default `true` |
+| `show_wind_gust` | Show wind-gust graph and legend; default `true` |
+| `show_wind_direction` | Show wind-direction arrows; default `true` |
+| `show_weather_icons` | Show forecast weather icons; default `true` |
+| `latitude`, `longitude` | Optional coordinates for local solar calculations |
+| `time_zone` | Optional IANA time zone, for example `Europe/Oslo` |
+
+The GRAPH options apply to compact and expanded views. Existing configurations keep all graph elements enabled.
+
+CONFIG can search for a place name through Open-Meteo geocoding and save the selected coordinates and time zone. ADVANCED provides manual fallback fields. The forecast still comes from the selected `weather.*` entity: changing the display location does not relocate that entity's forecast.
+
+### Upgrading to v1.3.0
+
+Update through HACS and reload your browser. Existing dashboards keep `type: custom:aurora-weather-card`.
+
+For manual installations, replace the resource file and append `?v=1.3.0` to its URL. Development-build users should change `custom:aurora-weather-card-dev` to `custom:aurora-weather-card` when switching to the stable resource.
 
 ## Visual editor
 
@@ -104,7 +124,11 @@ Aurora Weather Card includes a visual configuration editor for Home Assistant.
 
 ![Aurora Weather Card editor](screenshots/editor.png)
 
-## What's new in v1.2
+## What's new in v1.3.0
+
+Six graph visibility switches, matching legends, a tabbed editor and location search with local time and solar calculations. The release is based on the tested v1.3-dev Step 9B build.
+
+## Previous update: v1.2
 
 Version 1.2 brings the completed Aurora Dynamic Atmosphere together with a refined compact and expanded weather experience.
 
