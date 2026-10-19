@@ -1,62 +1,609 @@
-// Aurora Weather Card v1.3.0 — baseline: v1.3-dev-step9b
-import { LitElement, css, html, nothing, svg } from 'https://cdn.jsdelivr.net/npm/lit@3.2.1/+esm';
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
-function isObject(value) {
-  return typeof value === 'object' && value !== null;
-}
-
-function extractForecast(raw, entityId) {
-  const candidates = [raw];
-  if (isObject(raw)) {
-    candidates.push(raw.service_response, raw.response, raw[entityId]);
-    if (isObject(raw.service_response)) candidates.push(raw.service_response[entityId]);
-    if (isObject(raw.response)) candidates.push(raw.response[entityId]);
+// node_modules/.pnpm/@lit+reactive-element@2.1.2/node_modules/@lit/reactive-element/css-tag.js
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+var t = globalThis;
+var e = t.ShadowRoot && (void 0 === t.ShadyCSS || t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
+var s = Symbol();
+var o = /* @__PURE__ */ new WeakMap();
+var n = class {
+  constructor(t3, e4, o5) {
+    if (this._$cssResult$ = true, o5 !== s) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    this.cssText = t3, this.t = e4;
   }
-  for (const candidate of candidates) {
-    if (Array.isArray(candidate)) return candidate;
-    if (isObject(candidate) && Array.isArray(candidate.forecast)) return candidate.forecast;
-    if (isObject(candidate) && isObject(candidate[entityId])) {
-      const block = candidate[entityId];
-      if (isObject(block) && Array.isArray(block.forecast)) return block.forecast;
+  get styleSheet() {
+    let t3 = this.o;
+    const s4 = this.t;
+    if (e && void 0 === t3) {
+      const e4 = void 0 !== s4 && 1 === s4.length;
+      e4 && (t3 = o.get(s4)), void 0 === t3 && ((this.o = t3 = new CSSStyleSheet()).replaceSync(this.cssText), e4 && o.set(s4, t3));
+    }
+    return t3;
+  }
+  toString() {
+    return this.cssText;
+  }
+};
+var r = (t3) => new n("string" == typeof t3 ? t3 : t3 + "", void 0, s);
+var i = (t3, ...e4) => {
+  const o5 = 1 === t3.length ? t3[0] : e4.reduce((e5, s4, o6) => e5 + ((t4) => {
+    if (true === t4._$cssResult$) return t4.cssText;
+    if ("number" == typeof t4) return t4;
+    throw Error("Value passed to 'css' function must be a 'css' function result: " + t4 + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
+  })(s4) + t3[o6 + 1], t3[0]);
+  return new n(o5, t3, s);
+};
+var S = (s4, o5) => {
+  if (e) s4.adoptedStyleSheets = o5.map((t3) => t3 instanceof CSSStyleSheet ? t3 : t3.styleSheet);
+  else for (const e4 of o5) {
+    const o6 = document.createElement("style"), n4 = t.litNonce;
+    void 0 !== n4 && o6.setAttribute("nonce", n4), o6.textContent = e4.cssText, s4.appendChild(o6);
+  }
+};
+var c = e ? (t3) => t3 : (t3) => t3 instanceof CSSStyleSheet ? ((t4) => {
+  let e4 = "";
+  for (const s4 of t4.cssRules) e4 += s4.cssText;
+  return r(e4);
+})(t3) : t3;
+
+// node_modules/.pnpm/@lit+reactive-element@2.1.2/node_modules/@lit/reactive-element/reactive-element.js
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+var { is: i2, defineProperty: e2, getOwnPropertyDescriptor: h, getOwnPropertyNames: r2, getOwnPropertySymbols: o2, getPrototypeOf: n2 } = Object;
+var a = globalThis;
+var c2 = a.trustedTypes;
+var l = c2 ? c2.emptyScript : "";
+var p = a.reactiveElementPolyfillSupport;
+var d = (t3, s4) => t3;
+var u = { toAttribute(t3, s4) {
+  switch (s4) {
+    case Boolean:
+      t3 = t3 ? l : null;
+      break;
+    case Object:
+    case Array:
+      t3 = null == t3 ? t3 : JSON.stringify(t3);
+  }
+  return t3;
+}, fromAttribute(t3, s4) {
+  let i5 = t3;
+  switch (s4) {
+    case Boolean:
+      i5 = null !== t3;
+      break;
+    case Number:
+      i5 = null === t3 ? null : Number(t3);
+      break;
+    case Object:
+    case Array:
+      try {
+        i5 = JSON.parse(t3);
+      } catch (t4) {
+        i5 = null;
+      }
+  }
+  return i5;
+} };
+var f = (t3, s4) => !i2(t3, s4);
+var b = { attribute: true, type: String, converter: u, reflect: false, useDefault: false, hasChanged: f };
+Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), a.litPropertyMetadata ?? (a.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
+var y = class extends HTMLElement {
+  static addInitializer(t3) {
+    this._$Ei(), (this.l ?? (this.l = [])).push(t3);
+  }
+  static get observedAttributes() {
+    return this.finalize(), this._$Eh && [...this._$Eh.keys()];
+  }
+  static createProperty(t3, s4 = b) {
+    if (s4.state && (s4.attribute = false), this._$Ei(), this.prototype.hasOwnProperty(t3) && ((s4 = Object.create(s4)).wrapped = true), this.elementProperties.set(t3, s4), !s4.noAccessor) {
+      const i5 = Symbol(), h3 = this.getPropertyDescriptor(t3, i5, s4);
+      void 0 !== h3 && e2(this.prototype, t3, h3);
     }
   }
-  throw new Error('Home Assistant svarte, men forecast-listen ble ikke funnet.');
-}
-
-async function fetchHourlyForecast(hass, entityId) {
-  const raw = await hass.callApi(
-    'POST',
-    'services/weather/get_forecasts?return_response',
-    { entity_id: entityId, type: 'hourly' },
-  );
-  return extractForecast(raw, entityId);
-}
-
-function smoothPath(points) {
-  if (points.length < 2) return '';
-  let d = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
-  for (let i = 0; i < points.length - 1; i += 1) {
-    const p0 = points[i - 1] || points[i];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2] || p2;
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
-    d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+  static getPropertyDescriptor(t3, s4, i5) {
+    const { get: e4, set: r4 } = h(this.prototype, t3) ?? { get() {
+      return this[s4];
+    }, set(t4) {
+      this[s4] = t4;
+    } };
+    return { get: e4, set(s5) {
+      const h3 = e4?.call(this);
+      r4?.call(this, s5), this.requestUpdate(t3, h3, i5);
+    }, configurable: true, enumerable: true };
   }
-  return d;
+  static getPropertyOptions(t3) {
+    return this.elementProperties.get(t3) ?? b;
+  }
+  static _$Ei() {
+    if (this.hasOwnProperty(d("elementProperties"))) return;
+    const t3 = n2(this);
+    t3.finalize(), void 0 !== t3.l && (this.l = [...t3.l]), this.elementProperties = new Map(t3.elementProperties);
+  }
+  static finalize() {
+    if (this.hasOwnProperty(d("finalized"))) return;
+    if (this.finalized = true, this._$Ei(), this.hasOwnProperty(d("properties"))) {
+      const t4 = this.properties, s4 = [...r2(t4), ...o2(t4)];
+      for (const i5 of s4) this.createProperty(i5, t4[i5]);
+    }
+    const t3 = this[Symbol.metadata];
+    if (null !== t3) {
+      const s4 = litPropertyMetadata.get(t3);
+      if (void 0 !== s4) for (const [t4, i5] of s4) this.elementProperties.set(t4, i5);
+    }
+    this._$Eh = /* @__PURE__ */ new Map();
+    for (const [t4, s4] of this.elementProperties) {
+      const i5 = this._$Eu(t4, s4);
+      void 0 !== i5 && this._$Eh.set(i5, t4);
+    }
+    this.elementStyles = this.finalizeStyles(this.styles);
+  }
+  static finalizeStyles(s4) {
+    const i5 = [];
+    if (Array.isArray(s4)) {
+      const e4 = new Set(s4.flat(1 / 0).reverse());
+      for (const s5 of e4) i5.unshift(c(s5));
+    } else void 0 !== s4 && i5.push(c(s4));
+    return i5;
+  }
+  static _$Eu(t3, s4) {
+    const i5 = s4.attribute;
+    return false === i5 ? void 0 : "string" == typeof i5 ? i5 : "string" == typeof t3 ? t3.toLowerCase() : void 0;
+  }
+  constructor() {
+    super(), this._$Ep = void 0, this.isUpdatePending = false, this.hasUpdated = false, this._$Em = null, this._$Ev();
+  }
+  _$Ev() {
+    this._$ES = new Promise((t3) => this.enableUpdating = t3), this._$AL = /* @__PURE__ */ new Map(), this._$E_(), this.requestUpdate(), this.constructor.l?.forEach((t3) => t3(this));
+  }
+  addController(t3) {
+    (this._$EO ?? (this._$EO = /* @__PURE__ */ new Set())).add(t3), void 0 !== this.renderRoot && this.isConnected && t3.hostConnected?.();
+  }
+  removeController(t3) {
+    this._$EO?.delete(t3);
+  }
+  _$E_() {
+    const t3 = /* @__PURE__ */ new Map(), s4 = this.constructor.elementProperties;
+    for (const i5 of s4.keys()) this.hasOwnProperty(i5) && (t3.set(i5, this[i5]), delete this[i5]);
+    t3.size > 0 && (this._$Ep = t3);
+  }
+  createRenderRoot() {
+    const t3 = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
+    return S(t3, this.constructor.elementStyles), t3;
+  }
+  connectedCallback() {
+    this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this.enableUpdating(true), this._$EO?.forEach((t3) => t3.hostConnected?.());
+  }
+  enableUpdating(t3) {
+  }
+  disconnectedCallback() {
+    this._$EO?.forEach((t3) => t3.hostDisconnected?.());
+  }
+  attributeChangedCallback(t3, s4, i5) {
+    this._$AK(t3, i5);
+  }
+  _$ET(t3, s4) {
+    const i5 = this.constructor.elementProperties.get(t3), e4 = this.constructor._$Eu(t3, i5);
+    if (void 0 !== e4 && true === i5.reflect) {
+      const h3 = (void 0 !== i5.converter?.toAttribute ? i5.converter : u).toAttribute(s4, i5.type);
+      this._$Em = t3, null == h3 ? this.removeAttribute(e4) : this.setAttribute(e4, h3), this._$Em = null;
+    }
+  }
+  _$AK(t3, s4) {
+    const i5 = this.constructor, e4 = i5._$Eh.get(t3);
+    if (void 0 !== e4 && this._$Em !== e4) {
+      const t4 = i5.getPropertyOptions(e4), h3 = "function" == typeof t4.converter ? { fromAttribute: t4.converter } : void 0 !== t4.converter?.fromAttribute ? t4.converter : u;
+      this._$Em = e4;
+      const r4 = h3.fromAttribute(s4, t4.type);
+      this[e4] = r4 ?? this._$Ej?.get(e4) ?? r4, this._$Em = null;
+    }
+  }
+  requestUpdate(t3, s4, i5, e4 = false, h3) {
+    if (void 0 !== t3) {
+      const r4 = this.constructor;
+      if (false === e4 && (h3 = this[t3]), i5 ?? (i5 = r4.getPropertyOptions(t3)), !((i5.hasChanged ?? f)(h3, s4) || i5.useDefault && i5.reflect && h3 === this._$Ej?.get(t3) && !this.hasAttribute(r4._$Eu(t3, i5)))) return;
+      this.C(t3, s4, i5);
+    }
+    false === this.isUpdatePending && (this._$ES = this._$EP());
+  }
+  C(t3, s4, { useDefault: i5, reflect: e4, wrapped: h3 }, r4) {
+    i5 && !(this._$Ej ?? (this._$Ej = /* @__PURE__ */ new Map())).has(t3) && (this._$Ej.set(t3, r4 ?? s4 ?? this[t3]), true !== h3 || void 0 !== r4) || (this._$AL.has(t3) || (this.hasUpdated || i5 || (s4 = void 0), this._$AL.set(t3, s4)), true === e4 && this._$Em !== t3 && (this._$Eq ?? (this._$Eq = /* @__PURE__ */ new Set())).add(t3));
+  }
+  async _$EP() {
+    this.isUpdatePending = true;
+    try {
+      await this._$ES;
+    } catch (t4) {
+      Promise.reject(t4);
+    }
+    const t3 = this.scheduleUpdate();
+    return null != t3 && await t3, !this.isUpdatePending;
+  }
+  scheduleUpdate() {
+    return this.performUpdate();
+  }
+  performUpdate() {
+    if (!this.isUpdatePending) return;
+    if (!this.hasUpdated) {
+      if (this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this._$Ep) {
+        for (const [t5, s5] of this._$Ep) this[t5] = s5;
+        this._$Ep = void 0;
+      }
+      const t4 = this.constructor.elementProperties;
+      if (t4.size > 0) for (const [s5, i5] of t4) {
+        const { wrapped: t5 } = i5, e4 = this[s5];
+        true !== t5 || this._$AL.has(s5) || void 0 === e4 || this.C(s5, void 0, i5, e4);
+      }
+    }
+    let t3 = false;
+    const s4 = this._$AL;
+    try {
+      t3 = this.shouldUpdate(s4), t3 ? (this.willUpdate(s4), this._$EO?.forEach((t4) => t4.hostUpdate?.()), this.update(s4)) : this._$EM();
+    } catch (s5) {
+      throw t3 = false, this._$EM(), s5;
+    }
+    t3 && this._$AE(s4);
+  }
+  willUpdate(t3) {
+  }
+  _$AE(t3) {
+    this._$EO?.forEach((t4) => t4.hostUpdated?.()), this.hasUpdated || (this.hasUpdated = true, this.firstUpdated(t3)), this.updated(t3);
+  }
+  _$EM() {
+    this._$AL = /* @__PURE__ */ new Map(), this.isUpdatePending = false;
+  }
+  get updateComplete() {
+    return this.getUpdateComplete();
+  }
+  getUpdateComplete() {
+    return this._$ES;
+  }
+  shouldUpdate(t3) {
+    return true;
+  }
+  update(t3) {
+    this._$Eq && (this._$Eq = this._$Eq.forEach((t4) => this._$ET(t4, this[t4]))), this._$EM();
+  }
+  updated(t3) {
+  }
+  firstUpdated(t3) {
+  }
+};
+y.elementStyles = [], y.shadowRootOptions = { mode: "open" }, y[d("elementProperties")] = /* @__PURE__ */ new Map(), y[d("finalized")] = /* @__PURE__ */ new Map(), p?.({ ReactiveElement: y }), (a.reactiveElementVersions ?? (a.reactiveElementVersions = [])).push("2.1.2");
+
+// node_modules/.pnpm/lit-html@3.3.3/node_modules/lit-html/lit-html.js
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+var t2 = globalThis;
+var i3 = (t3) => t3;
+var s2 = t2.trustedTypes;
+var e3 = s2 ? s2.createPolicy("lit-html", { createHTML: (t3) => t3 }) : void 0;
+var h2 = "$lit$";
+var o3 = `lit$${Math.random().toFixed(9).slice(2)}$`;
+var n3 = "?" + o3;
+var r3 = `<${n3}>`;
+var l2 = document;
+var c3 = () => l2.createComment("");
+var a2 = (t3) => null === t3 || "object" != typeof t3 && "function" != typeof t3;
+var u2 = Array.isArray;
+var d2 = (t3) => u2(t3) || "function" == typeof t3?.[Symbol.iterator];
+var f2 = "[ 	\n\f\r]";
+var v = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g;
+var _ = /-->/g;
+var m = />/g;
+var p2 = RegExp(`>|${f2}(?:([^\\s"'>=/]+)(${f2}*=${f2}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g");
+var g = /'/g;
+var $ = /"/g;
+var y2 = /^(?:script|style|textarea|title)$/i;
+var x = (t3) => (i5, ...s4) => ({ _$litType$: t3, strings: i5, values: s4 });
+var b2 = x(1);
+var w = x(2);
+var T = x(3);
+var E = Symbol.for("lit-noChange");
+var A = Symbol.for("lit-nothing");
+var C = /* @__PURE__ */ new WeakMap();
+var P = l2.createTreeWalker(l2, 129);
+function V(t3, i5) {
+  if (!u2(t3) || !t3.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  return void 0 !== e3 ? e3.createHTML(i5) : i5;
 }
+var N = (t3, i5) => {
+  const s4 = t3.length - 1, e4 = [];
+  let n4, l3 = 2 === i5 ? "<svg>" : 3 === i5 ? "<math>" : "", c4 = v;
+  for (let i6 = 0; i6 < s4; i6++) {
+    const s5 = t3[i6];
+    let a3, u3, d3 = -1, f3 = 0;
+    for (; f3 < s5.length && (c4.lastIndex = f3, u3 = c4.exec(s5), null !== u3); ) f3 = c4.lastIndex, c4 === v ? "!--" === u3[1] ? c4 = _ : void 0 !== u3[1] ? c4 = m : void 0 !== u3[2] ? (y2.test(u3[2]) && (n4 = RegExp("</" + u3[2], "g")), c4 = p2) : void 0 !== u3[3] && (c4 = p2) : c4 === p2 ? ">" === u3[0] ? (c4 = n4 ?? v, d3 = -1) : void 0 === u3[1] ? d3 = -2 : (d3 = c4.lastIndex - u3[2].length, a3 = u3[1], c4 = void 0 === u3[3] ? p2 : '"' === u3[3] ? $ : g) : c4 === $ || c4 === g ? c4 = p2 : c4 === _ || c4 === m ? c4 = v : (c4 = p2, n4 = void 0);
+    const x2 = c4 === p2 && t3[i6 + 1].startsWith("/>") ? " " : "";
+    l3 += c4 === v ? s5 + r3 : d3 >= 0 ? (e4.push(a3), s5.slice(0, d3) + h2 + s5.slice(d3) + o3 + x2) : s5 + o3 + (-2 === d3 ? i6 : x2);
+  }
+  return [V(t3, l3 + (t3[s4] || "<?>") + (2 === i5 ? "</svg>" : 3 === i5 ? "</math>" : "")), e4];
+};
+var S2 = class _S {
+  constructor({ strings: t3, _$litType$: i5 }, e4) {
+    let r4;
+    this.parts = [];
+    let l3 = 0, a3 = 0;
+    const u3 = t3.length - 1, d3 = this.parts, [f3, v2] = N(t3, i5);
+    if (this.el = _S.createElement(f3, e4), P.currentNode = this.el.content, 2 === i5 || 3 === i5) {
+      const t4 = this.el.content.firstChild;
+      t4.replaceWith(...t4.childNodes);
+    }
+    for (; null !== (r4 = P.nextNode()) && d3.length < u3; ) {
+      if (1 === r4.nodeType) {
+        if (r4.hasAttributes()) for (const t4 of r4.getAttributeNames()) if (t4.endsWith(h2)) {
+          const i6 = v2[a3++], s4 = r4.getAttribute(t4).split(o3), e5 = /([.?@])?(.*)/.exec(i6);
+          d3.push({ type: 1, index: l3, name: e5[2], strings: s4, ctor: "." === e5[1] ? I : "?" === e5[1] ? L : "@" === e5[1] ? z : H }), r4.removeAttribute(t4);
+        } else t4.startsWith(o3) && (d3.push({ type: 6, index: l3 }), r4.removeAttribute(t4));
+        if (y2.test(r4.tagName)) {
+          const t4 = r4.textContent.split(o3), i6 = t4.length - 1;
+          if (i6 > 0) {
+            r4.textContent = s2 ? s2.emptyScript : "";
+            for (let s4 = 0; s4 < i6; s4++) r4.append(t4[s4], c3()), P.nextNode(), d3.push({ type: 2, index: ++l3 });
+            r4.append(t4[i6], c3());
+          }
+        }
+      } else if (8 === r4.nodeType) if (r4.data === n3) d3.push({ type: 2, index: l3 });
+      else {
+        let t4 = -1;
+        for (; -1 !== (t4 = r4.data.indexOf(o3, t4 + 1)); ) d3.push({ type: 7, index: l3 }), t4 += o3.length - 1;
+      }
+      l3++;
+    }
+  }
+  static createElement(t3, i5) {
+    const s4 = l2.createElement("template");
+    return s4.innerHTML = t3, s4;
+  }
+};
+function M(t3, i5, s4 = t3, e4) {
+  if (i5 === E) return i5;
+  let h3 = void 0 !== e4 ? s4._$Co?.[e4] : s4._$Cl;
+  const o5 = a2(i5) ? void 0 : i5._$litDirective$;
+  return h3?.constructor !== o5 && (h3?._$AO?.(false), void 0 === o5 ? h3 = void 0 : (h3 = new o5(t3), h3._$AT(t3, s4, e4)), void 0 !== e4 ? (s4._$Co ?? (s4._$Co = []))[e4] = h3 : s4._$Cl = h3), void 0 !== h3 && (i5 = M(t3, h3._$AS(t3, i5.values), h3, e4)), i5;
+}
+var R = class {
+  constructor(t3, i5) {
+    this._$AV = [], this._$AN = void 0, this._$AD = t3, this._$AM = i5;
+  }
+  get parentNode() {
+    return this._$AM.parentNode;
+  }
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+  u(t3) {
+    const { el: { content: i5 }, parts: s4 } = this._$AD, e4 = (t3?.creationScope ?? l2).importNode(i5, true);
+    P.currentNode = e4;
+    let h3 = P.nextNode(), o5 = 0, n4 = 0, r4 = s4[0];
+    for (; void 0 !== r4; ) {
+      if (o5 === r4.index) {
+        let i6;
+        2 === r4.type ? i6 = new k(h3, h3.nextSibling, this, t3) : 1 === r4.type ? i6 = new r4.ctor(h3, r4.name, r4.strings, this, t3) : 6 === r4.type && (i6 = new Z(h3, this, t3)), this._$AV.push(i6), r4 = s4[++n4];
+      }
+      o5 !== r4?.index && (h3 = P.nextNode(), o5++);
+    }
+    return P.currentNode = l2, e4;
+  }
+  p(t3) {
+    let i5 = 0;
+    for (const s4 of this._$AV) void 0 !== s4 && (void 0 !== s4.strings ? (s4._$AI(t3, s4, i5), i5 += s4.strings.length - 2) : s4._$AI(t3[i5])), i5++;
+  }
+};
+var k = class _k {
+  get _$AU() {
+    return this._$AM?._$AU ?? this._$Cv;
+  }
+  constructor(t3, i5, s4, e4) {
+    this.type = 2, this._$AH = A, this._$AN = void 0, this._$AA = t3, this._$AB = i5, this._$AM = s4, this.options = e4, this._$Cv = e4?.isConnected ?? true;
+  }
+  get parentNode() {
+    let t3 = this._$AA.parentNode;
+    const i5 = this._$AM;
+    return void 0 !== i5 && 11 === t3?.nodeType && (t3 = i5.parentNode), t3;
+  }
+  get startNode() {
+    return this._$AA;
+  }
+  get endNode() {
+    return this._$AB;
+  }
+  _$AI(t3, i5 = this) {
+    t3 = M(this, t3, i5), a2(t3) ? t3 === A || null == t3 || "" === t3 ? (this._$AH !== A && this._$AR(), this._$AH = A) : t3 !== this._$AH && t3 !== E && this._(t3) : void 0 !== t3._$litType$ ? this.$(t3) : void 0 !== t3.nodeType ? this.T(t3) : d2(t3) ? this.k(t3) : this._(t3);
+  }
+  O(t3) {
+    return this._$AA.parentNode.insertBefore(t3, this._$AB);
+  }
+  T(t3) {
+    this._$AH !== t3 && (this._$AR(), this._$AH = this.O(t3));
+  }
+  _(t3) {
+    this._$AH !== A && a2(this._$AH) ? this._$AA.nextSibling.data = t3 : this.T(l2.createTextNode(t3)), this._$AH = t3;
+  }
+  $(t3) {
+    const { values: i5, _$litType$: s4 } = t3, e4 = "number" == typeof s4 ? this._$AC(t3) : (void 0 === s4.el && (s4.el = S2.createElement(V(s4.h, s4.h[0]), this.options)), s4);
+    if (this._$AH?._$AD === e4) this._$AH.p(i5);
+    else {
+      const t4 = new R(e4, this), s5 = t4.u(this.options);
+      t4.p(i5), this.T(s5), this._$AH = t4;
+    }
+  }
+  _$AC(t3) {
+    let i5 = C.get(t3.strings);
+    return void 0 === i5 && C.set(t3.strings, i5 = new S2(t3)), i5;
+  }
+  k(t3) {
+    u2(this._$AH) || (this._$AH = [], this._$AR());
+    const i5 = this._$AH;
+    let s4, e4 = 0;
+    for (const h3 of t3) e4 === i5.length ? i5.push(s4 = new _k(this.O(c3()), this.O(c3()), this, this.options)) : s4 = i5[e4], s4._$AI(h3), e4++;
+    e4 < i5.length && (this._$AR(s4 && s4._$AB.nextSibling, e4), i5.length = e4);
+  }
+  _$AR(t3 = this._$AA.nextSibling, s4) {
+    for (this._$AP?.(false, true, s4); t3 !== this._$AB; ) {
+      const s5 = i3(t3).nextSibling;
+      i3(t3).remove(), t3 = s5;
+    }
+  }
+  setConnected(t3) {
+    void 0 === this._$AM && (this._$Cv = t3, this._$AP?.(t3));
+  }
+};
+var H = class {
+  get tagName() {
+    return this.element.tagName;
+  }
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+  constructor(t3, i5, s4, e4, h3) {
+    this.type = 1, this._$AH = A, this._$AN = void 0, this.element = t3, this.name = i5, this._$AM = e4, this.options = h3, s4.length > 2 || "" !== s4[0] || "" !== s4[1] ? (this._$AH = Array(s4.length - 1).fill(new String()), this.strings = s4) : this._$AH = A;
+  }
+  _$AI(t3, i5 = this, s4, e4) {
+    const h3 = this.strings;
+    let o5 = false;
+    if (void 0 === h3) t3 = M(this, t3, i5, 0), o5 = !a2(t3) || t3 !== this._$AH && t3 !== E, o5 && (this._$AH = t3);
+    else {
+      const e5 = t3;
+      let n4, r4;
+      for (t3 = h3[0], n4 = 0; n4 < h3.length - 1; n4++) r4 = M(this, e5[s4 + n4], i5, n4), r4 === E && (r4 = this._$AH[n4]), o5 || (o5 = !a2(r4) || r4 !== this._$AH[n4]), r4 === A ? t3 = A : t3 !== A && (t3 += (r4 ?? "") + h3[n4 + 1]), this._$AH[n4] = r4;
+    }
+    o5 && !e4 && this.j(t3);
+  }
+  j(t3) {
+    t3 === A ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t3 ?? "");
+  }
+};
+var I = class extends H {
+  constructor() {
+    super(...arguments), this.type = 3;
+  }
+  j(t3) {
+    this.element[this.name] = t3 === A ? void 0 : t3;
+  }
+};
+var L = class extends H {
+  constructor() {
+    super(...arguments), this.type = 4;
+  }
+  j(t3) {
+    this.element.toggleAttribute(this.name, !!t3 && t3 !== A);
+  }
+};
+var z = class extends H {
+  constructor(t3, i5, s4, e4, h3) {
+    super(t3, i5, s4, e4, h3), this.type = 5;
+  }
+  _$AI(t3, i5 = this) {
+    if ((t3 = M(this, t3, i5, 0) ?? A) === E) return;
+    const s4 = this._$AH, e4 = t3 === A && s4 !== A || t3.capture !== s4.capture || t3.once !== s4.once || t3.passive !== s4.passive, h3 = t3 !== A && (s4 === A || e4);
+    e4 && this.element.removeEventListener(this.name, this, s4), h3 && this.element.addEventListener(this.name, this, t3), this._$AH = t3;
+  }
+  handleEvent(t3) {
+    "function" == typeof this._$AH ? this._$AH.call(this.options?.host ?? this.element, t3) : this._$AH.handleEvent(t3);
+  }
+};
+var Z = class {
+  constructor(t3, i5, s4) {
+    this.element = t3, this.type = 6, this._$AN = void 0, this._$AM = i5, this.options = s4;
+  }
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+  _$AI(t3) {
+    M(this, t3);
+  }
+};
+var B = t2.litHtmlPolyfillSupport;
+B?.(S2, k), (t2.litHtmlVersions ?? (t2.litHtmlVersions = [])).push("3.3.3");
+var D = (t3, i5, s4) => {
+  const e4 = s4?.renderBefore ?? i5;
+  let h3 = e4._$litPart$;
+  if (void 0 === h3) {
+    const t4 = s4?.renderBefore ?? null;
+    e4._$litPart$ = h3 = new k(i5.insertBefore(c3(), t4), t4, void 0, s4 ?? {});
+  }
+  return h3._$AI(t3), h3;
+};
 
+// node_modules/.pnpm/lit-element@4.2.2/node_modules/lit-element/lit-element.js
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+var s3 = globalThis;
+var i4 = class extends y {
+  constructor() {
+    super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
+  }
+  createRenderRoot() {
+    var _a;
+    const t3 = super.createRenderRoot();
+    return (_a = this.renderOptions).renderBefore ?? (_a.renderBefore = t3.firstChild), t3;
+  }
+  update(t3) {
+    const r4 = this.render();
+    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t3), this._$Do = D(r4, this.renderRoot, this.renderOptions);
+  }
+  connectedCallback() {
+    super.connectedCallback(), this._$Do?.setConnected(true);
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback(), this._$Do?.setConnected(false);
+  }
+  render() {
+    return E;
+  }
+};
+i4._$litElement$ = true, i4["finalized"] = true, s3.litElementHydrateSupport?.({ LitElement: i4 });
+var o4 = s3.litElementPolyfillSupport;
+o4?.({ LitElement: i4 });
+(s3.litElementVersions ?? (s3.litElementVersions = [])).push("4.2.2");
+
+// node_modules/.pnpm/lit-html@3.3.3/node_modules/lit-html/is-server.js
+/**
+ * @license
+ * Copyright 2022 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+// src/aurora-weather-card.js
+function smoothPath(points) {
+  if (points.length < 2) return "";
+  let d3 = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+  for (let i5 = 0; i5 < points.length - 1; i5 += 1) {
+    const p0 = points[i5 - 1] || points[i5];
+    const p1 = points[i5];
+    const p22 = points[i5 + 1];
+    const p3 = points[i5 + 2] || p22;
+    const c1x = p1.x + (p22.x - p0.x) / 6;
+    const c1y = p1.y + (p22.y - p0.y) / 6;
+    const c2x = p22.x - (p3.x - p1.x) / 6;
+    const c2y = p22.y - (p3.y - p1.y) / 6;
+    d3 += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p22.x.toFixed(2)} ${p22.y.toFixed(2)}`;
+  }
+  return d3;
+}
 function weatherIconSvg(condition) {
-  const c = String(condition || 'cloudy').toLowerCase();
-
-  const cloud = (x = 7, y = 10, dark = false) => svg`
-    <g transform="translate(${x} ${y})">
+  const c4 = String(condition || "cloudy").toLowerCase();
+  const cloud = (x2 = 7, y3 = 10, dark = false) => w`
+    <g transform="translate(${x2} ${y3})">
       <path
         d="M8 19h28c6 0 10-3.6 10-8.2C46 6.4 42.4 3 37.7 3c-1.6 0-3.2.4-4.5 1.2C30.8.9 27 .1 23.8 1.1c-4.3 1.3-7.1 5-7.2 9.1C11 9.4 6 12.7 6 16.2 6 17.3 6.8 18.4 8 19z"
-        fill="${dark ? '#a8bac7' : '#dce8f1'}"
+        fill="${dark ? "#a8bac7" : "#dce8f1"}"
         stroke="#f8fcff"
         stroke-opacity=".65"
         stroke-width=".8">
@@ -65,9 +612,8 @@ function weatherIconSvg(condition) {
       <ellipse cx="25" cy="7" rx="10" ry="3.5" fill="#ffffff" fill-opacity=".16"></ellipse>
     </g>
   `;
-
-  const sun = (x = 19, y = 7) => svg`
-    <g transform="translate(${x} ${y})">
+  const sun = (x2 = 19, y3 = 7) => w`
+    <g transform="translate(${x2} ${y3})">
       <g stroke="#ffd84a" stroke-width="2" stroke-linecap="round">
         <path d="M10 0v4M10 20v4M0 10h4M20 10h4M3 3l3 3M17 17l3 3M17 3l-3 3M3 17l3-3"></path>
       </g>
@@ -75,8 +621,7 @@ function weatherIconSvg(condition) {
       <ellipse cx="8" cy="7.2" rx="2.4" ry="1.5" fill="#ffffff" fill-opacity=".55"></ellipse>
     </g>
   `;
-
-  const moon = () => svg`
+  const moon = () => w`
     <g transform="translate(11 5)">
       <path
         d="M18 3c-6 2-9 8-7 14 2 6 8 9 14 7-3 5-10 7-16 4C2 25-1 17 2 10 5 4 12 1 18 3z"
@@ -89,23 +634,20 @@ function weatherIconSvg(condition) {
       <circle cx="29" cy="10" r=".9" fill="#dce6ff"></circle>
     </g>
   `;
-
-  const rain = (heavy = false) => svg`
+  const rain = (heavy = false) => w`
     <g stroke="#35b8ff" stroke-width="${heavy ? 3 : 2.4}" stroke-linecap="round">
       <path d="M22 36l-3 7M33 36l-3 7M44 36l-3 7"></path>
-      ${heavy ? svg`<path d="M53 35l-3 8M12 35l-3 8"></path>` : nothing}
+      ${heavy ? w`<path d="M53 35l-3 8M12 35l-3 8"></path>` : A}
     </g>
   `;
-
-  const snow = () => svg`
+  const snow = () => w`
     <g fill="#f7fcff" stroke="#84d5ff" stroke-width=".8">
       <circle cx="21" cy="40" r="2.3"></circle>
       <circle cx="33" cy="42" r="2.3"></circle>
       <circle cx="45" cy="39" r="2.3"></circle>
     </g>
   `;
-
-  const fog = () => svg`
+  const fog = () => w`
     ${cloud(7, 5)}
     <g stroke="#c7d8e3" stroke-width="2.4" stroke-linecap="round" opacity=".94">
       <path d="M12 34h39"></path>
@@ -113,8 +655,7 @@ function weatherIconSvg(condition) {
       <path d="M10 46h31"></path>
     </g>
   `;
-
-  const lightning = () => svg`
+  const lightning = () => w`
     <path
       d="M35 30h9l-6 9h6L31 48l4-11h-6z"
       fill="#ffd400"
@@ -123,192 +664,191 @@ function weatherIconSvg(condition) {
       stroke-linejoin="round">
     </path>
   `;
-
-  const hail = () => svg`
+  const hail = () => w`
     <g fill="#dff6ff" stroke="#75cfff" stroke-width=".9">
       <circle cx="20" cy="40" r="2.7"></circle>
       <circle cx="33" cy="43" r="2.7"></circle>
       <circle cx="46" cy="39" r="2.7"></circle>
     </g>
   `;
-
-  const wind = () => svg`
+  const wind = () => w`
     <g fill="none" stroke="#c9e7f4" stroke-width="2.5" stroke-linecap="round">
       <path d="M8 17h31c7 0 7-8 1-8-4 0-5 3-5 4"></path>
       <path d="M5 27h40c8 0 8 9 1 9-4 0-6-3-6-5"></path>
       <path d="M13 37h20"></path>
     </g>
   `;
-
-  switch (c) {
-    case 'sunny': return sun();
-    case 'clear-night': return moon();
-    case 'partlycloudy': return svg`${sun(4, 2)}${cloud(10, 14)}`;
-    case 'cloudy': return cloud();
-    case 'fog': return fog();
-    case 'rainy': return svg`${cloud(7, 3, true)}${rain(false)}`;
-    case 'pouring': return svg`${cloud(7, 3, true)}${rain(true)}`;
-    case 'lightning': return svg`${cloud(7, 3, true)}${lightning()}`;
-    case 'lightning-rainy': return svg`${cloud(7, 1, true)}${rain(false)}${lightning()}`;
-    case 'hail': return svg`${cloud(7, 2, true)}${hail()}`;
-    case 'snowy': return svg`${cloud(7, 1)}${snow()}`;
-    case 'snowy-rainy': return svg`${cloud(7, 0, true)}${rain(false)}${snow()}`;
-    case 'windy':
-    case 'windy-variant': return wind();
-    case 'exceptional': return svg`
+  switch (c4) {
+    case "sunny":
+      return sun();
+    case "clear-night":
+      return moon();
+    case "partlycloudy":
+      return w`${sun(4, 2)}${cloud(10, 14)}`;
+    case "cloudy":
+      return cloud();
+    case "fog":
+      return fog();
+    case "rainy":
+      return w`${cloud(7, 3, true)}${rain(false)}`;
+    case "pouring":
+      return w`${cloud(7, 3, true)}${rain(true)}`;
+    case "lightning":
+      return w`${cloud(7, 3, true)}${lightning()}`;
+    case "lightning-rainy":
+      return w`${cloud(7, 1, true)}${rain(false)}${lightning()}`;
+    case "hail":
+      return w`${cloud(7, 2, true)}${hail()}`;
+    case "snowy":
+      return w`${cloud(7, 1)}${snow()}`;
+    case "snowy-rainy":
+      return w`${cloud(7, 0, true)}${rain(false)}${snow()}`;
+    case "windy":
+    case "windy-variant":
+      return wind();
+    case "exceptional":
+      return w`
       ${cloud(7, 7, true)}
       <text x="50" y="16" font-size="15" font-weight="800" fill="#ffd84a">!</text>
     `;
     default:
-      console.warn(`[Aurora Weather Card] Unknown weather condition: ${c}`);
+      console.warn(`[Aurora Weather Card] Unknown weather condition: ${c4}`);
       return cloud();
   }
 }
-
-
 function windToMs(value, unit) {
-  const v = Number(value);
-  if (!Number.isFinite(v)) return NaN;
-  const u = String(unit || 'm/s').trim().toLowerCase();
-  if (u === 'm/s' || u === 'mps' || u === 'ms') return v;
-  if (u === 'km/h' || u === 'kmh' || u === 'kph') return v / 3.6;
-  if (u === 'mph') return v * 0.44704;
-  if (u === 'kn' || u === 'kt' || u === 'kts' || u === 'knot' || u === 'knots') return v * 0.514444;
-  if (u === 'ft/s' || u === 'fps') return v * 0.3048;
-  // Beaufort is a scale, not a linear unit. Convert each integer force
-  // to the midpoint of its standard m/s interval (12 = hurricane force).
-  if (u === 'beaufort' || u === 'bft') {
-    const b = Math.max(0, Math.min(12, Math.round(v)));
+  const v2 = Number(value);
+  if (!Number.isFinite(v2)) return NaN;
+  const u3 = String(unit || "m/s").trim().toLowerCase();
+  if (u3 === "m/s" || u3 === "mps" || u3 === "ms") return v2;
+  if (u3 === "km/h" || u3 === "kmh" || u3 === "kph") return v2 / 3.6;
+  if (u3 === "mph") return v2 * 0.44704;
+  if (u3 === "kn" || u3 === "kt" || u3 === "kts" || u3 === "knot" || u3 === "knots") return v2 * 0.514444;
+  if (u3 === "ft/s" || u3 === "fps") return v2 * 0.3048;
+  if (u3 === "beaufort" || u3 === "bft") {
+    const b3 = Math.max(0, Math.min(12, Math.round(v2)));
     const ranges = [
-      [0,0.2],[0.3,1.5],[1.6,3.3],[3.4,5.4],[5.5,7.9],[8.0,10.7],
-      [10.8,13.8],[13.9,17.1],[17.2,20.7],[20.8,24.4],[24.5,28.4],
-      [28.5,32.6],[32.7,36.9],
+      [0, 0.2],
+      [0.3, 1.5],
+      [1.6, 3.3],
+      [3.4, 5.4],
+      [5.5, 7.9],
+      [8, 10.7],
+      [10.8, 13.8],
+      [13.9, 17.1],
+      [17.2, 20.7],
+      [20.8, 24.4],
+      [24.5, 28.4],
+      [28.5, 32.6],
+      [32.7, 36.9]
     ];
-    return (ranges[b][0] + ranges[b][1]) / 2;
+    return (ranges[b3][0] + ranges[b3][1]) / 2;
   }
   console.warn(`[Aurora Weather Card] Unknown wind speed unit "${unit}"; assuming m/s.`);
-  return v;
+  return v2;
 }
-
-
-
-
 function solarEventUtc(date, latitude, longitude, sunrise = true) {
   const lat = Number(latitude), lon = Number(longitude);
   if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
   const rad = Math.PI / 180, deg = 180 / Math.PI;
   const start = Date.UTC(date.getUTCFullYear(), 0, 0);
-  const day = Math.floor((Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) - start) / 86400000);
+  const day = Math.floor((Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) - start) / 864e5);
   const lngHour = lon / 15;
-  const t = day + (((sunrise ? 6 : 18) - lngHour) / 24);
-  const M = (0.9856 * t) - 3.289;
-  let L = M + 1.916 * Math.sin(M * rad) + 0.020 * Math.sin(2 * M * rad) + 282.634;
-  L = (L + 360) % 360;
-  let RA = Math.atan(0.91764 * Math.tan(L * rad)) * deg;
+  const t3 = day + ((sunrise ? 6 : 18) - lngHour) / 24;
+  const M2 = 0.9856 * t3 - 3.289;
+  let L2 = M2 + 1.916 * Math.sin(M2 * rad) + 0.02 * Math.sin(2 * M2 * rad) + 282.634;
+  L2 = (L2 + 360) % 360;
+  let RA = Math.atan(0.91764 * Math.tan(L2 * rad)) * deg;
   RA = (RA + 360) % 360;
-  RA = (RA + (Math.floor(L / 90) * 90 - Math.floor(RA / 90) * 90)) / 15;
-  const sinDec = 0.39782 * Math.sin(L * rad);
+  RA = (RA + (Math.floor(L2 / 90) * 90 - Math.floor(RA / 90) * 90)) / 15;
+  const sinDec = 0.39782 * Math.sin(L2 * rad);
   const cosDec = Math.cos(Math.asin(sinDec));
   const cosH = (Math.cos(90.833 * rad) - sinDec * Math.sin(lat * rad)) / (cosDec * Math.cos(lat * rad));
   if (cosH > 1 || cosH < -1) return null;
-  let H = sunrise ? 360 - Math.acos(cosH) * deg : Math.acos(cosH) * deg;
-  H /= 15;
-  let utcHour = H + RA - 0.06571 * t - 6.622 - lngHour;
+  let H2 = sunrise ? 360 - Math.acos(cosH) * deg : Math.acos(cosH) * deg;
+  H2 /= 15;
+  let utcHour = H2 + RA - 0.06571 * t3 - 6.622 - lngHour;
   utcHour = (utcHour + 24) % 24;
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) + utcHour * 3600000);
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) + utcHour * 36e5);
 }
-
 function formatInTimeZone(date, timeZone) {
-  if (!(date instanceof Date) || !Number.isFinite(date.getTime())) return '–';
+  if (!(date instanceof Date) || !Number.isFinite(date.getTime())) return "\u2013";
   try {
-    return new Intl.DateTimeFormat('nb-NO', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:timeZone || undefined }).format(date);
-  } catch (_) { return date.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); }
+    return new Intl.DateTimeFormat("nb-NO", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: timeZone || void 0 }).format(date);
+  } catch (_2) {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
 }
-
 function hourInTimeZone(date, timeZone) {
   try {
-    const v = new Intl.DateTimeFormat('en-GB', { hour:'2-digit', hour12:false, timeZone:timeZone || undefined })
-      .formatToParts(date).find(p => p.type === 'hour')?.value;
-    const n = Number(v); return Number.isFinite(n) ? n % 24 : date.getHours();
-  } catch (_) { return date.getHours(); }
+    const v2 = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", hour12: false, timeZone: timeZone || void 0 }).formatToParts(date).find((p3) => p3.type === "hour")?.value;
+    const n4 = Number(v2);
+    return Number.isFinite(n4) ? n4 % 24 : date.getHours();
+  } catch (_2) {
+    return date.getHours();
+  }
 }
-
-
-class AuroraWeatherCardEditor extends LitElement {
-  static properties = {
-    hass: { attribute: false },
-    config: { state: true },
-    activeTab: { state: true },
-    diagnostic: { state: true },
-    geocodingDiagnostic: { state: true },
-  };
-
+var AuroraWeatherCardEditor = class extends i4 {
   constructor() {
     super();
     this.config = {};
-    this.activeTab = 'config';
+    this.activeTab = "config";
     this.diagnostic = null;
     this.geocodingDiagnostic = null;
-    this._geocodeDebounceTimer = undefined;
+    this._geocodeDebounceTimer = void 0;
   }
-
   setConfig(config) {
     this.config = { ...config };
   }
-
   _emitConfig(config) {
     this.config = config;
-    this.dispatchEvent(new CustomEvent('config-changed', {
+    this.dispatchEvent(new CustomEvent("config-changed", {
       detail: { config },
       bubbles: true,
-      composed: true,
+      composed: true
     }));
   }
-
   _setValue(key, value) {
     this._emitConfig({ ...this.config, [key]: value });
   }
-
   _renderTabs() {
     const tabs = [
-      ['config', 'CONFIG'],
-      ['appearance', 'APPEARANCE'],
-      ['graph', 'GRAPH'],
-      ['advanced', 'ADVANCED'],
+      ["config", "CONFIG"],
+      ["appearance", "APPEARANCE"],
+      ["graph", "GRAPH"],
+      ["advanced", "ADVANCED"]
     ];
-    return html`
+    return b2`
       <div class="editor-tabs">
-        ${tabs.map(([id, label]) => html`
+        ${tabs.map(([id, label]) => b2`
           <button
             type="button"
-            class="editor-tab ${this.activeTab === id ? 'active' : ''}"
-            @click=${() => { this.activeTab = id; }}
+            class="editor-tab ${this.activeTab === id ? "active" : ""}"
+            @click=${() => {
+      this.activeTab = id;
+    }}
           >${label}</button>
         `)}
       </div>
     `;
   }
-
   _renderConfigTab() {
-    const entities = Object.values(this.hass?.states || {})
-      .filter((state) => state.entity_id?.startsWith('weather.'))
-      .sort((a, b) => {
-        const an = a.attributes?.friendly_name || a.entity_id;
-        const bn = b.attributes?.friendly_name || b.entity_id;
-        return an.localeCompare(bn, 'nb');
-      });
-
-    return html`
+    const entities = Object.values(this.hass?.states || {}).filter((state) => state.entity_id?.startsWith("weather.")).sort((a3, b3) => {
+      const an = a3.attributes?.friendly_name || a3.entity_id;
+      const bn = b3.attributes?.friendly_name || b3.entity_id;
+      return an.localeCompare(bn, "nb");
+    });
+    return b2`
       <section class="editor-section">
         <h3>VÆRKILDE</h3>
         <label class="field-label">Velg vær-entitet</label>
         <select
           class="editor-input"
-          .value=${this.config?.entity || ''}
-          @change=${(event) => this._setValue('entity', event.target.value)}
+          .value=${this.config?.entity || ""}
+          @change=${(event) => this._setValue("entity", event.target.value)}
         >
           <option value="">Velg vær-entitet</option>
-          ${entities.map((state) => html`
+          ${entities.map((state) => b2`
             <option
               value=${state.entity_id}
               ?selected=${state.entity_id === this.config?.entity}
@@ -325,7 +865,7 @@ class AuroraWeatherCardEditor extends LitElement {
           <input
             class="editor-input"
             type="text"
-            .value=${this.config?.location_name || ''}
+            .value=${this.config?.location_name || ""}
             @input=${this._onLocationNameInput}
           />
           <button
@@ -338,49 +878,48 @@ class AuroraWeatherCardEditor extends LitElement {
         </div>
         <div class="helper">Påkrevd. Skriv det geografiske stedsnavnet. Aurora søker automatisk mens du skriver; søkeikonet kan brukes manuelt ved behov.</div>
 
-        ${this.geocodingDiagnostic?.loading ? html`
+        ${this.geocodingDiagnostic?.loading ? b2`
           <div class="location-search-status">Søker …</div>
-        ` : this.geocodingDiagnostic?.error ? html`
+        ` : this.geocodingDiagnostic?.error ? b2`
           <div class="location-search-status error">${this.geocodingDiagnostic.error}</div>
-        ` : this.geocodingDiagnostic?.count > 1 ? html`
+        ` : this.geocodingDiagnostic?.count > 1 ? b2`
           <div class="location-picker">
             <div class="location-picker-title">VELG RIKTIG STED</div>
-            ${(this.geocodingDiagnostic.results || []).map((r) => html`
-              <button type="button" @click=${() => this._selectGeocodingResult(r)}>
-                <b>${[r.name, r.admin1, r.country].filter(Boolean).join(', ')}</b>
-                <small>${r.latitude}, ${r.longitude} · ${r.timezone || 'ukjent tidssone'}</small>
+            ${(this.geocodingDiagnostic.results || []).map((r4) => b2`
+              <button type="button" @click=${() => this._selectGeocodingResult(r4)}>
+                <b>${[r4.name, r4.admin1, r4.country].filter(Boolean).join(", ")}</b>
+                <small>${r4.latitude}, ${r4.longitude} · ${r4.timezone || "ukjent tidssone"}</small>
               </button>
             `)}
           </div>
-        ` : this.geocodingDiagnostic && this.geocodingDiagnostic.count === 0 ? html`
+        ` : this.geocodingDiagnostic && this.geocodingDiagnostic.count === 0 ? b2`
           <div class="location-search-status error">Ingen treff. Kontroller Stedsnavn og søk igjen.</div>
-        ` : nothing}
-        ${this.config?.geocoded_location ? html`
+        ` : A}
+        ${this.config?.geocoded_location ? b2`
           <div class="resolved-location">
             <b>AUTOMATISK LOKASJON</b>
             <span>${this.config.geocoded_location}</span>
-            <small>${this.config.latitude}, ${this.config.longitude} · ${this.config.time_zone || 'ukjent tidssone'}</small>
+            <small>${this.config.latitude}, ${this.config.longitude} · ${this.config.time_zone || "ukjent tidssone"}</small>
           </div>
-        ` : nothing}
+        ` : A}
       </section>
     `;
   }
-
   _renderAppearanceTab() {
-    const theme = this.config?.theme || 'aurora_dynamic';
+    const theme = this.config?.theme || "aurora_dynamic";
     const themes = [
-      ['aurora_dynamic', 'Aurora Dynamic', 'Levende dag/natt'],
-      ['aurora_static', 'Aurora Static', 'Fast Aurora-look'],
+      ["aurora_dynamic", "Aurora Dynamic", "Levende dag/natt"],
+      ["aurora_static", "Aurora Static", "Fast Aurora-look"]
     ];
-    return html`
+    return b2`
       <section class="editor-section">
         <h3>TEMA</h3>
         <div class="theme-grid">
-          ${themes.map(([value, title, subtitle]) => html`
+          ${themes.map(([value, title, subtitle]) => b2`
             <button
               type="button"
-              class="theme-card ${theme === value ? 'selected' : ''}"
-              @click=${() => this._setValue('theme', value)}
+              class="theme-card ${theme === value ? "selected" : ""}"
+              @click=${() => this._setValue("theme", value)}
             >
               <span class="theme-orb"></span>
               <span class="theme-copy">
@@ -400,19 +939,18 @@ class AuroraWeatherCardEditor extends LitElement {
       </section>
     `;
   }
-
   _renderGraphTab() {
     const hours = Number(this.config?.hours) || 48;
-    return html`
+    return b2`
       <section class="editor-section">
         <h3>TIMER</h3>
         <label class="field-label">Antall timer</label>
         <div class="segmented">
-          ${[24, 48].map((value) => html`
+          ${[24, 48].map((value) => b2`
             <button
               type="button"
-              class="${hours === value ? 'active' : ''}"
-              @click=${() => this._setValue('hours', value)}
+              class="${hours === value ? "active" : ""}"
+              @click=${() => this._setValue("hours", value)}
             >${value}</button>
           `)}
         </div>
@@ -421,13 +959,13 @@ class AuroraWeatherCardEditor extends LitElement {
       <section class="editor-section">
         <h3>VIS I GRAFEN</h3>
         ${[
-          ['show_temperature', 'Temperatur'],
-          ['show_precipitation', 'Nedbør'],
-          ['show_wind', 'Vind'],
-          ['show_wind_gust', 'Vindkast'],
-          ['show_wind_direction', 'Vindretning'],
-          ['show_weather_icons', 'Værikoner'],
-        ].map(([key, label]) => html`
+      ["show_temperature", "Temperatur"],
+      ["show_precipitation", "Nedb\xF8r"],
+      ["show_wind", "Vind"],
+      ["show_wind_gust", "Vindkast"],
+      ["show_wind_direction", "Vindretning"],
+      ["show_weather_icons", "V\xE6rikoner"]
+    ].map(([key, label]) => b2`
           <label class="graph-toggle">
             <span>${label}</span>
             <input type="checkbox" role="switch"
@@ -441,61 +979,64 @@ class AuroraWeatherCardEditor extends LitElement {
       </section>
     `;
   }
-
   async _runLocationDiagnostic() {
     const entityId = this.config?.entity;
     const state = this.hass?.states?.[entityId];
     const attrs = state?.attributes || {};
     const result = {
-      entity: entityId || '–',
-      platform: 'unknown',
-      configEntry: 'not exposed',
-      latitude: attrs.latitude ?? attrs.lat ?? attrs.location?.latitude ?? attrs.location?.lat ?? 'not exposed',
-      longitude: attrs.longitude ?? attrs.lon ?? attrs.lng ?? attrs.location?.longitude ?? attrs.location?.lon ?? attrs.location?.lng ?? 'not exposed',
-      timeZone: attrs.time_zone ?? attrs.timezone ?? attrs.location?.time_zone ?? attrs.location?.timezone ?? 'not exposed',
-      source: 'weather state attributes',
+      entity: entityId || "\u2013",
+      platform: "unknown",
+      configEntry: "not exposed",
+      latitude: attrs.latitude ?? attrs.lat ?? attrs.location?.latitude ?? attrs.location?.lat ?? "not exposed",
+      longitude: attrs.longitude ?? attrs.lon ?? attrs.lng ?? attrs.location?.longitude ?? attrs.location?.lon ?? attrs.location?.lng ?? "not exposed",
+      timeZone: attrs.time_zone ?? attrs.timezone ?? attrs.location?.time_zone ?? attrs.location?.timezone ?? "not exposed",
+      source: "weather state attributes"
     };
-
     try {
       if (entityId && this.hass?.callWS) {
-        const registry = await this.hass.callWS({ type: 'config/entity_registry/get', entity_id: entityId });
+        const registry = await this.hass.callWS({ type: "config/entity_registry/get", entity_id: entityId });
         if (registry) {
-          result.platform = registry.platform || registry.integration || 'unknown';
-          result.configEntry = registry.config_entry_id || 'not exposed';
-          result.deviceId = registry.device_id || '–';
-          result.areaId = registry.area_id || '–';
-          result.source = 'entity registry + weather state attributes';
-
+          result.platform = registry.platform || registry.integration || "unknown";
+          result.configEntry = registry.config_entry_id || "not exposed";
+          result.deviceId = registry.device_id || "\u2013";
+          result.areaId = registry.area_id || "\u2013";
+          result.source = "entity registry + weather state attributes";
           if (registry.config_entry_id) {
             try {
               const response = await this.hass.callWS({
-                type: 'config_entries/get_single',
-                entry_id: registry.config_entry_id,
+                type: "config_entries/get_single",
+                entry_id: registry.config_entry_id
               });
               const entry = response?.config_entry || response || {};
-              result.entryDomain = entry.domain || 'not exposed';
-              result.entryTitle = entry.title || 'not exposed';
-              result.entryState = entry.state || 'not exposed';
-              result.entrySource = entry.source || 'not exposed';
-              result.entryHasData = Object.prototype.hasOwnProperty.call(entry, 'data') ? 'YES' : 'NO';
-              result.entryHasOptions = Object.prototype.hasOwnProperty.call(entry, 'options') ? 'YES' : 'NO';
-
+              result.entryDomain = entry.domain || "not exposed";
+              result.entryTitle = entry.title || "not exposed";
+              result.entryState = entry.state || "not exposed";
+              result.entrySource = entry.source || "not exposed";
+              result.entryHasData = Object.prototype.hasOwnProperty.call(entry, "data") ? "YES" : "NO";
+              result.entryHasOptions = Object.prototype.hasOwnProperty.call(entry, "options") ? "YES" : "NO";
               const entryData = entry.data || {};
               const entryOptions = entry.options || {};
-              const pick = (...values) => values.find((v) => v !== undefined && v !== null && v !== '');
-
+              const pick = (...values) => values.find((v2) => v2 !== void 0 && v2 !== null && v2 !== "");
               result.entryLatitude = pick(
-                entryData.latitude, entryData.lat,
-                entryOptions.latitude, entryOptions.lat,
-              ) ?? 'not exposed';
+                entryData.latitude,
+                entryData.lat,
+                entryOptions.latitude,
+                entryOptions.lat
+              ) ?? "not exposed";
               result.entryLongitude = pick(
-                entryData.longitude, entryData.lon, entryData.lng,
-                entryOptions.longitude, entryOptions.lon, entryOptions.lng,
-              ) ?? 'not exposed';
+                entryData.longitude,
+                entryData.lon,
+                entryData.lng,
+                entryOptions.longitude,
+                entryOptions.lon,
+                entryOptions.lng
+              ) ?? "not exposed";
               result.entryTimeZone = pick(
-                entryData.time_zone, entryData.timezone,
-                entryOptions.time_zone, entryOptions.timezone,
-              ) ?? 'not exposed';
+                entryData.time_zone,
+                entryData.timezone,
+                entryOptions.time_zone,
+                entryOptions.timezone
+              ) ?? "not exposed";
             } catch (error) {
               result.configEntryError = error?.message || String(error);
             }
@@ -505,136 +1046,112 @@ class AuroraWeatherCardEditor extends LitElement {
     } catch (error) {
       result.registryError = error?.message || String(error);
     }
-
     this.diagnostic = result;
   }
-
   _cleanPlaceName(value) {
-    let name = String(value || '').trim();
-    // Strip known Home Assistant/MET Norwegian prefixes explicitly.
-    // Avoid clever regex here: "Værvarsel" must remain Unicode-safe.
-    const lower = name.toLocaleLowerCase('nb-NO');
-    if (lower.startsWith('værvarsel ')) {
-      name = name.slice('Værvarsel '.length).trim();
-    } else if (lower.startsWith('værvasel ')) {
-      name = name.slice('Værvasel '.length).trim();
-    } else if (lower.startsWith('vær ')) {
-      name = name.slice('Vær '.length).trim();
+    let name = String(value || "").trim();
+    const lower = name.toLocaleLowerCase("nb-NO");
+    if (lower.startsWith("v\xE6rvarsel ")) {
+      name = name.slice("V\xE6rvarsel ".length).trim();
+    } else if (lower.startsWith("v\xE6rvasel ")) {
+      name = name.slice("V\xE6rvasel ".length).trim();
+    } else if (lower.startsWith("v\xE6r ")) {
+      name = name.slice("V\xE6r ".length).trim();
     }
     const words = name.split(/\s+/).filter(Boolean);
     if (words.length >= 2 && words.length % 2 === 0) {
       const half = words.length / 2;
-      const a = words.slice(0, half).join(' ');
-      const b = words.slice(half).join(' ');
-      if (a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0) name = a;
+      const a3 = words.slice(0, half).join(" ");
+      const b3 = words.slice(half).join(" ");
+      if (a3.localeCompare(b3, void 0, { sensitivity: "accent" }) === 0) name = a3;
     }
     return name;
   }
-
   _onLocationNameInput(event) {
     const value = event.target.value;
-    this._setValue('location_name', value);
-
+    this._setValue("location_name", value);
     if (this._geocodeDebounceTimer) clearTimeout(this._geocodeDebounceTimer);
     this.geocodingDiagnostic = null;
-
-    const place = String(value || '').trim();
+    const place = String(value || "").trim();
     if (place.length < 3) {
       this.requestUpdate();
       return;
     }
-
     this._geocodeDebounceTimer = window.setTimeout(() => {
       this._runGeocodingDiagnostic();
     }, 650);
   }
-
   async _runGeocodingDiagnostic() {
-    const place = String(this.config?.location_name || '').trim();
-
+    const place = String(this.config?.location_name || "").trim();
     if (!place) {
       this.geocodingDiagnostic = {
-        error: 'Stedsnavn må fylles ut før Aurora kan søke etter lokasjonen.'
+        error: "Stedsnavn m\xE5 fylles ut f\xF8r Aurora kan s\xF8ke etter lokasjonen."
       };
       this.requestUpdate();
       return;
     }
-
     this.geocodingDiagnostic = { loading: true, query: place };
     this.requestUpdate();
-
     try {
-      const url =
-        'https://geocoding-api.open-meteo.com/v1/search?name=' +
-        encodeURIComponent(place) +
-        '&count=10&language=en&format=json';
-
+      const url = "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(place) + "&count=10&language=en&format=json";
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
       const results = Array.isArray(payload?.results) ? payload.results : [];
-
-      const mappedResults = results.map((r) => ({
-        name: r.name,
-        admin1: r.admin1 || '',
-        country: r.country || '',
-        countryCode: r.country_code || '',
-        latitude: r.latitude,
-        longitude: r.longitude,
-        elevation: r.elevation,
-        timezone: r.timezone || '',
-        population: r.population,
+      const mappedResults = results.map((r4) => ({
+        name: r4.name,
+        admin1: r4.admin1 || "",
+        country: r4.country || "",
+        countryCode: r4.country_code || "",
+        latitude: r4.latitude,
+        longitude: r4.longitude,
+        elevation: r4.elevation,
+        timezone: r4.timezone || "",
+        population: r4.population
       }));
-
       this.geocodingDiagnostic = {
         query: place,
         count: mappedResults.length,
-        results: mappedResults,
+        results: mappedResults
       };
-
       if (mappedResults.length === 1) {
         this._selectGeocodingResult(mappedResults[0]);
       }
     } catch (error) {
       this.geocodingDiagnostic = {
         query: place,
-        error: error?.message || String(error),
+        error: error?.message || String(error)
       };
     }
     this.requestUpdate();
   }
-
   _selectGeocodingResult(result) {
     if (!result) return;
-    const locationLabel = [result.name, result.admin1, result.country].filter(Boolean).join(', ');
+    const locationLabel = [result.name, result.admin1, result.country].filter(Boolean).join(", ");
     const config = {
       ...this.config,
       location_name: result.name || this.config?.location_name,
       latitude: Number(result.latitude),
       longitude: Number(result.longitude),
       time_zone: result.timezone || this.config?.time_zone,
-      geocoded_location: locationLabel,
+      geocoded_location: locationLabel
     };
     this._emitConfig(config);
     this.geocodingDiagnostic = {
-      ...(this.geocodingDiagnostic || {}),
+      ...this.geocodingDiagnostic || {},
       selected: {
         name: result.name,
         admin1: result.admin1,
         country: result.country,
         latitude: result.latitude,
         longitude: result.longitude,
-        timezone: result.timezone,
-      },
+        timezone: result.timezone
+      }
     };
   }
-
   _renderAdvancedTab() {
-    const hasLocation =
-      Number.isFinite(Number(this.config?.latitude)) &&
-      Number.isFinite(Number(this.config?.longitude));
-
-    return html`
+    const hasLocation = Number.isFinite(Number(this.config?.latitude)) && Number.isFinite(Number(this.config?.longitude));
+    return b2`
       <section class="editor-section">
         <h3>LOKAL TID & SOL</h3>
 
@@ -643,16 +1160,16 @@ class AuroraWeatherCardEditor extends LitElement {
           Feltene under er manuell fallback hvis automatisk lokasjon må overstyres.
         </div>
 
-        ${hasLocation ? html`
+        ${hasLocation ? b2`
           <div class="advanced-status">
             <b>AKTIV LOKASJON</b>
-            <span>${this.config?.geocoded_location || this.config?.location_name || 'Valgt sted'}</span>
+            <span>${this.config?.geocoded_location || this.config?.location_name || "Valgt sted"}</span>
             <small>
               ${this.config?.latitude}, ${this.config?.longitude}
-              ${this.config?.time_zone ? ` · ${this.config.time_zone}` : ''}
+              ${this.config?.time_zone ? ` \xB7 ${this.config.time_zone}` : ""}
             </small>
           </div>
-        ` : html`
+        ` : b2`
           <div class="advanced-status muted">
             <b>INGEN LOKASJON LAGRET</b>
             <span>Gå til CONFIG og søk etter Stedsnavn.</span>
@@ -668,11 +1185,11 @@ class AuroraWeatherCardEditor extends LitElement {
           class="editor-input"
           type="number"
           step="0.0001"
-          .value=${this.config?.latitude ?? ''}
+          .value=${this.config?.latitude ?? ""}
           @change=${(event) => this._setValue(
-            'latitude',
-            event.target.value === '' ? undefined : Number(event.target.value),
-          )}
+      "latitude",
+      event.target.value === "" ? void 0 : Number(event.target.value)
+    )}
         />
 
         <label class="field-label field-gap">Lengdegrad</label>
@@ -680,11 +1197,11 @@ class AuroraWeatherCardEditor extends LitElement {
           class="editor-input"
           type="number"
           step="0.0001"
-          .value=${this.config?.longitude ?? ''}
+          .value=${this.config?.longitude ?? ""}
           @change=${(event) => this._setValue(
-            'longitude',
-            event.target.value === '' ? undefined : Number(event.target.value),
-          )}
+      "longitude",
+      event.target.value === "" ? void 0 : Number(event.target.value)
+    )}
         />
 
         <label class="field-label field-gap">Tidssone</label>
@@ -692,8 +1209,8 @@ class AuroraWeatherCardEditor extends LitElement {
           class="editor-input"
           type="text"
           placeholder="Europe/Oslo"
-          .value=${this.config?.time_zone || ''}
-          @change=${(event) => this._setValue('time_zone', event.target.value)}
+          .value=${this.config?.time_zone || ""}
+          @change=${(event) => this._setValue("time_zone", event.target.value)}
         />
 
         <div class="helper">
@@ -702,15 +1219,13 @@ class AuroraWeatherCardEditor extends LitElement {
       </section>
     `;
   }
-
   disconnectedCallback() {
     super.disconnectedCallback();
     if (this._geocodeDebounceTimer) clearTimeout(this._geocodeDebounceTimer);
-    this._geocodeDebounceTimer = undefined;
+    this._geocodeDebounceTimer = void 0;
   }
-
   render() {
-    return html`
+    return b2`
       <div class="editor-shell">
         <div class="editor-header">
           <span class="editor-logo">
@@ -734,23 +1249,30 @@ class AuroraWeatherCardEditor extends LitElement {
           </span>
           <div>
             <div class="editor-title">Aurora Weather Card Configuration</div>
-            <div class="editor-version">v1.3.0</div>
+            <div class="editor-version">v1.3.1</div>
           </div>
         </div>
 
         ${this._renderTabs()}
 
         <div class="editor-body">
-          ${this.activeTab === 'config' ? this._renderConfigTab() : nothing}
-          ${this.activeTab === 'appearance' ? this._renderAppearanceTab() : nothing}
-          ${this.activeTab === 'graph' ? this._renderGraphTab() : nothing}
-          ${this.activeTab === 'advanced' ? this._renderAdvancedTab() : nothing}
+          ${this.activeTab === "config" ? this._renderConfigTab() : A}
+          ${this.activeTab === "appearance" ? this._renderAppearanceTab() : A}
+          ${this.activeTab === "graph" ? this._renderGraphTab() : A}
+          ${this.activeTab === "advanced" ? this._renderAdvancedTab() : A}
         </div>
       </div>
     `;
   }
-
-  static styles = css`
+};
+__publicField(AuroraWeatherCardEditor, "properties", {
+  hass: { attribute: false },
+  config: { state: true },
+  activeTab: { state: true },
+  diagnostic: { state: true },
+  geocodingDiagnostic: { state: true }
+});
+__publicField(AuroraWeatherCardEditor, "styles", i`
     .graph-toggle { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 0; cursor:pointer; }
     .graph-toggle input { width:38px; height:22px; margin:0; accent-color:var(--primary-color, #2aa8ff); cursor:pointer; }
 
@@ -1178,296 +1700,288 @@ class AuroraWeatherCardEditor extends LitElement {
       .editor-tab { font-size: 8.5px; }
       .editor-body { padding-inline: 12px; }
     }
-  `;
-}
-
-
-class AuroraWeatherCard extends LitElement {
+  `);
+var AuroraWeatherCard = class extends i4 {
   _cleanPlaceName(value) {
-    let name = String(value || '').trim();
-    // Strip known Home Assistant/MET Norwegian prefixes explicitly.
-    // Avoid clever regex here: "Værvarsel" must remain Unicode-safe.
-    const lower = name.toLocaleLowerCase('nb-NO');
-    if (lower.startsWith('værvarsel ')) {
-      name = name.slice('Værvarsel '.length).trim();
-    } else if (lower.startsWith('værvasel ')) {
-      name = name.slice('Værvasel '.length).trim();
-    } else if (lower.startsWith('vær ')) {
-      name = name.slice('Vær '.length).trim();
+    let name = String(value || "").trim();
+    const lower = name.toLocaleLowerCase("nb-NO");
+    if (lower.startsWith("v\xE6rvarsel ")) {
+      name = name.slice("V\xE6rvarsel ".length).trim();
+    } else if (lower.startsWith("v\xE6rvasel ")) {
+      name = name.slice("V\xE6rvasel ".length).trim();
+    } else if (lower.startsWith("v\xE6r ")) {
+      name = name.slice("V\xE6r ".length).trim();
     }
     const words = name.split(/\s+/).filter(Boolean);
     if (words.length >= 2 && words.length % 2 === 0) {
       const half = words.length / 2;
-      const a = words.slice(0, half).join(' ');
-      const b = words.slice(half).join(' ');
-      if (a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0) name = a;
+      const a3 = words.slice(0, half).join(" ");
+      const b3 = words.slice(half).join(" ");
+      if (a3.localeCompare(b3, void 0, { sensitivity: "accent" }) === 0) name = a3;
     }
     return name;
   }
-
   static async getConfigElement() {
-    return document.createElement('aurora-weather-card-editor-v1-3-0');
+    return document.createElement("aurora-weather-card-editor-v1-3-1");
   }
-
-  static properties = {
-    hass: { attribute: false },
-    config: { state: true },
-    status: { state: true },
-    forecast: { state: true },
-    errorMessage: { state: true },
-    containerWidth: { state: true },
-    expanded: { state: true },
-  };
-
-
   static getConfigForm() {
     return {
       schema: [
         {
-          name: 'entity',
+          name: "entity",
           required: true,
-          selector: { entity: { filter: { domain: 'weather' } } },
+          selector: { entity: { filter: { domain: "weather" } } }
         },
-        { name: 'location_name', selector: { text: {} } },
-        { name: 'latitude', selector: { number: { mode: 'box', step: 0.0001 } } },
-        { name: 'longitude', selector: { number: { mode: 'box', step: 0.0001 } } },
-        { name: 'time_zone', selector: { text: {} } },
+        { name: "location_name", selector: { text: {} } },
+        { name: "latitude", selector: { number: { mode: "box", step: 1e-4 } } },
+        { name: "longitude", selector: { number: { mode: "box", step: 1e-4 } } },
+        { name: "time_zone", selector: { text: {} } },
         {
-          name: 'hours',
+          name: "hours",
           selector: {
             select: {
-              mode: 'dropdown',
+              mode: "dropdown",
               options: [
-                { value: 24, label: '24 timer' },
-                { value: 48, label: '48 timer' },
-              ],
-            },
-          },
+                { value: 24, label: "24 timer" },
+                { value: 48, label: "48 timer" }
+              ]
+            }
+          }
         },
         {
-          name: 'theme',
+          name: "theme",
           selector: {
             select: {
-              mode: 'dropdown',
+              mode: "dropdown",
               options: [
-                { value: 'aurora_dynamic', label: 'Aurora Dynamic' },
-                { value: 'aurora_static', label: 'Aurora Static' },
-              ],
-            },
-          },
-        },
+                { value: "aurora_dynamic", label: "Aurora Dynamic" },
+                { value: "aurora_static", label: "Aurora Static" }
+              ]
+            }
+          }
+        }
       ],
       computeLabel: (schema) => ({
-        entity: 'Værkilde',
-        location_name: 'Stedsnavn',
-        latitude: 'Breddegrad',
-        longitude: 'Lengdegrad',
-        time_zone: 'Tidssone',
-        hours: 'Antall timer',
-        theme: 'Bakgrunn',
-      }[schema.name]),
+        entity: "V\xE6rkilde",
+        location_name: "Stedsnavn",
+        latitude: "Breddegrad",
+        longitude: "Lengdegrad",
+        time_zone: "Tidssone",
+        hours: "Antall timer",
+        theme: "Bakgrunn"
+      })[schema.name],
       computeHelper: (schema) => ({
-        location_name: 'Valgfritt. Hvis feltet er tomt brukes navnet fra værentiteten.',
-        latitude: 'Valgfritt. Brukes sammen med lengdegrad for riktige soltider.',
-        longitude: 'Valgfritt. Brukes sammen med breddegrad for riktige soltider.',
-        time_zone: 'Valgfritt, f.eks. Europe/Athens.',
-      }[schema.name]),
+        location_name: "Valgfritt. Hvis feltet er tomt brukes navnet fra v\xE6rentiteten.",
+        latitude: "Valgfritt. Brukes sammen med lengdegrad for riktige soltider.",
+        longitude: "Valgfritt. Brukes sammen med breddegrad for riktige soltider.",
+        time_zone: "Valgfritt, f.eks. Europe/Athens."
+      })[schema.name]
     };
   }
-
   static getStubConfig() {
     return {
-      entity: '',
-      location_name: '',
-      latitude: undefined,
-      longitude: undefined,
-      time_zone: '',
+      entity: "",
+      location_name: "",
+      latitude: void 0,
+      longitude: void 0,
+      time_zone: "",
       hours: 48,
-      theme: 'aurora_dynamic',
+      theme: "aurora_dynamic"
     };
   }
-
   constructor() {
     super();
-    this.status = 'idle';
+    this.status = "idle";
     this.forecast = [];
-    this.errorMessage = '';
+    this.errorMessage = "";
     this.containerWidth = 760;
-    this._resizeObserver = undefined;
+    this._resizeObserver = void 0;
     this.expanded = false;
-    this._onKeyDown = (event) => { if (event.key === 'Escape' && this.expanded) this.closeExpanded(); };
+    this._onKeyDown = (event) => {
+      if (event.key === "Escape" && this.expanded) this.closeExpanded();
+    };
   }
-
   setConfig(config) {
-    if (config?.entity && !config.entity.startsWith('weather.')) throw new Error('entity må være en weather.*-entitet');
-    this.config = { hours: 48, theme: 'aurora_dynamic', ...config };
+    if (config?.entity && !config.entity.startsWith("weather.")) throw new Error("entity m\xE5 v\xE6re en weather.*-entitet");
+    const entityChanged = this.config?.entity !== config?.entity;
+    this.config = { hours: 48, theme: "aurora_dynamic", ...config };
     if (Number(this.config.hours) > 48) this.config.hours = 48;
-    this.loadedForEntity = undefined;
-    this.forecast = [];
-    this.status = 'idle';
+    if (entityChanged) {
+      this._stopForecastSubscription();
+      this.forecast = [];
+      this.status = "idle";
+      this.errorMessage = "";
+    }
   }
-
-  getCardSize() { return 4; }
-
+  getCardSize() {
+    return 4;
+  }
   getGridOptions() {
     return {
       columns: 12,
       rows: 5,
       min_columns: 4,
-      min_rows: 4,
+      min_rows: 4
     };
   }
-
   connectedCallback() {
     super.connectedCallback();
-    window.addEventListener('keydown', this._onKeyDown);
+    window.addEventListener("keydown", this._onKeyDown);
     this._scheduleNextMinuteRefresh();
+    void this.loadForecastIfNeeded();
   }
-
   _scheduleNextMinuteRefresh() {
     if (this._minuteRefreshTimer) clearTimeout(this._minuteRefreshTimer);
-
-    const now = new Date();
+    const now = /* @__PURE__ */ new Date();
     const nextMinute = new Date(now);
     nextMinute.setSeconds(0, 250);
     nextMinute.setMinutes(now.getMinutes() + 1);
-
     this._minuteRefreshTimer = window.setTimeout(() => {
       this.requestUpdate();
       this._scheduleNextMinuteRefresh();
-    }, Math.max(1000, nextMinute.getTime() - now.getTime()));
+    }, Math.max(1e3, nextMinute.getTime() - now.getTime()));
   }
-
   firstUpdated() {
     const measure = () => {
       const width = Math.round(this.getBoundingClientRect().width || 0);
       if (width > 0 && Math.abs(width - this.containerWidth) > 2) this.containerWidth = width;
     };
     measure();
-    if ('ResizeObserver' in window) {
+    if ("ResizeObserver" in window) {
       this._resizeObserver = new ResizeObserver(() => measure());
       this._resizeObserver.observe(this);
     }
   }
-
   disconnectedCallback() {
     super.disconnectedCallback();
-    window.removeEventListener('keydown', this._onKeyDown);
+    window.removeEventListener("keydown", this._onKeyDown);
+    this._stopForecastSubscription();
     if (this._minuteRefreshTimer) clearTimeout(this._minuteRefreshTimer);
-    this._minuteRefreshTimer = undefined;
+    this._minuteRefreshTimer = void 0;
     this._resizeObserver?.disconnect();
-    this._resizeObserver = undefined;
+    this._resizeObserver = void 0;
   }
-
   updated() {
     void this.loadForecastIfNeeded();
   }
-
-  async loadForecastIfNeeded() {
-    const entity = this.config?.entity;
-    if (!this.hass || !entity || this.status === 'loading' || this.loadedForEntity === entity) return;
-    this.status = 'loading';
-    this.errorMessage = '';
+  _unsubscribeForecast(unsubscribe) {
     try {
-      this.forecast = await fetchHourlyForecast(this.hass, entity);
-      this.loadedForEntity = entity;
-      this.status = 'ok';
-      console.info('[Aurora 1.0] Forecast loaded:', this.forecast.length);
+      Promise.resolve(unsubscribe()).catch((error) => console.warn("[Aurora] Forecast cleanup:", error));
     } catch (error) {
-      this.status = 'error';
-      this.errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('[Aurora 1.0] Forecast error:', error);
+      console.warn("[Aurora] Forecast cleanup:", error);
     }
   }
-
+  _stopForecastSubscription() {
+    const subscription = this._forecastSubscription;
+    this._forecastSubscription = void 0;
+    if (this._forecastRetryTimer) clearTimeout(this._forecastRetryTimer);
+    this._forecastRetryTimer = void 0;
+    if (subscription?.unsubscribe) this._unsubscribeForecast(subscription.unsubscribe);
+  }
+  async loadForecastIfNeeded() {
+    const entity = this.config?.entity;
+    const connection = this.hass?.connection;
+    if (!this.isConnected) return;
+    const previous = this._forecastSubscription;
+    if (previous?.entity === entity && previous?.connection === connection) return;
+    this._stopForecastSubscription();
+    if (!entity || !connection) return;
+    const subscription = { entity, connection };
+    this._forecastSubscription = subscription;
+    const isCurrent = () => this.isConnected && this._forecastSubscription === subscription && this.config?.entity === entity && this.hass?.connection === connection;
+    this.forecast = [];
+    this.status = "loading";
+    this.errorMessage = "";
+    try {
+      const unsubscribe = await connection.subscribeMessage((event) => {
+        if (!isCurrent()) return;
+        this.forecast = Array.isArray(event?.forecast) ? event.forecast : [];
+        this.status = "ok";
+        this.errorMessage = "";
+      }, { type: "weather/subscribe_forecast", forecast_type: "hourly", entity_id: entity });
+      if (!isCurrent()) {
+        this._unsubscribeForecast(unsubscribe);
+        return;
+      }
+      subscription.unsubscribe = unsubscribe;
+    } catch (error) {
+      if (!isCurrent()) return;
+      this.status = "error";
+      this.errorMessage = error?.message || String(error);
+      this._forecastRetryTimer = window.setTimeout(() => {
+        this._forecastRetryTimer = void 0;
+        if (!isCurrent()) return;
+        this._stopForecastSubscription();
+        void this.loadForecastIfNeeded();
+      }, 3e4);
+    }
+  }
   graphData() {
     const hours = Math.max(6, Math.min(Number(this.config?.hours) || 48, 48));
     const entityState = this.hass?.states?.[this.config?.entity];
-    const windUnit = entityState?.attributes?.wind_speed_unit || 'm/s';
-
-    const now = new Date();
+    const windUnit = entityState?.attributes?.wind_speed_unit || "m/s";
+    const now = /* @__PURE__ */ new Date();
     now.setMinutes(0, 0, 0);
-
-    return this.forecast
-      .filter((item) => {
-        const forecastTime = new Date(item.datetime);
-        return Number.isFinite(forecastTime.getTime()) && forecastTime >= now;
-      })
-      .slice(0, hours)
-      .map((item) => ({
-        time: new Date(item.datetime),
-        temperature: Number(item.temperature),
-        precipitation: Number(item.precipitation ?? 0),
-        windSpeed: windToMs(item.wind_speed, windUnit),
-        windGust: windToMs(item.wind_gust_speed, windUnit),
-        windBearing: Number(item.wind_bearing),
-        condition: item.condition || 'cloudy',
-      }))
-      .filter((item) => Number.isFinite(item.time.getTime()) && Number.isFinite(item.temperature));
+    return this.forecast.filter((item) => {
+      const forecastTime = new Date(item.datetime);
+      return Number.isFinite(forecastTime.getTime()) && forecastTime >= now;
+    }).slice(0, hours).map((item) => ({
+      time: new Date(item.datetime),
+      temperature: Number(item.temperature),
+      precipitation: Number(item.precipitation ?? 0),
+      windSpeed: windToMs(item.wind_speed, windUnit),
+      windGust: windToMs(item.wind_gust_speed, windUnit),
+      windBearing: Number(item.wind_bearing),
+      condition: item.condition || "cloudy"
+    })).filter((item) => Number.isFinite(item.time.getTime()) && Number.isFinite(item.temperature));
   }
-
-
   atmosphereClass() {
-    if (this.config?.theme === 'aurora_static') return 'atmosphere-static';
+    if (this.config?.theme === "aurora_static") return "atmosphere-static";
     const entityState = this.hass?.states?.[this.config?.entity];
-    const condition = String(entityState?.state || 'cloudy');
-    const month = new Date().getMonth() + 1;
-    const season = [12,1,2].includes(month) ? 'winter' : [3,4,5].includes(month) ? 'spring' : [6,7,8].includes(month) ? 'summer' : 'autumn';
+    const condition = String(entityState?.state || "cloudy");
+    const month = (/* @__PURE__ */ new Date()).getMonth() + 1;
+    const season = [12, 1, 2].includes(month) ? "winter" : [3, 4, 5].includes(month) ? "spring" : [6, 7, 8].includes(month) ? "summer" : "autumn";
     const location = this._effectiveLocation();
     const lat = location.latitude, lon = location.longitude;
     const hasLocation = Number.isFinite(lat) && Number.isFinite(lon);
     const timeZone = location.timeZone;
-    const now = new Date();
+    const now = /* @__PURE__ */ new Date();
     let isNight;
     if (hasLocation) {
       const rise = solarEventUtc(now, lat, lon, true), set = solarEventUtc(now, lat, lon, false);
-      isNight = rise && set ? (now < rise || now >= set) : (hourInTimeZone(now, timeZone) < 6 || hourInTimeZone(now, timeZone) >= 21);
+      isNight = rise && set ? now < rise || now >= set : hourInTimeZone(now, timeZone) < 6 || hourInTimeZone(now, timeZone) >= 21;
     } else {
-      const sunState = this.hass?.states?.['sun.sun']?.state;
-      const h = hourInTimeZone(now, timeZone);
-      isNight = condition === 'clear-night' || sunState === 'below_horizon' || h < 6 || h >= 21;
+      const sunState = this.hass?.states?.["sun.sun"]?.state;
+      const h3 = hourInTimeZone(now, timeZone);
+      isNight = condition === "clear-night" || sunState === "below_horizon" || h3 < 6 || h3 >= 21;
     }
-    const weather =
-      condition.includes('lightning') || condition.includes('thunder') ? 'storm'
-      : condition.includes('rain') || condition === 'pouring' ? 'rain'
-      : condition.includes('snow') || condition === 'hail' ? 'snow'
-      : condition === 'fog' ? 'fog'
-      : condition.includes('wind') ? 'windy'
-      : condition === 'sunny' ? 'sunny'
-      : condition === 'clear-night' ? 'clear'
-      : condition === 'partlycloudy' ? 'partlycloudy' : 'cloudy';
-    return `atmosphere-dynamic season-${season} weather-${weather} ${isNight ? 'night' : 'day'}`;
+    const weather = condition.includes("lightning") || condition.includes("thunder") ? "storm" : condition.includes("rain") || condition === "pouring" ? "rain" : condition.includes("snow") || condition === "hail" ? "snow" : condition === "fog" ? "fog" : condition.includes("wind") ? "windy" : condition === "sunny" ? "sunny" : condition === "clear-night" ? "clear" : condition === "partlycloudy" ? "partlycloudy" : "cloudy";
+    return `atmosphere-dynamic season-${season} weather-${weather} ${isNight ? "night" : "day"}`;
   }
-
   openExpanded() {
-    if (this.status === 'ok') this.expanded = true;
+    if (this.status === "ok") this.expanded = true;
   }
-
   closeExpanded() {
     this.expanded = false;
   }
-
   _weatherLocation() {
     const state = this.hass?.states?.[this.config?.entity];
     const attrs = state?.attributes || {};
-
     const firstNumber = (...values) => {
       for (const value of values) {
         const number = Number(value);
         if (Number.isFinite(number)) return number;
       }
-      return undefined;
+      return void 0;
     };
-
     const latitude = firstNumber(
       attrs.latitude,
       attrs.lat,
       attrs.location?.latitude,
       attrs.location?.lat,
       attrs.coordinates?.latitude,
-      attrs.coordinates?.lat,
+      attrs.coordinates?.lat
     );
-
     const longitude = firstNumber(
       attrs.longitude,
       attrs.lon,
@@ -1477,99 +1991,90 @@ class AuroraWeatherCard extends LitElement {
       attrs.location?.lng,
       attrs.coordinates?.longitude,
       attrs.coordinates?.lon,
-      attrs.coordinates?.lng,
+      attrs.coordinates?.lng
     );
-
-    const timeZone =
-      attrs.time_zone ||
-      attrs.timezone ||
-      attrs.location?.time_zone ||
-      attrs.location?.timezone ||
-      undefined;
-
+    const timeZone = attrs.time_zone || attrs.timezone || attrs.location?.time_zone || attrs.location?.timezone || void 0;
     return { latitude, longitude, timeZone };
   }
-
   _effectiveLocation() {
     const automatic = this._weatherLocation();
     const manualLat = Number(this.config?.latitude);
     const manualLon = Number(this.config?.longitude);
-
     return {
-      latitude: Number.isFinite(automatic.latitude)
-        ? automatic.latitude
-        : (Number.isFinite(manualLat) ? manualLat : undefined),
-      longitude: Number.isFinite(automatic.longitude)
-        ? automatic.longitude
-        : (Number.isFinite(manualLon) ? manualLon : undefined),
-      timeZone: automatic.timeZone || this.config?.time_zone || this.hass?.config?.time_zone || undefined,
-      automatic: Number.isFinite(automatic.latitude) && Number.isFinite(automatic.longitude),
+      latitude: Number.isFinite(automatic.latitude) ? automatic.latitude : Number.isFinite(manualLat) ? manualLat : void 0,
+      longitude: Number.isFinite(automatic.longitude) ? automatic.longitude : Number.isFinite(manualLon) ? manualLon : void 0,
+      timeZone: automatic.timeZone || this.config?.time_zone || this.hass?.config?.time_zone || void 0,
+      automatic: Number.isFinite(automatic.latitude) && Number.isFinite(automatic.longitude)
     };
   }
-
   _cardTimeZone() {
     return this._effectiveLocation().timeZone;
   }
-
   _localParts(date) {
     const timeZone = this._cardTimeZone();
     try {
-      const parts = new Intl.DateTimeFormat('en-CA', {
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', hour12: false,
-        timeZone,
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone
       }).formatToParts(date);
-      const get = (type) => parts.find((p) => p.type === type)?.value;
+      const get = (type) => parts.find((p3) => p3.type === type)?.value;
       return {
-        year: Number(get('year')),
-        month: Number(get('month')),
-        day: Number(get('day')),
-        hour: Number(get('hour')) % 24,
-        minute: Number(get('minute')),
+        year: Number(get("year")),
+        month: Number(get("month")),
+        day: Number(get("day")),
+        hour: Number(get("hour")) % 24,
+        minute: Number(get("minute"))
       };
     } catch (_error) {
       return {
-        year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate(),
-        hour: date.getHours(), minute: date.getMinutes(),
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+        hour: date.getHours(),
+        minute: date.getMinutes()
       };
     }
   }
-
   _localDayKey(date) {
-    const p = this._localParts(date);
-    return `${p.year}-${String(p.month).padStart(2,'0')}-${String(p.day).padStart(2,'0')}`;
+    const p3 = this._localParts(date);
+    return `${p3.year}-${String(p3.month).padStart(2, "0")}-${String(p3.day).padStart(2, "0")}`;
   }
-
   _localHour(date) {
     return this._localParts(date).hour;
   }
-
-  _formatLocalClock(date = new Date()) {
+  _formatLocalClock(date = /* @__PURE__ */ new Date()) {
     try {
-      return new Intl.DateTimeFormat('nb-NO', {
-        hour: '2-digit',
-        minute: '2-digit',
+      return new Intl.DateTimeFormat("nb-NO", {
+        hour: "2-digit",
+        minute: "2-digit",
         hour12: false,
-        timeZone: this._cardTimeZone(),
+        timeZone: this._cardTimeZone()
       }).format(date);
     } catch (_error) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
   }
-
   _formatLocalDay(date) {
     try {
-      return new Intl.DateTimeFormat('nb-NO', {
-        weekday: 'short', day: 'numeric', month: 'short',
-        timeZone: this._cardTimeZone(),
+      return new Intl.DateTimeFormat("nb-NO", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        timeZone: this._cardTimeZone()
       }).format(date);
     } catch (_error) {
-      return new Intl.DateTimeFormat('nb-NO', {
-        weekday: 'short', day: 'numeric', month: 'short',
+      return new Intl.DateTimeFormat("nb-NO", {
+        weekday: "short",
+        day: "numeric",
+        month: "short"
       }).format(date);
     }
   }
-
   renderGraph(expanded = false) {
     const showTemperature = this.config?.show_temperature !== false;
     const showPrecipitation = this.config?.show_precipitation !== false;
@@ -1578,31 +2083,18 @@ class AuroraWeatherCard extends LitElement {
     const showWindDirection = this.config?.show_wind_direction !== false;
     const showWeatherIcons = this.config?.show_weather_icons !== false;
     const data = this.graphData();
-    if (data.length < 2) return html`<div class="message">For få temperaturpunkter til å tegne graf.</div>`;
-
-    const measuredWidth = expanded
-      ? Math.max(640, Math.min(1320, Math.round(window.innerWidth * 0.88)))
-      : (Number(this.containerWidth) || 760);
-    const profile = measuredWidth < 600 ? 'mobile' : measuredWidth < 1000 ? 'tablet' : 'desktop';
+    if (data.length < 2) return b2`<div class="message">For få temperaturpunkter til å tegne graf.</div>`;
+    const measuredWidth = expanded ? Math.max(640, Math.min(1320, Math.round(window.innerWidth * 0.88))) : Number(this.containerWidth) || 760;
+    const profile = measuredWidth < 600 ? "mobile" : measuredWidth < 1e3 ? "tablet" : "desktop";
     const width = Math.max(320, Math.min(1600, measuredWidth - 20));
-    // give the wind section more vertical room in normal view.
-    // The extra height is added only below the temperature/precipitation section.
-    const compactWindExtra = expanded ? 0 : (profile === 'mobile' ? 12 : profile === 'tablet' ? 16 : 18);
-    const height = expanded
-      ? (profile === 'mobile' ? 330 : profile === 'tablet' ? 430 : 500)
-      : (profile === 'mobile' ? 174 : profile === 'tablet' ? 206 : 238) + compactWindExtra;
-    const left = profile === 'mobile' ? 38 : profile === 'tablet' ? 48 : 58;
-    const right = profile === 'mobile' ? 12 : profile === 'tablet' ? 20 : 28;
-    const top = expanded
-      ? (profile === 'mobile' ? 78 : profile === 'tablet' ? 88 : 96)
-      : (profile === 'mobile' ? 52 : profile === 'tablet' ? 58 : 62);
-    const bottom = expanded
-      ? (profile === 'mobile' ? 54 : profile === 'tablet' ? 60 : 65)
-      : (profile === 'mobile' ? 40 : profile === 'tablet' ? 44 : 47);
-    const gap = expanded ? (profile === 'mobile' ? 18 : profile === 'tablet' ? 26 : 30) : (profile === 'mobile' ? 18 : 20);
+    const compactWindExtra = expanded ? 0 : profile === "mobile" ? 12 : profile === "tablet" ? 16 : 18;
+    const height = expanded ? profile === "mobile" ? 330 : profile === "tablet" ? 430 : 500 : (profile === "mobile" ? 174 : profile === "tablet" ? 206 : 238) + compactWindExtra;
+    const left = profile === "mobile" ? 38 : profile === "tablet" ? 48 : 58;
+    const right = profile === "mobile" ? 12 : profile === "tablet" ? 20 : 28;
+    const top = expanded ? profile === "mobile" ? 78 : profile === "tablet" ? 88 : 96 : profile === "mobile" ? 52 : profile === "tablet" ? 58 : 62;
+    const bottom = expanded ? profile === "mobile" ? 54 : profile === "tablet" ? 60 : 65 : profile === "mobile" ? 40 : profile === "tablet" ? 44 : 47;
+    const gap = expanded ? profile === "mobile" ? 18 : profile === "tablet" ? 26 : 30 : profile === "mobile" ? 18 : 20;
     const available = height - top - bottom - gap;
-    // Preserve the old temperature/rain height in normal view.
-    // All added vertical space goes to the wind section.
     const compactBaseAvailable = available - compactWindExtra;
     const weatherHeight = expanded ? available * 0.66 : compactBaseAvailable * 0.68;
     const windHeight = expanded ? available * 0.34 : available - weatherHeight;
@@ -1610,9 +2102,8 @@ class AuroraWeatherCard extends LitElement {
     const windTop = weatherBottom + gap;
     const windBottom = windTop + windHeight;
     const plotWidth = width - left - right;
-
-    const rawMin = Math.min(...data.map((d) => d.temperature));
-    const rawMax = Math.max(...data.map((d) => d.temperature));
+    const rawMin = Math.min(...data.map((d3) => d3.temperature));
+    const rawMax = Math.max(...data.map((d3) => d3.temperature));
     let minTemp = Math.floor((rawMin - 1) / 2) * 2;
     let maxTemp = Math.ceil((rawMax + 1) / 2) * 2;
     if (maxTemp - minTemp < 4) {
@@ -1620,16 +2111,11 @@ class AuroraWeatherCard extends LitElement {
       minTemp = Math.floor((mid - 2) / 2) * 2;
       maxTemp = Math.ceil((mid + 2) / 2) * 2;
     }
-
-    const x = (index) => left + (index / (data.length - 1)) * plotWidth;
-    const yTemp = (temperature) => top + ((maxTemp - temperature) / (maxTemp - minTemp)) * weatherHeight;
-    const tempPoints = data.map((d, index) => ({ x: x(index), y: yTemp(d.temperature) }));
+    const x2 = (index) => left + index / (data.length - 1) * plotWidth;
+    const yTemp = (temperature) => top + (maxTemp - temperature) / (maxTemp - minTemp) * weatherHeight;
+    const tempPoints = data.map((d3, index) => ({ x: x2(index), y: yTemp(d3.temperature) }));
     const tempPath = smoothPath(tempPoints);
-
-    const maxRainRaw = Math.max(...data.map((d) => Number.isFinite(d.precipitation) ? d.precipitation : 0), 0);
-
-    // Adaptive Yr-like precipitation scale.
-    // Low precipitation now gets a tighter scale instead of always being locked to 0-2-4 mm.
+    const maxRainRaw = Math.max(...data.map((d3) => Number.isFinite(d3.precipitation) ? d3.precipitation : 0), 0);
     let maxRain;
     let rainStep;
     if (maxRainRaw <= 1) {
@@ -1645,60 +2131,39 @@ class AuroraWeatherCard extends LitElement {
       maxRain = Math.ceil(maxRainRaw / 2) * 2;
       rainStep = 2;
     }
-
-    const rainY = (value) => top + ((maxRain - value) / maxRain) * weatherHeight;
+    const rainY = (value) => top + (maxRain - value) / maxRain * weatherHeight;
     const rainTicks = [];
-    for (let value = 0; value <= maxRain + 0.0001; value += rainStep) rainTicks.push(value);
+    for (let value = 0; value <= maxRain + 1e-4; value += rainStep) rainTicks.push(value);
     const barStep = plotWidth / Math.max(1, data.length - 1);
-    const barWidth = Math.max(2.2, Math.min(11, barStep * 0.60));
-
-    const validWind = data.filter((d) => Number.isFinite(d.windSpeed));
-    const validGust = data.filter((d) => Number.isFinite(d.windGust));
+    const barWidth = Math.max(2.2, Math.min(11, barStep * 0.6));
+    const validWind = data.filter((d3) => Number.isFinite(d3.windSpeed));
+    const validGust = data.filter((d3) => Number.isFinite(d3.windGust));
     const maxWindRaw = Math.max(
-      ...validWind.map((d) => d.windSpeed),
-      ...validGust.map((d) => d.windGust),
-      0,
+      ...validWind.map((d3) => d3.windSpeed),
+      ...validGust.map((d3) => d3.windGust),
+      0
     );
     const maxWind = Math.max(18, Math.ceil(maxWindRaw / 6) * 6);
-    const yWind = (value) => windBottom - (Math.max(0, value) / maxWind) * windHeight;
-    // Yr-like wind scale: 0, 6, 12, 18 ... in the entity's wind-speed unit.
+    const yWind = (value) => windBottom - Math.max(0, value) / maxWind * windHeight;
     const windTicks = [];
     for (let value = 0; value <= maxWind; value += 6) windTicks.push(value);
-    const windPoints = data
-      .map((d, index) => ({ x: x(index), y: Number.isFinite(d.windSpeed) ? yWind(d.windSpeed) : null }))
-      .filter((p) => p.y !== null);
-    const windPath = windPoints.length > 1 ? smoothPath(windPoints) : '';
-    const gustPoints = data
-      .map((d, index) => ({ x: x(index), y: Number.isFinite(d.windGust) ? yWind(d.windGust) : null }))
-      .filter((p) => p.y !== null);
-    const gustPath = gustPoints.length > 1 ? smoothPath(gustPoints) : '';
-
+    const windPoints = data.map((d3, index) => ({ x: x2(index), y: Number.isFinite(d3.windSpeed) ? yWind(d3.windSpeed) : null })).filter((p3) => p3.y !== null);
+    const windPath = windPoints.length > 1 ? smoothPath(windPoints) : "";
+    const gustPoints = data.map((d3, index) => ({ x: x2(index), y: Number.isFinite(d3.windGust) ? yWind(d3.windGust) : null })).filter((p3) => p3.y !== null);
+    const gustPath = gustPoints.length > 1 ? smoothPath(gustPoints) : "";
     const yTicks = [];
     for (let value = minTemp; value <= maxTemp; value += 2) yTicks.push(value);
-
-    // Responsive timeline: compact 4h, expanded 2h.
     const timelineStep = expanded ? 2 : 4;
-    // Wind-direction arrows use exactly the same positions.
-    const timeLabels = data
-      .map((d, index) => ({ d, index }))
-      .filter(({ d }) => this._localHour(d.time) % timelineStep === 0);
-
-    const dayStarts = data
-      .map((d, index) => ({ d, index }))
-      .filter(({ d, index }) => index === 0 || this._localDayKey(d.time) !== this._localDayKey(data[index - 1].time));
-    const daySegments = dayStarts.map((start, i) => ({
+    const timeLabels = data.map((d3, index) => ({ d: d3, index })).filter(({ d: d3 }) => this._localHour(d3.time) % timelineStep === 0);
+    const dayStarts = data.map((d3, index) => ({ d: d3, index })).filter(({ d: d3, index }) => index === 0 || this._localDayKey(d3.time) !== this._localDayKey(data[index - 1].time));
+    const daySegments = dayStarts.map((start, i5) => ({
       ...start,
-      endIndex: i < dayStarts.length - 1 ? dayStarts[i + 1].index - 1 : data.length - 1,
+      endIndex: i5 < dayStarts.length - 1 ? dayStarts[i5 + 1].index - 1 : data.length - 1
     }));
-
-    // Keep weather icons aligned with the Yr-like 2-hour time scale.
-    const iconPoints = data
-      .map((d, index) => ({ d, index }))
-      .filter(({ d }) => this._localHour(d.time) % timelineStep === 0);
-
-    return html`
+    const iconPoints = data.map((d3, index) => ({ d: d3, index })).filter(({ d: d3 }) => this._localHour(d3.time) % timelineStep === 0);
+    return b2`
       <div class="chart-wrap">
-        <svg class="chart-svg ${profile} ${expanded ? 'expanded-chart' : ''}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Værikoner, temperatur, nedbør, vind og vindkast">
+        <svg class="chart-svg ${profile} ${expanded ? "expanded-chart" : ""}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Værikoner, temperatur, nedbør, vind og vindkast">
           <defs>
             <linearGradient id="tempArea" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#ff3038" stop-opacity="0.20"></stop>
@@ -1714,172 +2179,180 @@ class AuroraWeatherCard extends LitElement {
             </filter>
           </defs>
 
-          ${yTicks.map((value) => svg`
+          ${yTicks.map((value) => w`
             <line class="grid-line" x1="${left}" y1="${yTemp(value)}" x2="${width - right}" y2="${yTemp(value)}"></line>
             <text class="axis-label" x="${left - 10}" y="${yTemp(value) + 4}" text-anchor="end">${value}°</text>
           `)}
 
-          ${daySegments.map(({ d, index, endIndex }, segmentIndex) => svg`
-            ${segmentIndex > 0 ? svg`<line class="day-line" x1="${x(index)}" y1="${top}" x2="${x(index)}" y2="${windBottom}"></line>` : nothing}
-            <text class="day-label" x="${(x(index) + x(endIndex)) / 2}" y="${Math.max(16, top - (expanded ? 46 : 40))}" text-anchor="middle">${this._formatLocalDay(d.time)}</text>
+          ${daySegments.map(({ d: d3, index, endIndex }, segmentIndex) => w`
+            ${segmentIndex > 0 ? w`<line class="day-line" x1="${x2(index)}" y1="${top}" x2="${x2(index)}" y2="${windBottom}"></line>` : A}
+            <text class="day-label" x="${(x2(index) + x2(endIndex)) / 2}" y="${Math.max(16, top - (expanded ? 46 : 40))}" text-anchor="middle">${this._formatLocalDay(d3.time)}</text>
           `)}
 
-          ${(showWeatherIcons ? iconPoints : []).map(({ d, index }) => svg`
-            <g class="weather-icon" transform="translate(${x(index) - (expanded ? 20 : 16)} ${top - (expanded ? 34 : 29)}) scale(${expanded ? .74 : .5})">${weatherIconSvg(d.condition)}</g>
+          ${(showWeatherIcons ? iconPoints : []).map(({ d: d3, index }) => w`
+            <g class="weather-icon" transform="translate(${x2(index) - (expanded ? 20 : 16)} ${top - (expanded ? 34 : 29)}) scale(${expanded ? 0.74 : 0.5})">${weatherIconSvg(d3.condition)}</g>
           `)}
 
-          ${timeLabels.map(({ index }) => svg`
-            <line class="time-grid weather-time-grid" x1="${x(index)}" y1="${top}" x2="${x(index)}" y2="${weatherBottom}"></line>
-            <line class="time-grid wind-time-grid" x1="${x(index)}" y1="${windTop}" x2="${x(index)}" y2="${windBottom}"></line>
+          ${timeLabels.map(({ index }) => w`
+            <line class="time-grid weather-time-grid" x1="${x2(index)}" y1="${top}" x2="${x2(index)}" y2="${weatherBottom}"></line>
+            <line class="time-grid wind-time-grid" x1="${x2(index)}" y1="${windTop}" x2="${x2(index)}" y2="${windBottom}"></line>
           `)}
 
           <text class="rain-unit-label" x="${width - 4}" y="${top - 8}" text-anchor="end">mm</text>
-          ${rainTicks.map((value) => svg`
+          ${rainTicks.map((value) => w`
             <text class="rain-axis-label rain-axis-blue" x="${width - 4}" y="${rainY(value) + 4}" text-anchor="end">${Number.isInteger(value) ? value : value.toFixed(1)}</text>
           `)}
 
-          ${(showPrecipitation ? data : []).map((d, index) => {
-            const value = Number.isFinite(d.precipitation) ? d.precipitation : 0;
-            const yy = rainY(value);
-            return svg`<rect class="rain-bar" x="${x(index) - barWidth / 2}" y="${yy}" width="${barWidth}" height="${Math.max(0, weatherBottom - yy)}" rx="1.4"></rect>`;
-          })}
+          ${(showPrecipitation ? data : []).map((d3, index) => {
+      const value = Number.isFinite(d3.precipitation) ? d3.precipitation : 0;
+      const yy = rainY(value);
+      return w`<rect class="rain-bar" x="${x2(index) - barWidth / 2}" y="${yy}" width="${barWidth}" height="${Math.max(0, weatherBottom - yy)}" rx="1.4"></rect>`;
+    })}
 
-          ${showTemperature ? svg`<path class="temperature-area" d="${tempPath} L ${tempPoints.at(-1).x} ${weatherBottom} L ${tempPoints[0].x} ${weatherBottom} Z"></path>
-          <path class="temperature-line" d="${tempPath}" filter="url(#softGlow)"></path>` : nothing}
+          ${showTemperature ? w`<path class="temperature-area" d="${tempPath} L ${tempPoints.at(-1).x} ${weatherBottom} L ${tempPoints[0].x} ${weatherBottom} Z"></path>
+          <path class="temperature-line" d="${tempPath}" filter="url(#softGlow)"></path>` : A}
 
           <line class="wind-separator" x1="${left}" y1="${windTop - gap / 2}" x2="${width - right}" y2="${windTop - gap / 2}"></line>
-          ${windTicks.map((value) => svg`
+          ${windTicks.map((value) => w`
             <line class="wind-grid" x1="${left}" y1="${yWind(value)}" x2="${width - right}" y2="${yWind(value)}"></line>
             <text class="wind-axis-label" x="${left - 10}" y="${yWind(value) + 4}" text-anchor="end">${value}</text>
           `)}
-          ${expanded ? svg`<text class="wind-unit-label" x="${left - 10}" y="${windTop - Math.max(7, gap * 0.28)}" text-anchor="end">m/s</text>` : nothing}
-          ${showWind && windPath ? svg`<path class="wind-line" d="${windPath}" filter="url(#softGlow)"></path>` : nothing}
-          ${showGust && gustPath ? svg`<path class="gust-line" d="${gustPath}" filter="url(#softGlow)"></path>` : nothing}
+          ${expanded ? w`<text class="wind-unit-label" x="${left - 10}" y="${windTop - Math.max(7, gap * 0.28)}" text-anchor="end">m/s</text>` : A}
+          ${showWind && windPath ? w`<path class="wind-line" d="${windPath}" filter="url(#softGlow)"></path>` : A}
+          ${showGust && gustPath ? w`<path class="gust-line" d="${gustPath}" filter="url(#softGlow)"></path>` : A}
 
-          ${(showWindDirection ? timeLabels : []).map(({ d, index }) => Number.isFinite(d.windBearing) ? svg`
-            <g class="wind-direction" transform="translate(${x(index)} ${height - (expanded ? 31 : 24)}) rotate(${(d.windBearing + 180) % 360}) scale(${expanded ? 1.12 : .94})">
+          ${(showWindDirection ? timeLabels : []).map(({ d: d3, index }) => Number.isFinite(d3.windBearing) ? w`
+            <g class="wind-direction" transform="translate(${x2(index)} ${height - (expanded ? 31 : 24)}) rotate(${(d3.windBearing + 180) % 360}) scale(${expanded ? 1.12 : 0.94})">
               <path d="M 0 -7 L 4.3 1.5 L 1.4 .6 L 1.4 6 L -1.4 6 L -1.4 .6 L -4.3 1.5 Z"></path>
             </g>
-          ` : nothing)}
+          ` : A)}
 
-          ${timeLabels.map(({ d, index }) => svg`
-            <text class="time-label" x="${x(index)}" y="${height - 11}" text-anchor="middle">${String(this._localHour(d.time)).padStart(2, '0')}</text>
+          ${timeLabels.map(({ d: d3, index }) => w`
+            <text class="time-label" x="${x2(index)}" y="${height - 11}" text-anchor="middle">${String(this._localHour(d3.time)).padStart(2, "0")}</text>
           `)}
         </svg>
       </div>
     `;
   }
-
   _expandedInfoData() {
-    const state=this.hass?.states?.[this.config?.entity];
-    const a=state?.attributes||{};
-    const data=this.graphData();
-    const now=data[0]||{};
-    const current=data[0]||null;
-    const today=new Date().toDateString();
-    const rainToday=data.filter(d=>d.time?.toDateString?.()===today)
-      .reduce((s,d)=>s+(Number(d.precipitation)||0),0);
-    const num=(...v)=>{ for(const x of v){ const n=Number(x); if(Number.isFinite(n)) return n; } return null; };
-    const bearing=num(now.windBearing,a.wind_bearing);
-    const dirs=['N','NØ','Ø','SØ','S','SV','V','NV'];
-    const dir=Number.isFinite(bearing)?dirs[Math.round((((bearing%360)+360)%360)/45)%8]:'–';
-    const dirArrow=Number.isFinite(bearing);
-    const dirRotation=Number.isFinite(bearing)?bearing:0;
-    const sun=this.hass?.states?.['sun.sun']?.attributes||{};
-    const location=this._effectiveLocation();
-    const lat=location.latitude, lon=location.longitude;
-    const hasLocation=Number.isFinite(lat)&&Number.isFinite(lon);
-    const timeZone=location.timeZone;
-    const solarDate=current?.time instanceof Date?current.time:new Date();
-    const localSunrise=hasLocation?solarEventUtc(solarDate,lat,lon,true):null;
-    const localSunset=hasLocation?solarEventUtc(solarDate,lat,lon,false):null;
-    const fmt=(v)=>{ if(!v)return '–'; const d=v instanceof Date?v:new Date(v); return formatInTimeZone(d,timeZone); };
+    const state = this.hass?.states?.[this.config?.entity];
+    const a3 = state?.attributes || {};
+    const data = this.graphData();
+    const now = data[0] || {};
+    const current = data[0] || null;
+    const today = (/* @__PURE__ */ new Date()).toDateString();
+    const rainToday = data.filter((d3) => d3.time?.toDateString?.() === today).reduce((s4, d3) => s4 + (Number(d3.precipitation) || 0), 0);
+    const num = (...v2) => {
+      for (const x2 of v2) {
+        const n4 = Number(x2);
+        if (Number.isFinite(n4)) return n4;
+      }
+      return null;
+    };
+    const bearing = num(now.windBearing, a3.wind_bearing);
+    const dirs = ["N", "N\xD8", "\xD8", "S\xD8", "S", "SV", "V", "NV"];
+    const dir = Number.isFinite(bearing) ? dirs[Math.round((bearing % 360 + 360) % 360 / 45) % 8] : "\u2013";
+    const dirArrow = Number.isFinite(bearing);
+    const dirRotation = Number.isFinite(bearing) ? bearing : 0;
+    const sun = this.hass?.states?.["sun.sun"]?.attributes || {};
+    const location = this._effectiveLocation();
+    const lat = location.latitude, lon = location.longitude;
+    const hasLocation = Number.isFinite(lat) && Number.isFinite(lon);
+    const timeZone = location.timeZone;
+    const solarDate = current?.time instanceof Date ? current.time : /* @__PURE__ */ new Date();
+    const localSunrise = hasLocation ? solarEventUtc(solarDate, lat, lon, true) : null;
+    const localSunset = hasLocation ? solarEventUtc(solarDate, lat, lon, false) : null;
+    const fmt = (v2) => {
+      if (!v2) return "\u2013";
+      const d3 = v2 instanceof Date ? v2 : new Date(v2);
+      return formatInTimeZone(d3, timeZone);
+    };
     return {
-      temp:current?.temperature ?? null, rainToday,
-      wind:num(now.windSpeed,windToMs(a.wind_speed,a.wind_speed_unit||'m/s')),
-      gust:num(now.windGust,windToMs(a.wind_gust_speed,a.wind_speed_unit||'m/s')),
-      humidity:num(a.humidity), pressure:num(a.pressure), dir, dirArrow, dirRotation,
-      sunrise:fmt(localSunrise||sun.next_rising), sunset:fmt(localSunset||sun.next_setting)
+      temp: current?.temperature ?? null,
+      rainToday,
+      wind: num(now.windSpeed, windToMs(a3.wind_speed, a3.wind_speed_unit || "m/s")),
+      gust: num(now.windGust, windToMs(a3.wind_gust_speed, a3.wind_speed_unit || "m/s")),
+      humidity: num(a3.humidity),
+      pressure: num(a3.pressure),
+      dir,
+      dirArrow,
+      dirRotation,
+      sunrise: fmt(localSunrise || sun.next_rising),
+      sunset: fmt(localSunset || sun.next_setting)
     };
   }
-
   _renderExpandedInfo() {
-    const d=this._expandedInfoData();
-    const val=(n,digits=1)=>Number.isFinite(n)?n.toFixed(digits):'–';
-
-    const thermometer=html`<svg class="metric-svg temp-svg" viewBox="0 0 48 48" aria-hidden="true">
+    const d3 = this._expandedInfoData();
+    const val = (n4, digits = 1) => Number.isFinite(n4) ? n4.toFixed(digits) : "\u2013";
+    const thermometer = b2`<svg class="metric-svg temp-svg" viewBox="0 0 48 48" aria-hidden="true">
       <path class="temp-outline" d="M22 8a4 4 0 0 1 8 0v20.7a9.5 9.5 0 1 1-8 0V8Z"/>
       <path class="temp-liquid" d="M26 14v18"/>
       <circle class="temp-liquid-bulb" cx="26" cy="35" r="5.1"/>
       <path class="temp-tick" d="M31 16h4M31 21h3M31 26h4"/>
     </svg>`;
-    const rain=html`<svg class="metric-svg rain-svg" viewBox="0 0 52 48" aria-hidden="true">
+    const rain = b2`<svg class="metric-svg rain-svg" viewBox="0 0 52 48" aria-hidden="true">
       <path d="M13 27h27a8 8 0 0 0 .2-16 12 12 0 0 0-22.7 2.8A7 7 0 0 0 13 27Z"/>
       <path class="metric-accent" d="M17 32l-3 7M27 32l-3 7M37 32l-3 7"/>
     </svg>`;
-    const windIcon=(cls)=>html`<svg class="metric-svg ${cls}" viewBox="0 0 54 48" aria-hidden="true">
+    const windIcon = (cls) => b2`<svg class="metric-svg ${cls}" viewBox="0 0 54 48" aria-hidden="true">
       <path d="M5 15h29c8 0 8-10 1-10-4 0-6 2-7 5"/>
       <path d="M5 24h38c9 0 9 12 1 12-5 0-7-3-7-6"/>
       <path d="M5 33h20"/>
     </svg>`;
-    const droplet=html`<svg class="metric-svg humidity-svg" viewBox="0 0 48 48" aria-hidden="true">
+    const droplet = b2`<svg class="metric-svg humidity-svg" viewBox="0 0 48 48" aria-hidden="true">
       <path class="metric-fill" d="M24 4C18 14 10 23 10 32a14 14 0 0 0 28 0C38 23 30 14 24 4Z"/>
     </svg>`;
-    const pressure=html`<svg class="metric-svg pressure-svg" viewBox="0 0 48 48" aria-hidden="true">
+    const pressure = b2`<svg class="metric-svg pressure-svg" viewBox="0 0 48 48" aria-hidden="true">
       <circle cx="24" cy="24" r="17"/><path d="M24 10v14h11"/><circle class="metric-fill" cx="24" cy="24" r="2.5"/>
     </svg>`;
-    const sun=html`<svg class="metric-svg sun-svg" viewBox="0 0 48 48" aria-hidden="true">
+    const sun = b2`<svg class="metric-svg sun-svg" viewBox="0 0 48 48" aria-hidden="true">
       <circle class="metric-fill" cx="24" cy="24" r="9"/>
       <path d="M24 4v6M24 38v6M4 24h6M38 24h6M10 10l5 5M33 33l5 5M38 10l-5 5M15 33l-5 5"/>
     </svg>`;
-
-    return html`<div class="expanded-info">
-      <div class="info-tile">${thermometer}<div><div class="info-label">Nå</div><div class="info-value">${val(d.temp)}°</div></div></div>
-      <div class="info-tile">${rain}<div><div class="info-label">Nedbør i dag</div><div class="info-value">${val(d.rainToday)} <small>mm</small></div></div></div>
-      <div class="info-tile">${windIcon('wind-svg')}<div><div class="info-label">Vind</div><div class="info-value">${val(d.wind)} <small>m/s</small></div><div class="info-sub wind-direction">${d.dirArrow ? html`<span class="dir-arrow" style="transform:rotate(${d.dirRotation}deg)"></span>` : nothing}<span>${d.dir}</span></div></div></div>
-      <div class="info-tile">${windIcon('gust-svg')}<div><div class="info-label">Vindkast</div><div class="info-value">${val(d.gust)} <small>m/s</small></div></div></div>
-      <div class="info-tile">${droplet}<div><div class="info-label">Luftfuktighet</div><div class="info-value">${val(d.humidity,0)}<small>%</small></div></div></div>
-      <div class="info-tile">${pressure}<div><div class="info-label">Lufttrykk</div><div class="info-value">${val(d.pressure,0)} <small>hPa</small></div></div></div>
-      <div class="info-tile">${sun}<div><div class="info-label">Sol</div><div class="info-value sun-value">${d.sunrise} / ${d.sunset}</div></div></div>
+    return b2`<div class="expanded-info">
+      <div class="info-tile">${thermometer}<div><div class="info-label">Nå</div><div class="info-value">${val(d3.temp)}°</div></div></div>
+      <div class="info-tile">${rain}<div><div class="info-label">Nedbør i dag</div><div class="info-value">${val(d3.rainToday)} <small>mm</small></div></div></div>
+      <div class="info-tile">${windIcon("wind-svg")}<div><div class="info-label">Vind</div><div class="info-value">${val(d3.wind)} <small>m/s</small></div><div class="info-sub wind-direction">${d3.dirArrow ? b2`<span class="dir-arrow" style="transform:rotate(${d3.dirRotation}deg)"></span>` : A}<span>${d3.dir}</span></div></div></div>
+      <div class="info-tile">${windIcon("gust-svg")}<div><div class="info-label">Vindkast</div><div class="info-value">${val(d3.gust)} <small>m/s</small></div></div></div>
+      <div class="info-tile">${droplet}<div><div class="info-label">Luftfuktighet</div><div class="info-value">${val(d3.humidity, 0)}<small>%</small></div></div></div>
+      <div class="info-tile">${pressure}<div><div class="info-label">Lufttrykk</div><div class="info-value">${val(d3.pressure, 0)} <small>hPa</small></div></div></div>
+      <div class="info-tile">${sun}<div><div class="info-label">Sol</div><div class="info-value sun-value">${d3.sunrise} / ${d3.sunset}</div></div></div>
     </div>`;
   }
-
   render() {
-    if (!this.config) return nothing;
-    const entityState = this.config.entity ? this.hass?.states[this.config.entity] : undefined;
-    const name = this._cleanPlaceName(this.config.location_name || entityState?.attributes?.friendly_name || this.config.entity || 'Velg værkilde');
+    if (!this.config) return A;
+    const entityState = this.config.entity ? this.hass?.states[this.config.entity] : void 0;
+    const name = this._cleanPlaceName(this.config.location_name || entityState?.attributes?.friendly_name || this.config.entity || "Velg v\xE6rkilde");
     const current = this.graphData()[0];
     const atmosphere = this.atmosphereClass();
-
     if (!this.config.entity) {
-      return html`<ha-card class="compact-card ${atmosphere}"><header><div><div class="brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span>Aurora</span></div><div class="title">Velg værkilde</div></div></header><main><div class="message">Velg en <b>weather.*</b>-entitet i korteditoren.</div></main></ha-card>`;
+      return b2`<ha-card class="compact-card ${atmosphere}"><header><div><div class="brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span>Aurora</span></div><div class="title">Velg værkilde</div></div></header><main><div class="message">Velg en <b>weather.*</b>-entitet i korteditoren.</div></main></ha-card>`;
     }
-
-    return html`
+    return b2`
       <ha-card class="compact-card ${atmosphere}" @click=${() => this.openExpanded()} title="Trykk for stor visning">
         <header>
           <div class="header-identity">
             <div class="brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span class="brand-copy"><span class="brand-name">Aurora</span><span class="brand-location">${name}<span class="brand-clock"> · ${this._formatLocalClock()}</span></span></span></div>
           </div>
-          ${current ? html`<div class="current">${current.temperature.toFixed(1)}°</div>` : nothing}
+          ${current ? b2`<div class="current">${current.temperature.toFixed(1)}°</div>` : A}
         </header>
 
         <main>
-          ${this.status === 'loading' ? html`<div class="message">Henter timeprognose …</div>` : nothing}
-          ${this.status === 'error' ? html`<div class="message error"><b>Feil:</b> ${this.errorMessage}</div>` : nothing}
-          ${this.status === 'ok' ? this.renderGraph(false) : nothing}
+          ${this.status === "loading" ? b2`<div class="message">Henter timeprognose …</div>` : A}
+          ${this.status === "error" ? b2`<div class="message error"><b>Feil:</b> ${this.errorMessage}</div>` : A}
+          ${this.status === "ok" ? this.renderGraph(false) : A}
         </main>
 
         <footer>
-          ${this.config?.show_temperature !== false ? html`<span class="legend-item"><span class="legend-dot temp"></span><span>Temperatur</span></span>` : nothing}
-          ${this.config?.show_precipitation !== false ? html`<span class="legend-item"><span class="legend-dot rain"></span><span>Nedbør</span></span>` : nothing}
-          ${this.config?.show_wind !== false ? html`<span class="legend-item"><span class="legend-dot wind"></span><span>Vind</span></span>` : nothing}
-          ${this.config?.show_wind_gust !== false ? html`<span class="legend-item"><span class="legend-dot gust"></span><span>Vindkast</span></span>` : nothing}
-          <span class="version">v1.3.0</span>
+          ${this.config?.show_temperature !== false ? b2`<span class="legend-item"><span class="legend-dot temp"></span><span>Temperatur</span></span>` : A}
+          ${this.config?.show_precipitation !== false ? b2`<span class="legend-item"><span class="legend-dot rain"></span><span>Nedbør</span></span>` : A}
+          ${this.config?.show_wind !== false ? b2`<span class="legend-item"><span class="legend-dot wind"></span><span>Vind</span></span>` : A}
+          ${this.config?.show_wind_gust !== false ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>Vindkast</span></span>` : A}
+          <span class="version">v1.3.1</span>
         </footer>
       </ha-card>
 
-      ${this.expanded ? html`
+      ${this.expanded ? b2`
         <div class="expand-backdrop" @click=${() => this.closeExpanded()}>
           <section class="expand-panel ${atmosphere}" role="dialog" aria-modal="true" aria-label="Utvidet værvarsel" @click=${(event) => event.stopPropagation()}>
             <button class="close-button" aria-label="Lukk stor visning" @click=${() => this.closeExpanded()}>×</button>
@@ -1887,24 +2360,33 @@ class AuroraWeatherCard extends LitElement {
               <div class="header-identity">
                 <div class="brand expanded-brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span class="brand-copy"><span class="brand-name">Aurora</span><span class="brand-location">${name}<span class="brand-clock"> · ${this._formatLocalClock()}</span></span></span></div>
               </div>
-              ${current ? html`<div class="expanded-current">${current.temperature.toFixed(1)}°</div>` : nothing}
+              ${current ? b2`<div class="expanded-current">${current.temperature.toFixed(1)}°</div>` : A}
             </header>
             <div class="expanded-body">${this.renderGraph(true)}
               ${this._renderExpandedInfo()}</div>
             <footer class="expanded-footer">
-              ${this.config?.show_temperature !== false ? html`<span class="legend-item"><span class="legend-dot temp"></span><span>Temperatur</span></span>` : nothing}
-              ${this.config?.show_precipitation !== false ? html`<span class="legend-item"><span class="legend-dot rain"></span><span>Nedbør</span></span>` : nothing}
-              ${this.config?.show_wind !== false ? html`<span class="legend-item"><span class="legend-dot wind"></span><span>Vind</span></span>` : nothing}
-              ${this.config?.show_wind_gust !== false ? html`<span class="legend-item"><span class="legend-dot gust"></span><span>Vindkast</span></span>` : nothing}
+              ${this.config?.show_temperature !== false ? b2`<span class="legend-item"><span class="legend-dot temp"></span><span>Temperatur</span></span>` : A}
+              ${this.config?.show_precipitation !== false ? b2`<span class="legend-item"><span class="legend-dot rain"></span><span>Nedbør</span></span>` : A}
+              ${this.config?.show_wind !== false ? b2`<span class="legend-item"><span class="legend-dot wind"></span><span>Vind</span></span>` : A}
+              ${this.config?.show_wind_gust !== false ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>Vindkast</span></span>` : A}
               <span class="expanded-note">${Math.min(Number(this.config?.hours) || 48, this.forecast.length)} timer tilgjengelig</span>
             </footer>
           </section>
         </div>
-      ` : nothing}
+      ` : A}
     `;
   }
-
-  static styles = css`
+};
+__publicField(AuroraWeatherCard, "properties", {
+  hass: { attribute: false },
+  config: { state: true },
+  status: { state: true },
+  forecast: { state: true },
+  errorMessage: { state: true },
+  containerWidth: { state: true },
+  expanded: { state: true }
+});
+__publicField(AuroraWeatherCard, "styles", i`
 
     :host { display: block; width: 100%; min-width: 0; }
     ha-card { --primary-text-color:#f4f8fc; --secondary-text-color:#aeb9c6; --secondary-background-color:rgba(255,255,255,.06); --error-color:#ff6b6b; color:#f4f8fc; position: relative; display: block; width: 100%; min-width: 0; box-sizing: border-box; overflow: hidden; border-radius: 18px; background: radial-gradient(120% 100% at 78% 0%, rgba(30,108,155,.10), transparent 48%), linear-gradient(145deg, rgba(23,30,38,.985), rgba(15,20,26,.995)); border: 1px solid rgba(125,170,205,.18); box-shadow: inset 0 1px 0 rgba(255,255,255,.035); }
@@ -2201,39 +2683,32 @@ class AuroraWeatherCard extends LitElement {
     .info-label{color:#cbd5df;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.info-value{color:#f5f8fb;font-size:18px;line-height:1.15;white-space:nowrap}.info-value small{font-size:10px;color:#c8d2dc}.info-sub{margin-top:2px;color:#aeb9c6;font-size:9px}.sun-value{font-size:13px}
     @media(max-width:900px){.expanded-info{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
-  `;
+  `);
+if (!customElements.get("aurora-weather-card-editor-v1-3-1")) {
+  customElements.define("aurora-weather-card-editor-v1-3-1", AuroraWeatherCardEditor);
 }
-
-
-if (!customElements.get('aurora-weather-card-editor-v1-3-0')) {
-  customElements.define('aurora-weather-card-editor-v1-3-0', AuroraWeatherCardEditor);
+if (!customElements.get("aurora-weather-card")) {
+  customElements.define("aurora-weather-card", AuroraWeatherCard);
 }
-
-if (!customElements.get('aurora-weather-card')) {
-  customElements.define('aurora-weather-card', AuroraWeatherCard);
-}
-
-// Register Aurora Weather Card v1.3.0 in the Home Assistant card picker.
 window.customCards = window.customCards || [];
-const auroraPickerEntry = {
-  type: 'aurora-weather-card',
-  name: 'Aurora Weather Card v1.3.0',
+var auroraPickerEntry = {
+  type: "aurora-weather-card",
+  name: "Aurora Weather Card v1.3.1",
   preview: false,
-  description: '24/48-timers værkort med temperatur, nedbør, vind, vindkast og Aurora-bakgrunn',
+  description: "24/48-timers v\xE6rkort med temperatur, nedb\xF8r, vind, vindkast og Aurora-bakgrunn",
   getEntitySuggestion: (_hass, entityId) => {
-    if (!entityId || !entityId.startsWith('weather.')) return null;
+    if (!entityId || !entityId.startsWith("weather.")) return null;
     return {
       config: {
-        type: 'custom:aurora-weather-card',
+        type: "custom:aurora-weather-card",
         entity: entityId,
         hours: 48,
-        theme: 'aurora_dynamic',
-      },
+        theme: "aurora_dynamic"
+      }
     };
-  },
+  }
 };
-const existingAuroraIndex = window.customCards.findIndex((card) => card.type === 'aurora-weather-card');
+var existingAuroraIndex = window.customCards.findIndex((card) => card.type === "aurora-weather-card");
 if (existingAuroraIndex >= 0) window.customCards.splice(existingAuroraIndex, 1, auroraPickerEntry);
 else window.customCards.push(auroraPickerEntry);
-
-console.info('%c AURORA WEATHER CARD v1.3.0 %c stable ', 'color:#fff;background:#1577d3;font-weight:700', 'color:#1577d3;background:#fff');
+console.info("%c AURORA WEATHER CARD v1.3.1 %c stable ", "color:#fff;background:#1577d3;font-weight:700", "color:#1577d3;background:#fff");

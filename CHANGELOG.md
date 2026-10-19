@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 This project follows Semantic Versioning.
 
+## [1.3.1] - 2026-10-19
+
+### Fixed
+- Bundle Lit in the distribution file so the card loads without a public CDN.
+- Subscribe to hourly forecast updates instead of fetching the forecast only once.
+- Clean up subscriptions on disconnect and entity changes, ignore stale responses, and retry failed subscriptions.
+- Preserve automatic updates in both compact and expanded views.
+
+### Build
+- Add editable source, an esbuild bundle script, a dependency lockfile and regression tests.
+
 ## [1.3.0] - 2026-09-24
 
 ### Added
