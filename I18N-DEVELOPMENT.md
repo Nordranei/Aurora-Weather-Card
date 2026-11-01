@@ -56,6 +56,27 @@ Translation keys: https://github.com/home-assistant/frontend/blob/dev/src/transl
 
 ## Home Assistant test, one step at a time
 
+### Isolated test resource (recommended alongside a stable installation)
+
+Run `node build-dev.mjs` to produce `dist/aurora-weather-card-i18n-dev.js`.
+Copy this file into Home Assistant's `www` directory and register
+`/local/aurora-weather-card-i18n-dev.js?v=1.3.1-i18n-dev.2` as a JavaScript module.
+Choose **Aurora Weather Card — I18N TEST** in the card picker, or use
+`type: custom:aurora-weather-card-i18n-dev`.
+
+This build uses a separate card element and editor element; the stable resource
+and existing cards can remain loaded. `node tests/isolated-dev.cjs` verifies
+coexistence and the translated editor in a real browser.
+
+Live Home Assistant checks completed on 2026-11-01:
+- Stable and test card both appear in the picker and render real forecast data.
+- Norwegian Bokmål, German and English labels follow the profile language.
+- German expanded details and custom editor render translated text.
+- The German gust switch updates the preview; the trial change was cancelled.
+- Original Norwegian Bokmål profile language restored; stable card preserved.
+
+### Standard distribution (same element name as stable)
+
 Use a separate test Home Assistant environment with the development distribution.
 The public element name remains `custom:aurora-weather-card`; do not load stable
 and development resources together in one browser session.
