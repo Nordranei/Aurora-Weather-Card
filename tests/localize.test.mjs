@@ -1,8 +1,46 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { auroraLocale, weatherLabel, cardinalDirection } from '../src/localize.js';
+import { auroraLocale, weatherLabel, cardinalDirection, translate, textDirection, translations } from '../src/localize.js';
+import { sourceForVm } from './source-harness.cjs';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+
+test('Aurora messages: exact/base locale, aliases, missing language and key fallback', () => {
+  assert.equal(translate({language:'de-CH'},'searching'),'Suche läuft …');
+  assert.equal(translate({language:'no-NO'},'searching'),'Søker …');
+  assert.equal(translate({language:'ja'},'searching'),'Searching …');
+  assert.equal(translate({},'missing_key'),'missing_key');
+  const saved=translations.de.searching;
+  try {
+    delete translations.de.searching;
+    assert.equal(translate({language:'de'},'searching'),'Searching …');
+  } finally { translations.de.searching=saved; }
+});
+test('interpolation preserves values as plain text, including dollar signs and braces', () => {
+  assert.equal(translate({language:'en'},'hours_available',{count:24}),'Available forecast hours: 24');
+  assert.equal(translate({},'hours_available',{count:'<img>$&{count}'}),'Available forecast hours: <img>$&{count}');
+});
+test('all shipped dictionaries have complete keys and matching placeholders', () => {
+  const keys=Object.keys(translations.en).sort();
+  const placeholders=text=>[...text.matchAll(/\{([a-zA-Z_]+)\}/g)].map(m=>m[1]).sort();
+  for(const [language,dictionary] of Object.entries(translations)) {
+    assert.deepEqual(Object.keys(dictionary).sort(),keys,language);
+    for(const key of keys) {
+      assert.equal(typeof dictionary[key],'string',language+':'+key);
+      assert.ok(dictionary[key].trim(),language+':'+key);
+      assert.deepEqual(placeholders(dictionary[key]),placeholders(translations.en[key]),language+':'+key);
+    }
+  }
+  const source=readFileSync(new URL('../src/aurora-weather-card.js',import.meta.url),'utf8');
+  for(const [,key] of source.matchAll(/this\._t\('([^']+)'/g))
+    assert.ok(Object.hasOwn(translations.en,key),'Untranslated key: '+key);
+});
+test('text direction uses HA metadata, with regional RTL fallback', () => {
+  assert.equal(textDirection({language:'ar-EG'}),'rtl');
+  assert.equal(textDirection({language:'he'}),'rtl');
+  assert.equal(textDirection({language:'de'}),'ltr');
+  assert.equal(textDirection({language:'xx',translationMetadata:{translations:{xx:{isRTL:true}}}}),'rtl');
+});
 
 test('effective HA language takes precedence, regional tags and invalid input', () => {
   assert.equal(auroraLocale({language:'de',locale:{language:'nb'}}),'de');
@@ -36,9 +74,7 @@ test('rendered card and editor update when HA language changes; dates follow loc
   const tag=(parts,...values)=>parts.reduce((s,p,i)=>s+p+flatten(values[i]),'');
   const context={LitElement:class {},html:tag,svg:tag,css:tag,nothing:'',window:{},
     customElements:{get:n=>classes[n],define:(n,c)=>classes[n]=c},console,Intl,Date};
-  const module=readFileSync(new URL('../src/localize.js',import.meta.url),'utf8').replace(/^export /gm,'');
-  const source=readFileSync(new URL('../src/aurora-weather-card.js',import.meta.url),'utf8').replace(/^import .*;$/gm,'');
-  vm.runInNewContext(module+'\n'+source,context);
+  vm.runInNewContext(sourceForVm(),context);
   const card=new classes['aurora-weather-card']();
   const editor=new classes['aurora-weather-card-editor-v1-3-1']();
   card.setConfig({entity:'weather.test',time_zone:'Europe/Oslo'});

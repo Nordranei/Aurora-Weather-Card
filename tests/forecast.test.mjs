@@ -1,16 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { readFileSync } from 'node:fs';
-const source = readFileSync(new URL('../src/aurora-weather-card.js', import.meta.url), 'utf8');
+import { sourceForVm } from './source-harness.cjs';
 function setup() {
   const classes = {}, timers = new Map(); let timerId = 0;
   const context = { LitElement: class { connectedCallback() {} disconnectedCallback() {} },
     html:()=>'', svg:()=>'', css:()=>'', nothing:'', console,
     window:{addEventListener(){},removeEventListener(){},setTimeout(fn){timers.set(++timerId,fn);return timerId;}},
     clearTimeout(id){timers.delete(id);}, customElements:{get:n=>classes[n],define:(n,c)=>classes[n]=c} };
-  const localization = readFileSync(new URL('../src/localize.js', import.meta.url), 'utf8').replace(/^export /gm, '');
-  vm.runInNewContext(localization + '\n' + source.replace(/^import .*;$/gm,''),context);
+  vm.runInNewContext(sourceForVm(),context);
   const card = new classes['aurora-weather-card'](); card.isConnected = true;
   card.setConfig({entity:'weather.a'});
   const requests=[];

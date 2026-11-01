@@ -1,6 +1,6 @@
-// Aurora Weather Card v1.3.1-i18n-dev.1 — baseline: v1.3-dev-step9b
+// Aurora Weather Card v1.3.1-i18n-dev.2 — baseline: v1.3-dev-step9b
 import { LitElement, css, html, nothing, svg } from 'lit';
-import { auroraLocale, weatherLabel, cardinalDirection } from './localize.js';
+import { auroraLocale, weatherLabel, cardinalDirection, translate, textDirection } from './localize.js';
 
 function smoothPath(points) {
   if (points.length < 2) return '';
@@ -205,6 +205,8 @@ function hourInTimeZone(date, timeZone) {
 
 
 class AuroraWeatherCardEditor extends LitElement {
+  _t(key, values) { return translate(this.hass, key, values); }
+
   static properties = {
     hass: { attribute: false },
     config: { state: true },
@@ -241,10 +243,10 @@ class AuroraWeatherCardEditor extends LitElement {
 
   _renderTabs() {
     const tabs = [
-      ['config', 'CONFIG'],
-      ['appearance', 'APPEARANCE'],
-      ['graph', 'GRAPH'],
-      ['advanced', 'ADVANCED'],
+      ['config', this._t('tab_config')],
+      ['appearance', this._t('tab_appearance')],
+      ['graph', this._t('tab_graph')],
+      ['advanced', this._t('tab_advanced')],
     ];
     return html`
       <div class="editor-tabs">
@@ -270,14 +272,14 @@ class AuroraWeatherCardEditor extends LitElement {
 
     return html`
       <section class="editor-section">
-        <h3>VÆRKILDE</h3>
-        <label class="field-label">Velg vær-entitet</label>
+        <h3>${this._t('weather_source')}</h3>
+        <label class="field-label">${this._t('select_entity')}</label>
         <select
           class="editor-input"
           .value=${this.config?.entity || ''}
           @change=${(event) => this._setValue('entity', event.target.value)}
         >
-          <option value="">Velg vær-entitet</option>
+          <option value="">${this._t('select_entity')}</option>
           ${entities.map((state) => html`
             <option
               value=${state.entity_id}
@@ -285,12 +287,12 @@ class AuroraWeatherCardEditor extends LitElement {
             >${state.attributes?.friendly_name || state.entity_id}</option>
           `)}
         </select>
-        <div class="helper">Bruk entiteten fra din værintegrasjon. MET Norway anbefales.</div>
+        <div class="helper">${this._t('source_help')}</div>
       </section>
 
       <section class="editor-section">
-        <h3>STED</h3>
-        <label class="field-label">Stedsnavn *</label>
+        <h3>${this._t('location')}</h3>
+        <label class="field-label">${this._t('location_name')} *</label>
         <div class="location-search-row">
           <input
             class="editor-input"
@@ -301,35 +303,35 @@ class AuroraWeatherCardEditor extends LitElement {
           <button
             class="location-search-button"
             type="button"
-            title="Søk etter sted"
-            aria-label="Søk etter sted"
+            title="${this._t('search_location')}"
+            aria-label="${this._t('search_location')}"
             @click=${this._runGeocodingDiagnostic}
           >⌕</button>
         </div>
-        <div class="helper">Påkrevd. Skriv det geografiske stedsnavnet. Aurora søker automatisk mens du skriver; søkeikonet kan brukes manuelt ved behov.</div>
+        <div class="helper">${this._t('location_help')}</div>
 
         ${this.geocodingDiagnostic?.loading ? html`
-          <div class="location-search-status">Søker …</div>
-        ` : this.geocodingDiagnostic?.error ? html`
-          <div class="location-search-status error">${this.geocodingDiagnostic.error}</div>
+          <div class="location-search-status">${this._t('searching')}</div>
+        ` : (this.geocodingDiagnostic?.errorKey || this.geocodingDiagnostic?.error) ? html`
+          <div class="location-search-status error">${this.geocodingDiagnostic.errorKey ? this._t(this.geocodingDiagnostic.errorKey) : this.geocodingDiagnostic.error}</div>
         ` : this.geocodingDiagnostic?.count > 1 ? html`
           <div class="location-picker">
-            <div class="location-picker-title">VELG RIKTIG STED</div>
+            <div class="location-picker-title">${this._t('choose_location')}</div>
             ${(this.geocodingDiagnostic.results || []).map((r) => html`
               <button type="button" @click=${() => this._selectGeocodingResult(r)}>
                 <b>${[r.name, r.admin1, r.country].filter(Boolean).join(', ')}</b>
-                <small>${r.latitude}, ${r.longitude} · ${r.timezone || 'ukjent tidssone'}</small>
+                <small>${r.latitude}, ${r.longitude} · ${r.timezone || this._t('unknown_timezone')}</small>
               </button>
             `)}
           </div>
         ` : this.geocodingDiagnostic && this.geocodingDiagnostic.count === 0 ? html`
-          <div class="location-search-status error">Ingen treff. Kontroller Stedsnavn og søk igjen.</div>
+          <div class="location-search-status error">${this._t('no_results')}</div>
         ` : nothing}
         ${this.config?.geocoded_location ? html`
           <div class="resolved-location">
-            <b>AUTOMATISK LOKASJON</b>
+            <b>${this._t('automatic_location')}</b>
             <span>${this.config.geocoded_location}</span>
-            <small>${this.config.latitude}, ${this.config.longitude} · ${this.config.time_zone || 'ukjent tidssone'}</small>
+            <small>${this.config.latitude}, ${this.config.longitude} · ${this.config.time_zone || this._t('unknown_timezone')}</small>
           </div>
         ` : nothing}
       </section>
@@ -339,12 +341,12 @@ class AuroraWeatherCardEditor extends LitElement {
   _renderAppearanceTab() {
     const theme = this.config?.theme || 'aurora_dynamic';
     const themes = [
-      ['aurora_dynamic', 'Aurora Dynamic', 'Levende dag/natt'],
-      ['aurora_static', 'Aurora Static', 'Fast Aurora-look'],
+      ['aurora_dynamic', 'Aurora Dynamic', this._t('dynamic_description')],
+      ['aurora_static', 'Aurora Static', this._t('static_description')],
     ];
     return html`
       <section class="editor-section">
-        <h3>TEMA</h3>
+        <h3>${this._t('theme')}</h3>
         <div class="theme-grid">
           ${themes.map(([value, title, subtitle]) => html`
             <button
@@ -363,9 +365,9 @@ class AuroraWeatherCardEditor extends LitElement {
       </section>
 
       <section class="editor-section">
-        <h3>ATMOSFÆRE</h3>
+        <h3>${this._t('atmosphere')}</h3>
         <div class="editor-info">
-          Aurora Dynamic bruker værforhold, årstid, lokal tid og lokale soltider.
+          ${this._t('atmosphere_help')}
         </div>
       </section>
     `;
@@ -375,8 +377,8 @@ class AuroraWeatherCardEditor extends LitElement {
     const hours = Number(this.config?.hours) || 48;
     return html`
       <section class="editor-section">
-        <h3>TIMER</h3>
-        <label class="field-label">Antall timer</label>
+        <h3>${this._t('hours')}</h3>
+        <label class="field-label">${this._t('hour_count')}</label>
         <div class="segmented">
           ${[24, 48].map((value) => html`
             <button
@@ -389,14 +391,14 @@ class AuroraWeatherCardEditor extends LitElement {
       </section>
 
       <section class="editor-section">
-        <h3>VIS I GRAFEN</h3>
+        <h3>${this._t('show_graph')}</h3>
         ${[
           ['show_temperature', weatherLabel(this.hass, 'temperature')],
           ['show_precipitation', weatherLabel(this.hass, 'precipitation')],
           ['show_wind', weatherLabel(this.hass, 'wind')],
           ['show_wind_gust', weatherLabel(this.hass, 'gust')],
-          ['show_wind_direction', 'Vindretning'],
-          ['show_weather_icons', 'Værikoner'],
+          ['show_wind_direction', this._t('wind_direction')],
+          ['show_weather_icons', this._t('weather_icons')],
         ].map(([key, label]) => html`
           <label class="graph-toggle">
             <span>${label}</span>
@@ -406,7 +408,7 @@ class AuroraWeatherCardEditor extends LitElement {
           </label>
         `)}
         <div class="editor-info">
-          Slå grafserier, vindretning og værikoner av eller på. Legendeteksten følger grafseriene.
+          ${this._t('graph_help')}
         </div>
       </section>
     `;
@@ -524,7 +526,7 @@ class AuroraWeatherCardEditor extends LitElement {
 
     if (!place) {
       this.geocodingDiagnostic = {
-        error: 'Stedsnavn må fylles ut før Aurora kan søke etter lokasjonen.'
+        errorKey: 'location_required'
       };
       this.requestUpdate();
       return;
@@ -606,17 +608,16 @@ class AuroraWeatherCardEditor extends LitElement {
 
     return html`
       <section class="editor-section">
-        <h3>LOKAL TID & SOL</h3>
+        <h3>${this._t('local_time_sun')}</h3>
 
         <div class="editor-info advanced-info">
-          Aurora bruker valgt lokasjon fra CONFIG til lokal tid, soloppgang, solnedgang og dag/natt.
-          Feltene under er manuell fallback hvis automatisk lokasjon må overstyres.
+          ${this._t('advanced_help')}
         </div>
 
         ${hasLocation ? html`
           <div class="advanced-status">
-            <b>AKTIV LOKASJON</b>
-            <span>${this.config?.geocoded_location || this.config?.location_name || 'Valgt sted'}</span>
+            <b>${this._t('active_location')}</b>
+            <span>${this.config?.geocoded_location || this.config?.location_name || this._t('selected_location')}</span>
             <small>
               ${this.config?.latitude}, ${this.config?.longitude}
               ${this.config?.time_zone ? ` · ${this.config.time_zone}` : ''}
@@ -624,16 +625,16 @@ class AuroraWeatherCardEditor extends LitElement {
           </div>
         ` : html`
           <div class="advanced-status muted">
-            <b>INGEN LOKASJON LAGRET</b>
-            <span>Gå til CONFIG og søk etter Stedsnavn.</span>
+            <b>${this._t('no_location')}</b>
+            <span>${this._t('go_settings')}</span>
           </div>
         `}
 
         <div class="advanced-divider"></div>
 
-        <h3>MANUELL FALLBACK</h3>
+        <h3>${this._t('manual_location')}</h3>
 
-        <label class="field-label">Breddegrad</label>
+        <label class="field-label">${this._t('latitude')}</label>
         <input
           class="editor-input"
           type="number"
@@ -645,7 +646,7 @@ class AuroraWeatherCardEditor extends LitElement {
           )}
         />
 
-        <label class="field-label field-gap">Lengdegrad</label>
+        <label class="field-label field-gap">${this._t('longitude')}</label>
         <input
           class="editor-input"
           type="number"
@@ -657,7 +658,7 @@ class AuroraWeatherCardEditor extends LitElement {
           )}
         />
 
-        <label class="field-label field-gap">Tidssone</label>
+        <label class="field-label field-gap">${this._t('timezone')}</label>
         <input
           class="editor-input"
           type="text"
@@ -667,7 +668,7 @@ class AuroraWeatherCardEditor extends LitElement {
         />
 
         <div class="helper">
-          Normalt trenger du ikke endre disse feltene. Bruk dem bare hvis automatisk lokasjon er feil eller utilgjengelig.
+          ${this._t('manual_help')}
         </div>
       </section>
     `;
@@ -681,7 +682,7 @@ class AuroraWeatherCardEditor extends LitElement {
 
   render() {
     return html`
-      <div class="editor-shell">
+      <div class="editor-shell" lang="${auroraLocale(this.hass)}" dir="${textDirection(this.hass)}">
         <div class="editor-header">
           <span class="editor-logo">
             <svg viewBox="0 0 100 100" aria-hidden="true">
@@ -703,8 +704,8 @@ class AuroraWeatherCardEditor extends LitElement {
             </svg>
           </span>
           <div>
-            <div class="editor-title">Aurora Weather Card Configuration</div>
-            <div class="editor-version">v1.3.1-i18n-dev.1</div>
+            <div class="editor-title">${this._t('editor_title')}</div>
+            <div class="editor-version">v1.3.1-i18n-dev.2</div>
           </div>
         </div>
 
@@ -793,6 +794,8 @@ class AuroraWeatherCardEditor extends LitElement {
       cursor: pointer;
     }
 
+    .editor-tab { overflow-wrap: anywhere; min-width: 0; }
+
     .editor-tab.active {
       color: #36dbff;
       border-bottom-color: #1acfff;
@@ -879,7 +882,7 @@ class AuroraWeatherCardEditor extends LitElement {
       border-radius: 10px;
       background: rgba(9,25,39,.88);
       color: #eef7ff;
-      text-align: left;
+      text-align: start;
       cursor: pointer;
     }
 
@@ -1041,7 +1044,7 @@ class AuroraWeatherCardEditor extends LitElement {
     .location-picker button {
       width:100%;
       padding:8px 9px;
-      text-align:left;
+      text-align:start;
       border:1px solid rgba(44,210,255,.20);
       border-radius:8px;
       background:rgba(7,43,60,.55);
@@ -1067,7 +1070,7 @@ class AuroraWeatherCardEditor extends LitElement {
     .geo-result {
       width: 100%;
       padding: 8px 9px;
-      text-align: left;
+      text-align: start;
       cursor: pointer;
       border: 1px solid rgba(107, 170, 205, .14);
       border-radius: 8px;
@@ -1153,6 +1156,8 @@ class AuroraWeatherCardEditor extends LitElement {
 
 
 class AuroraWeatherCard extends LitElement {
+  _t(key, values) { return translate(this.hass, key, values); }
+
   _cleanPlaceName(value) {
     let name = String(value || '').trim();
     // Strip known Home Assistant/MET Norwegian prefixes explicitly.
@@ -1190,61 +1195,6 @@ class AuroraWeatherCard extends LitElement {
   };
 
 
-  static getConfigForm() {
-    return {
-      schema: [
-        {
-          name: 'entity',
-          required: true,
-          selector: { entity: { filter: { domain: 'weather' } } },
-        },
-        { name: 'location_name', selector: { text: {} } },
-        { name: 'latitude', selector: { number: { mode: 'box', step: 0.0001 } } },
-        { name: 'longitude', selector: { number: { mode: 'box', step: 0.0001 } } },
-        { name: 'time_zone', selector: { text: {} } },
-        {
-          name: 'hours',
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                { value: 24, label: '24 timer' },
-                { value: 48, label: '48 timer' },
-              ],
-            },
-          },
-        },
-        {
-          name: 'theme',
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                { value: 'aurora_dynamic', label: 'Aurora Dynamic' },
-                { value: 'aurora_static', label: 'Aurora Static' },
-              ],
-            },
-          },
-        },
-      ],
-      computeLabel: (schema) => ({
-        entity: 'Værkilde',
-        location_name: 'Stedsnavn',
-        latitude: 'Breddegrad',
-        longitude: 'Lengdegrad',
-        time_zone: 'Tidssone',
-        hours: 'Antall timer',
-        theme: 'Bakgrunn',
-      }[schema.name]),
-      computeHelper: (schema) => ({
-        location_name: 'Valgfritt. Hvis feltet er tomt brukes navnet fra værentiteten.',
-        latitude: 'Valgfritt. Brukes sammen med lengdegrad for riktige soltider.',
-        longitude: 'Valgfritt. Brukes sammen med breddegrad for riktige soltider.',
-        time_zone: 'Valgfritt, f.eks. Europe/Athens.',
-      }[schema.name]),
-    };
-  }
-
   static getStubConfig() {
     return {
       entity: '',
@@ -1269,7 +1219,7 @@ class AuroraWeatherCard extends LitElement {
   }
 
   setConfig(config) {
-    if (config?.entity && !config.entity.startsWith('weather.')) throw new Error('entity må være en weather.*-entitet');
+    if (config?.entity && !config.entity.startsWith('weather.')) throw new Error(this._t('invalid_entity'));
     const entityChanged = this.config?.entity !== config?.entity;
     this.config = { hours: 48, theme: 'aurora_dynamic', ...config };
     if (Number(this.config.hours) > 48) this.config.hours = 48;
@@ -1596,7 +1546,7 @@ class AuroraWeatherCard extends LitElement {
     const showWindDirection = this.config?.show_wind_direction !== false;
     const showWeatherIcons = this.config?.show_weather_icons !== false;
     const data = this.graphData();
-    if (data.length < 2) return html`<div class="message">For få temperaturpunkter til å tegne graf.</div>`;
+    if (data.length < 2) return html`<div class="message">${this._t('too_few_points')}</div>`;
 
     const measuredWidth = expanded
       ? Math.max(640, Math.min(1320, Math.round(window.innerWidth * 0.88)))
@@ -1716,7 +1666,7 @@ class AuroraWeatherCard extends LitElement {
 
     return html`
       <div class="chart-wrap">
-        <svg class="chart-svg ${profile} ${expanded ? 'expanded-chart' : ''}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Værikoner, temperatur, nedbør, vind og vindkast">
+        <svg class="chart-svg ${profile} ${expanded ? 'expanded-chart' : ''}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${this._t('graph_accessible')}">
           <defs>
             <linearGradient id="tempArea" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#ff3038" stop-opacity="0.20"></stop>
@@ -1850,30 +1800,30 @@ class AuroraWeatherCard extends LitElement {
       <path d="M24 4v6M24 38v6M4 24h6M38 24h6M10 10l5 5M33 33l5 5M38 10l-5 5M15 33l-5 5"/>
     </svg>`;
 
-    return html`<div class="expanded-info">
-      <div class="info-tile">${thermometer}<div><div class="info-label">Nå</div><div class="info-value">${val(d.temp)}°</div></div></div>
-      <div class="info-tile">${rain}<div><div class="info-label">Nedbør i dag</div><div class="info-value">${val(d.rainToday)} <small>mm</small></div></div></div>
+    return html`<div class="expanded-info" lang="${auroraLocale(this.hass)}" dir="${textDirection(this.hass)}">
+      <div class="info-tile">${thermometer}<div><div class="info-label">${this._t('now')}</div><div class="info-value">${val(d.temp)}°</div></div></div>
+      <div class="info-tile">${rain}<div><div class="info-label">${this._t('rain_today')}</div><div class="info-value">${val(d.rainToday)} <small>mm</small></div></div></div>
       <div class="info-tile">${windIcon('wind-svg')}<div><div class="info-label">${weatherLabel(this.hass, 'wind')}</div><div class="info-value">${val(d.wind)} <small>m/s</small></div><div class="info-sub wind-direction">${d.dirArrow ? html`<span class="dir-arrow" style="transform:rotate(${d.dirRotation}deg)"></span>` : nothing}<span>${d.dir}</span></div></div></div>
       <div class="info-tile">${windIcon('gust-svg')}<div><div class="info-label">${weatherLabel(this.hass, 'gust')}</div><div class="info-value">${val(d.gust)} <small>m/s</small></div></div></div>
       <div class="info-tile">${droplet}<div><div class="info-label">${weatherLabel(this.hass, 'humidity')}</div><div class="info-value">${val(d.humidity,0)}<small>%</small></div></div></div>
       <div class="info-tile">${pressure}<div><div class="info-label">${weatherLabel(this.hass, 'pressure')}</div><div class="info-value">${val(d.pressure,0)} <small>hPa</small></div></div></div>
-      <div class="info-tile">${sun}<div><div class="info-label">Sol</div><div class="info-value sun-value">${d.sunrise} / ${d.sunset}</div></div></div>
+      <div class="info-tile">${sun}<div><div class="info-label">${this._t('sun')}</div><div class="info-value sun-value">${d.sunrise} / ${d.sunset}</div></div></div>
     </div>`;
   }
 
   render() {
     if (!this.config) return nothing;
     const entityState = this.config.entity ? this.hass?.states[this.config.entity] : undefined;
-    const name = this._cleanPlaceName(this.config.location_name || entityState?.attributes?.friendly_name || this.config.entity || 'Velg værkilde');
+    const name = this._cleanPlaceName(this.config.location_name || entityState?.attributes?.friendly_name || this.config.entity || this._t('choose_source'));
     const current = this.graphData()[0];
     const atmosphere = this.atmosphereClass();
 
     if (!this.config.entity) {
-      return html`<ha-card class="compact-card ${atmosphere}"><header><div><div class="brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span>Aurora</span></div><div class="title">Velg værkilde</div></div></header><main><div class="message">Velg en <b>weather.*</b>-entitet i korteditoren.</div></main></ha-card>`;
+      return html`<ha-card class="compact-card ${atmosphere}"><header><div><div class="brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span>Aurora</span></div><div class="title">${this._t('choose_source')}</div></div></header><main lang="${auroraLocale(this.hass)}" dir="${textDirection(this.hass)}"><div class="message">${this._t('select_entity_help')}</div></main></ha-card>`;
     }
 
     return html`
-      <ha-card class="compact-card ${atmosphere}" @click=${() => this.openExpanded()} title="Trykk for stor visning">
+      <ha-card class="compact-card ${atmosphere}" @click=${() => this.openExpanded()} title="${this._t('open_expanded')}">
         <header>
           <div class="header-identity">
             <div class="brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span class="brand-copy"><span class="brand-name">Aurora</span><span class="brand-location">${name}<span class="brand-clock"> · ${this._formatLocalClock()}</span></span></span></div>
@@ -1882,24 +1832,24 @@ class AuroraWeatherCard extends LitElement {
         </header>
 
         <main>
-          ${this.status === 'loading' ? html`<div class="message">Henter timeprognose …</div>` : nothing}
-          ${this.status === 'error' ? html`<div class="message error"><b>Feil:</b> ${this.errorMessage}</div>` : nothing}
+          ${this.status === 'loading' ? html`<div class="message">${this._t('loading')}</div>` : nothing}
+          ${this.status === 'error' ? html`<div class="message error"><b>${this._t('error')}</b> ${this.errorMessage}</div>` : nothing}
           ${this.status === 'ok' ? this.renderGraph(false) : nothing}
         </main>
 
-        <footer>
+        <footer lang="${auroraLocale(this.hass)}" dir="${textDirection(this.hass)}">
           ${this.config?.show_temperature !== false ? html`<span class="legend-item"><span class="legend-dot temp"></span><span>${weatherLabel(this.hass, 'temperature')}</span></span>` : nothing}
           ${this.config?.show_precipitation !== false ? html`<span class="legend-item"><span class="legend-dot rain"></span><span>${weatherLabel(this.hass, 'precipitation')}</span></span>` : nothing}
           ${this.config?.show_wind !== false ? html`<span class="legend-item"><span class="legend-dot wind"></span><span>${weatherLabel(this.hass, 'wind')}</span></span>` : nothing}
           ${this.config?.show_wind_gust !== false ? html`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, 'gust')}</span></span>` : nothing}
-          <span class="version">v1.3.1-i18n-dev.1</span>
+          <span class="version">v1.3.1-i18n-dev.2</span>
         </footer>
       </ha-card>
 
       ${this.expanded ? html`
         <div class="expand-backdrop" @click=${() => this.closeExpanded()}>
-          <section class="expand-panel ${atmosphere}" role="dialog" aria-modal="true" aria-label="Utvidet værvarsel" @click=${(event) => event.stopPropagation()}>
-            <button class="close-button" aria-label="Lukk stor visning" @click=${() => this.closeExpanded()}>×</button>
+          <section class="expand-panel ${atmosphere}" role="dialog" aria-modal="true" aria-label="${this._t('expanded_forecast')}" @click=${(event) => event.stopPropagation()}>
+            <button class="close-button" aria-label="${this._t('close_expanded')}" @click=${() => this.closeExpanded()}>×</button>
             <header class="expanded-header">
               <div class="header-identity">
                 <div class="brand expanded-brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span class="brand-copy"><span class="brand-name">Aurora</span><span class="brand-location">${name}<span class="brand-clock"> · ${this._formatLocalClock()}</span></span></span></div>
@@ -1908,12 +1858,12 @@ class AuroraWeatherCard extends LitElement {
             </header>
             <div class="expanded-body">${this.renderGraph(true)}
               ${this._renderExpandedInfo()}</div>
-            <footer class="expanded-footer">
+            <footer class="expanded-footer" lang="${auroraLocale(this.hass)}" dir="${textDirection(this.hass)}">
               ${this.config?.show_temperature !== false ? html`<span class="legend-item"><span class="legend-dot temp"></span><span>${weatherLabel(this.hass, 'temperature')}</span></span>` : nothing}
               ${this.config?.show_precipitation !== false ? html`<span class="legend-item"><span class="legend-dot rain"></span><span>${weatherLabel(this.hass, 'precipitation')}</span></span>` : nothing}
               ${this.config?.show_wind !== false ? html`<span class="legend-item"><span class="legend-dot wind"></span><span>${weatherLabel(this.hass, 'wind')}</span></span>` : nothing}
               ${this.config?.show_wind_gust !== false ? html`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, 'gust')}</span></span>` : nothing}
-              <span class="expanded-note">${Math.min(Number(this.config?.hours) || 48, this.forecast.length)} timer tilgjengelig</span>
+              <span class="expanded-note">${this._t('hours_available', { count: Math.min(Number(this.config?.hours) || 48, this.forecast.length) })}</span>
             </footer>
           </section>
         </div>
@@ -2115,7 +2065,7 @@ class AuroraWeatherCard extends LitElement {
     .legend-dot.rain { background: #2aa8ff; }
     .legend-dot.wind { background: #b44cff; }
     .legend-dot.gust { background: repeating-linear-gradient(90deg, #ffd400 0 5px, transparent 5px 8px); box-shadow: none; }
-    .version { margin-left: auto; padding-right: 2px; opacity: .55; font-size: 10px; white-space: nowrap; flex: 0 0 auto; }
+    .version { margin-inline-start: auto; padding-right: 2px; opacity: .55; font-size: 10px; white-space: nowrap; flex: 0 0 auto; }
 
     .day-label { paint-order: stroke; stroke: rgba(17,21,27,.92); stroke-width: 3px; stroke-linejoin: round; }
     .rain-axis-label { paint-order: stroke; stroke: rgba(17,21,27,.92); stroke-width: 3px; stroke-linejoin: round; }
@@ -2133,7 +2083,7 @@ class AuroraWeatherCard extends LitElement {
     .expanded-chart .weather-icon { transform-box: fill-box; }
     .expanded-footer { display:flex; align-items:center; flex-wrap:nowrap; padding:12px 30px 22px; font-size:13px; gap:16px; white-space:nowrap; overflow:hidden; }
     .expanded-footer .legend-dot { width:18px; flex-basis:18px; }
-    .expanded-note { margin-left:auto; opacity:.58; }
+    .expanded-note { margin-inline-start:auto; opacity:.58; }
     @keyframes auroraDrift {
       0%   { transform:translate3d(-1.2%, -.8%, 0) scale(1.015); background-position:0% 0%, 100% 0%, 0 0; }
       50%  { transform:translate3d(.6%, .4%, 0) scale(1.025); background-position:42% 18%, 62% 12%, 0 0; }
@@ -2218,6 +2168,11 @@ class AuroraWeatherCard extends LitElement {
     .info-label{color:#cbd5df;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.info-value{color:#f5f8fb;font-size:18px;line-height:1.15;white-space:nowrap}.info-value small{font-size:10px;color:#c8d2dc}.info-sub{margin-top:2px;color:#aeb9c6;font-size:9px}.sun-value{font-size:13px}
     @media(max-width:900px){.expanded-info{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
+    /* Translations can be longer than the original Norwegian labels. */
+    footer, .expanded-footer { flex-wrap: wrap; white-space: normal; }
+    .legend-item { max-width: 100%; overflow-wrap: anywhere; }
+    .info-label { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+
   `;
 }
 
@@ -2230,13 +2185,13 @@ if (!customElements.get('aurora-weather-card')) {
   customElements.define('aurora-weather-card', AuroraWeatherCard);
 }
 
-// Register Aurora Weather Card v1.3.1-i18n-dev.1 in the Home Assistant card picker.
+// Register Aurora Weather Card v1.3.1-i18n-dev.2 in the Home Assistant card picker.
 window.customCards = window.customCards || [];
 const auroraPickerEntry = {
   type: 'aurora-weather-card',
-  name: 'Aurora Weather Card v1.3.1-i18n-dev.1',
+  name: 'Aurora Weather Card v1.3.1-i18n-dev.2',
   preview: false,
-  description: '24/48-timers værkort med temperatur, nedbør, vind, vindkast og Aurora-bakgrunn',
+  description: '24/48-hour weather forecast with temperature, precipitation, wind, gusts and Aurora backgrounds',
   getEntitySuggestion: (_hass, entityId) => {
     if (!entityId || !entityId.startsWith('weather.')) return null;
     return {
@@ -2253,4 +2208,4 @@ const existingAuroraIndex = window.customCards.findIndex((card) => card.type ===
 if (existingAuroraIndex >= 0) window.customCards.splice(existingAuroraIndex, 1, auroraPickerEntry);
 else window.customCards.push(auroraPickerEntry);
 
-console.info('%c AURORA WEATHER CARD v1.3.1-i18n-dev.1 %c development ', 'color:#fff;background:#1577d3;font-weight:700', 'color:#1577d3;background:#fff');
+console.info('%c AURORA WEATHER CARD v1.3.1-i18n-dev.2 %c development ', 'color:#fff;background:#1577d3;font-weight:700', 'color:#1577d3;background:#fff');

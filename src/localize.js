@@ -1,5 +1,31 @@
+import en from './locales/en.json' with { type: 'json' };
+import nb from './locales/nb.json' with { type: 'json' };
+import de from './locales/de.json' with { type: 'json' };
+
+export const translations = { en, nb, de };
+
+export function translate(hass, key, values = {}) {
+  const locale = auroraLocale(hass).toLowerCase();
+  const base = locale.split('-')[0];
+  const language = base === 'no' ? 'nb' : base;
+  const dictionary = Object.hasOwn(translations, locale) ? translations[locale]
+    : Object.hasOwn(translations, language) ? translations[language] : en;
+  const value = Object.hasOwn(dictionary, key) ? dictionary[key]
+    : Object.hasOwn(en, key) ? en[key] : key;
+  // Return plain text. Lit escapes it in both text and attribute contexts.
+  return value.replace(/\{([a-zA-Z_]+)\}/g, (match, name) =>
+    Object.hasOwn(values, name) ? String(values[name]) : match);
+}
+
+export function textDirection(hass) {
+  const language = auroraLocale(hass);
+  const metadata = hass?.translationMetadata?.translations;
+  const entry = metadata?.[language] || metadata?.[language.split('-')[0]];
+  if (typeof entry?.isRTL === 'boolean') return entry.isRTL ? 'rtl' : 'ltr';
+  return /^(ar|fa|he|ur|ps|sd|yi)(-|$)/i.test(language) ? 'rtl' : 'ltr';
+}
+
 // Home Assistant supplies the effective user language and translated weather labels.
-// Aurora-specific messages will be added in subsequent translation steps.
 const WEATHER_LABELS = {
   temperature: ['temperature', 'Temperature', 'Temperatur'],
   precipitation: ['precipitation', 'Precipitation', 'Nedbør'],

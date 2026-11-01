@@ -1,13 +1,10 @@
-const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
-const source=fs.readFileSync(require('path').join(__dirname,'../src/aurora-weather-card.js'),'utf8');
 const classes={};
 const flatten=v=>Array.isArray(v)?v.map(flatten).join(''):v==null?'':typeof v==='function'?'':String(v);
 const tag=(parts,...values)=>parts.reduce((s,p,i)=>s+p+flatten(values[i]),'');
 const context={LitElement:class {},html:tag,svg:tag,css:tag,nothing:'',window:{innerWidth:1200},customElements:{get:n=>classes[n],define:(n,c)=>classes[n]=c},console,Date,Intl};
-const localization=fs.readFileSync(require('path').join(__dirname,'../src/localize.js'),'utf8').replace(/^export /gm,'');
-vm.runInNewContext(localization+'\n'+source.replace(/^import .*;$/gm,''),context);
+vm.runInNewContext(require('./source-harness.cjs').sourceForVm(),context);
 const Card=classes['aurora-weather-card'];
 const card=new Card();
 const data=Array.from({length:48},(_,i)=>({time:new Date(Date.UTC(2026,8,24,i)),temperature:10+i%5,precipitation:1,windSpeed:4,windGust:8,windBearing:90,condition:'sunny'}));
