@@ -9,7 +9,8 @@ function setup() {
     html:()=>'', svg:()=>'', css:()=>'', nothing:'', console,
     window:{addEventListener(){},removeEventListener(){},setTimeout(fn){timers.set(++timerId,fn);return timerId;}},
     clearTimeout(id){timers.delete(id);}, customElements:{get:n=>classes[n],define:(n,c)=>classes[n]=c} };
-  vm.runInNewContext(source.replace(/^import .*;$/m,''),context);
+  const localization = readFileSync(new URL('../src/localize.js', import.meta.url), 'utf8').replace(/^export /gm, '');
+  vm.runInNewContext(localization + '\n' + source.replace(/^import .*;$/gm,''),context);
   const card = new classes['aurora-weather-card'](); card.isConnected = true;
   card.setConfig({entity:'weather.a'});
   const requests=[];

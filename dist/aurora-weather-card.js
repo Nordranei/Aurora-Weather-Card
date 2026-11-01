@@ -580,6 +580,45 @@ o4?.({ LitElement: i4 });
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+// src/localize.js
+var WEATHER_LABELS = {
+  temperature: ["temperature", "Temperature", "Temperatur"],
+  precipitation: ["precipitation", "Precipitation", "Nedb\xF8r"],
+  wind: ["wind_speed", "Wind speed", "Vind"],
+  gust: ["wind_gust_speed", "Wind gust speed", "Vindkast"],
+  humidity: ["humidity", "Humidity", "Luftfuktighet"],
+  pressure: ["air_pressure", "Air pressure", "Lufttrykk"]
+};
+function auroraLocale(hass) {
+  const requested = hass?.language || hass?.locale?.language || "en";
+  try {
+    return Intl.getCanonicalLocales(String(requested).replaceAll("_", "-"))[0] || "en";
+  } catch {
+    return "en";
+  }
+}
+function haTranslation(hass, key) {
+  if (typeof hass?.localize !== "function") return void 0;
+  const value = hass.localize(key);
+  return typeof value === "string" && value.trim() && value !== key ? value : void 0;
+}
+function weatherLabel(hass, key) {
+  const entry = WEATHER_LABELS[key];
+  if (!entry) return key;
+  const [attribute, english, norwegian] = entry;
+  const translated = haTranslation(hass, "ui.card.weather.attributes." + attribute);
+  if (translated) return translated;
+  return /^(nb|no)(-|$)/i.test(auroraLocale(hass)) ? norwegian : english;
+}
+function cardinalDirection(hass, bearing) {
+  if (!Number.isFinite(bearing)) return "\u2013";
+  const index = Math.round((bearing % 360 + 360) % 360 / 45) % 8;
+  const direction = ["n", "ne", "e", "se", "s", "sw", "w", "nw"][index];
+  const translated = haTranslation(hass, "ui.card.weather.cardinal_direction." + direction);
+  if (translated) return translated;
+  return /^(nb|no)(-|$)/i.test(auroraLocale(hass)) ? ["N", "N\xD8", "\xD8", "S\xD8", "S", "SV", "V", "NV"][index] : direction.toUpperCase();
+}
+
 // src/aurora-weather-card.js
 function smoothPath(points) {
   if (points.length < 2) return "";
@@ -771,10 +810,10 @@ function solarEventUtc(date, latitude, longitude, sunrise = true) {
   utcHour = (utcHour + 24) % 24;
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) + utcHour * 36e5);
 }
-function formatInTimeZone(date, timeZone) {
+function formatInTimeZone(date, timeZone, locale = "en") {
   if (!(date instanceof Date) || !Number.isFinite(date.getTime())) return "\u2013";
   try {
-    return new Intl.DateTimeFormat("nb-NO", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: timeZone || void 0 }).format(date);
+    return new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: timeZone || void 0 }).format(date);
   } catch (_2) {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
@@ -836,7 +875,7 @@ var AuroraWeatherCardEditor = class extends i4 {
     const entities = Object.values(this.hass?.states || {}).filter((state) => state.entity_id?.startsWith("weather.")).sort((a3, b3) => {
       const an = a3.attributes?.friendly_name || a3.entity_id;
       const bn = b3.attributes?.friendly_name || b3.entity_id;
-      return an.localeCompare(bn, "nb");
+      return an.localeCompare(bn, auroraLocale(this.hass));
     });
     return b2`
       <section class="editor-section">
@@ -959,10 +998,10 @@ var AuroraWeatherCardEditor = class extends i4 {
       <section class="editor-section">
         <h3>VIS I GRAFEN</h3>
         ${[
-      ["show_temperature", "Temperatur"],
-      ["show_precipitation", "Nedb\xF8r"],
-      ["show_wind", "Vind"],
-      ["show_wind_gust", "Vindkast"],
+      ["show_temperature", weatherLabel(this.hass, "temperature")],
+      ["show_precipitation", weatherLabel(this.hass, "precipitation")],
+      ["show_wind", weatherLabel(this.hass, "wind")],
+      ["show_wind_gust", weatherLabel(this.hass, "gust")],
       ["show_wind_direction", "Vindretning"],
       ["show_weather_icons", "V\xE6rikoner"]
     ].map(([key, label]) => b2`
@@ -1249,7 +1288,7 @@ var AuroraWeatherCardEditor = class extends i4 {
           </span>
           <div>
             <div class="editor-title">Aurora Weather Card Configuration</div>
-            <div class="editor-version">v1.3.1</div>
+            <div class="editor-version">v1.3.1-i18n-dev.1</div>
           </div>
         </div>
 
@@ -2049,7 +2088,7 @@ var AuroraWeatherCard = class extends i4 {
   }
   _formatLocalClock(date = /* @__PURE__ */ new Date()) {
     try {
-      return new Intl.DateTimeFormat("nb-NO", {
+      return new Intl.DateTimeFormat(auroraLocale(this.hass), {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
@@ -2061,14 +2100,14 @@ var AuroraWeatherCard = class extends i4 {
   }
   _formatLocalDay(date) {
     try {
-      return new Intl.DateTimeFormat("nb-NO", {
+      return new Intl.DateTimeFormat(auroraLocale(this.hass), {
         weekday: "short",
         day: "numeric",
         month: "short",
         timeZone: this._cardTimeZone()
       }).format(date);
     } catch (_error) {
-      return new Intl.DateTimeFormat("nb-NO", {
+      return new Intl.DateTimeFormat(auroraLocale(this.hass), {
         weekday: "short",
         day: "numeric",
         month: "short"
@@ -2250,8 +2289,7 @@ var AuroraWeatherCard = class extends i4 {
       return null;
     };
     const bearing = num(now.windBearing, a3.wind_bearing);
-    const dirs = ["N", "N\xD8", "\xD8", "S\xD8", "S", "SV", "V", "NV"];
-    const dir = Number.isFinite(bearing) ? dirs[Math.round((bearing % 360 + 360) % 360 / 45) % 8] : "\u2013";
+    const dir = cardinalDirection(this.hass, bearing);
     const dirArrow = Number.isFinite(bearing);
     const dirRotation = Number.isFinite(bearing) ? bearing : 0;
     const sun = this.hass?.states?.["sun.sun"]?.attributes || {};
@@ -2265,7 +2303,7 @@ var AuroraWeatherCard = class extends i4 {
     const fmt = (v2) => {
       if (!v2) return "\u2013";
       const d3 = v2 instanceof Date ? v2 : new Date(v2);
-      return formatInTimeZone(d3, timeZone);
+      return formatInTimeZone(d3, timeZone, auroraLocale(this.hass));
     };
     return {
       temp: current?.temperature ?? null,
@@ -2312,10 +2350,10 @@ var AuroraWeatherCard = class extends i4 {
     return b2`<div class="expanded-info">
       <div class="info-tile">${thermometer}<div><div class="info-label">Nå</div><div class="info-value">${val(d3.temp)}°</div></div></div>
       <div class="info-tile">${rain}<div><div class="info-label">Nedbør i dag</div><div class="info-value">${val(d3.rainToday)} <small>mm</small></div></div></div>
-      <div class="info-tile">${windIcon("wind-svg")}<div><div class="info-label">Vind</div><div class="info-value">${val(d3.wind)} <small>m/s</small></div><div class="info-sub wind-direction">${d3.dirArrow ? b2`<span class="dir-arrow" style="transform:rotate(${d3.dirRotation}deg)"></span>` : A}<span>${d3.dir}</span></div></div></div>
-      <div class="info-tile">${windIcon("gust-svg")}<div><div class="info-label">Vindkast</div><div class="info-value">${val(d3.gust)} <small>m/s</small></div></div></div>
-      <div class="info-tile">${droplet}<div><div class="info-label">Luftfuktighet</div><div class="info-value">${val(d3.humidity, 0)}<small>%</small></div></div></div>
-      <div class="info-tile">${pressure}<div><div class="info-label">Lufttrykk</div><div class="info-value">${val(d3.pressure, 0)} <small>hPa</small></div></div></div>
+      <div class="info-tile">${windIcon("wind-svg")}<div><div class="info-label">${weatherLabel(this.hass, "wind")}</div><div class="info-value">${val(d3.wind)} <small>m/s</small></div><div class="info-sub wind-direction">${d3.dirArrow ? b2`<span class="dir-arrow" style="transform:rotate(${d3.dirRotation}deg)"></span>` : A}<span>${d3.dir}</span></div></div></div>
+      <div class="info-tile">${windIcon("gust-svg")}<div><div class="info-label">${weatherLabel(this.hass, "gust")}</div><div class="info-value">${val(d3.gust)} <small>m/s</small></div></div></div>
+      <div class="info-tile">${droplet}<div><div class="info-label">${weatherLabel(this.hass, "humidity")}</div><div class="info-value">${val(d3.humidity, 0)}<small>%</small></div></div></div>
+      <div class="info-tile">${pressure}<div><div class="info-label">${weatherLabel(this.hass, "pressure")}</div><div class="info-value">${val(d3.pressure, 0)} <small>hPa</small></div></div></div>
       <div class="info-tile">${sun}<div><div class="info-label">Sol</div><div class="info-value sun-value">${d3.sunrise} / ${d3.sunset}</div></div></div>
     </div>`;
   }
@@ -2344,11 +2382,11 @@ var AuroraWeatherCard = class extends i4 {
         </main>
 
         <footer>
-          ${this.config?.show_temperature !== false ? b2`<span class="legend-item"><span class="legend-dot temp"></span><span>Temperatur</span></span>` : A}
-          ${this.config?.show_precipitation !== false ? b2`<span class="legend-item"><span class="legend-dot rain"></span><span>Nedbør</span></span>` : A}
-          ${this.config?.show_wind !== false ? b2`<span class="legend-item"><span class="legend-dot wind"></span><span>Vind</span></span>` : A}
-          ${this.config?.show_wind_gust !== false ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>Vindkast</span></span>` : A}
-          <span class="version">v1.3.1</span>
+          ${this.config?.show_temperature !== false ? b2`<span class="legend-item"><span class="legend-dot temp"></span><span>${weatherLabel(this.hass, "temperature")}</span></span>` : A}
+          ${this.config?.show_precipitation !== false ? b2`<span class="legend-item"><span class="legend-dot rain"></span><span>${weatherLabel(this.hass, "precipitation")}</span></span>` : A}
+          ${this.config?.show_wind !== false ? b2`<span class="legend-item"><span class="legend-dot wind"></span><span>${weatherLabel(this.hass, "wind")}</span></span>` : A}
+          ${this.config?.show_wind_gust !== false ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, "gust")}</span></span>` : A}
+          <span class="version">v1.3.1-i18n-dev.1</span>
         </footer>
       </ha-card>
 
@@ -2365,10 +2403,10 @@ var AuroraWeatherCard = class extends i4 {
             <div class="expanded-body">${this.renderGraph(true)}
               ${this._renderExpandedInfo()}</div>
             <footer class="expanded-footer">
-              ${this.config?.show_temperature !== false ? b2`<span class="legend-item"><span class="legend-dot temp"></span><span>Temperatur</span></span>` : A}
-              ${this.config?.show_precipitation !== false ? b2`<span class="legend-item"><span class="legend-dot rain"></span><span>Nedbør</span></span>` : A}
-              ${this.config?.show_wind !== false ? b2`<span class="legend-item"><span class="legend-dot wind"></span><span>Vind</span></span>` : A}
-              ${this.config?.show_wind_gust !== false ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>Vindkast</span></span>` : A}
+              ${this.config?.show_temperature !== false ? b2`<span class="legend-item"><span class="legend-dot temp"></span><span>${weatherLabel(this.hass, "temperature")}</span></span>` : A}
+              ${this.config?.show_precipitation !== false ? b2`<span class="legend-item"><span class="legend-dot rain"></span><span>${weatherLabel(this.hass, "precipitation")}</span></span>` : A}
+              ${this.config?.show_wind !== false ? b2`<span class="legend-item"><span class="legend-dot wind"></span><span>${weatherLabel(this.hass, "wind")}</span></span>` : A}
+              ${this.config?.show_wind_gust !== false ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, "gust")}</span></span>` : A}
               <span class="expanded-note">${Math.min(Number(this.config?.hours) || 48, this.forecast.length)} timer tilgjengelig</span>
             </footer>
           </section>
@@ -2693,7 +2731,7 @@ if (!customElements.get("aurora-weather-card")) {
 window.customCards = window.customCards || [];
 var auroraPickerEntry = {
   type: "aurora-weather-card",
-  name: "Aurora Weather Card v1.3.1",
+  name: "Aurora Weather Card v1.3.1-i18n-dev.1",
   preview: false,
   description: "24/48-timers v\xE6rkort med temperatur, nedb\xF8r, vind, vindkast og Aurora-bakgrunn",
   getEntitySuggestion: (_hass, entityId) => {
@@ -2711,4 +2749,4 @@ var auroraPickerEntry = {
 var existingAuroraIndex = window.customCards.findIndex((card) => card.type === "aurora-weather-card");
 if (existingAuroraIndex >= 0) window.customCards.splice(existingAuroraIndex, 1, auroraPickerEntry);
 else window.customCards.push(auroraPickerEntry);
-console.info("%c AURORA WEATHER CARD v1.3.1 %c stable ", "color:#fff;background:#1577d3;font-weight:700", "color:#1577d3;background:#fff");
+console.info("%c AURORA WEATHER CARD v1.3.1-i18n-dev.1 %c development ", "color:#fff;background:#1577d3;font-weight:700", "color:#1577d3;background:#fff");
