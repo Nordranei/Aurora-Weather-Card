@@ -9,7 +9,7 @@
   "location": "STED",
   "location_name": "Stedsnavn",
   "search_location": "Søk etter sted",
-  "location_help": "Påkrevd. Skriv det geografiske stedsnavnet. Aurora søker automatisk mens du skriver; søkeikonet kan brukes manuelt ved behov.",
+  "location_help": "Påkrevd. Søk etter stedet for navn, lokal tid og soltider. Stedsøk endrer ikke værkilden eller prognosen. Velg riktig vær-entitet under Værkilde for å endre værstedet.",
   "searching": "Søker …",
   "choose_location": "VELG RIKTIG STED",
   "unknown_timezone": "ukjent tidssone",
@@ -52,5 +52,18 @@
   "expanded_forecast": "Utvidet værvarsel",
   "close_expanded": "Lukk stor visning",
   "graph_accessible": "Værikoner, temperatur, nedbør, vind og vindkast",
-  "hours_available": "{count} timer tilgjengelig"
+  "hours_available": "{count} timer tilgjengelig",
+  "color_mode": "Fargemodus",
+  "mode_auto": "Automatisk",
+  "mode_light": "Lyst",
+  "mode_dark": "Mørkt",
+  "color_mode_help": "Automatisk følger temaet i Home Assistant i normalvisning og storvisning.",
+  "forecast_received": "Prognose mottatt: {time}",
+  "source_type": "Type værkilde",
+  "source_entity": "Home Assistant-entitet",
+  "source_direct": "Direkte — Open-Meteo",
+  "direct_help": "Henter prognosen direkte for valgt sted. Koordinatene sendes til Open-Meteo fra denne nettleseren. Ingen API-nøkkel; gratis tjeneste for ikke-kommersiell bruk. Oppdateres hvert 30. minutt.",
+  "direct_location_help": "Søk og velg et sted. I direkte modus bestemmer dette stedet værprognosen.",
+  "direct_location_required": "Velg et sted, eller oppgi gyldig breddegrad og lengdegrad under Avansert.",
+  "direct_fetch_failed": "Kunne ikke oppdatere fra Open-Meteo. Prøver igjen om 5 minutter; eventuell vist prognose er fra siste vellykkede oppdatering."
 }

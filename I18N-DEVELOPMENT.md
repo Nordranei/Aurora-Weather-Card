@@ -98,3 +98,40 @@ and development resources together in one browser session.
   current RTL tests check direction and English fallback, not full Arabic translation.
 - Verify localized number and user time-format preferences separately.
 - Full visual verification inside Home Assistant before a release.
+
+## Appearance modes (development)
+
+`color_mode: auto | light | dark` applies to both compact and expanded views.
+Default `auto` follows `hass.themes.darkMode`; missing HA theme metadata keeps the dark fallback. Explicit `dark` retains the existing palette. Light mode uses a pale background and darker text, precipitation, wind and gust colors. Aurora motion is retained with reduced opacity.
+
+Editor labels are translated in English, Norwegian Bokmål and German. Verified with 13 unit tests, 256 graph cases, and real-browser checks across automatic/forced modes, both HA themes and 360/1000px widths. This change has not yet been installed in the live Home Assistant test card.
+
+Live appearance verification: the isolated test resource was updated and light mode was saved on the test card. Confirmed light compact and expanded views and dark editor preview. Fixed dark SVG text outlines on light date/rain labels after visual inspection. Automatic mode was initially selected with the dark HA theme; both HA theme values were covered by local browser tests. Stable card and resource were unchanged.
+
+## Forecast display improvements
+
+Gust legend and plot disappear when the displayed forecast has no valid gusts (null/empty values are missing, zero remains valid). The expanded gust tile also disappears without a valid current/forecast value. Axes, grids and plot allocation follow enabled series; hidden gusts no longer affect the wind scale. Icon and direction rows release their space when disabled. Place-search help explicitly distinguishes display location from the selected weather entity.
+
+Both views show when a non-empty forecast was received by this card, using the user's locale and browser timezone. This is receipt time, not the provider's issue time; it resets on source/subscription changes or empty data. Local tests cover missing/null/zero gusts, all 256 graph combinations, axis visibility, subscription timestamp lifecycle and real-browser theme/i18n/layout behavior. These four improvements have not yet been deployed to Home Assistant.
+
+## Optional direct weather source
+
+The default remains Home Assistant (`weather_source: entity`, or omit it). Choose **Direct — Open-Meteo** in the editor to use a selected place without a weather entity. Direct mode explicitly uses the configured latitude/longitude, ignoring a remembered entity's data and coordinates. Switching back preserves the previous entity choice.
+
+Example (public Berlin city coordinates):
+
+```yaml
+type: custom:aurora-weather-card-i18n-dev
+weather_source: open_meteo
+location_name: Berlin
+latitude: 52.52
+longitude: 13.41
+time_zone: Europe/Berlin
+hours: 48
+```
+
+The browser sends selected coordinates to https://api.open-meteo.com. No HA tokens or credentials are sent. The free endpoint is for non-commercial use, including personal home automation; attribution is shown in both views. See https://open-meteo.com/en/terms and https://open-meteo.com/en/docs. Commercial/API-key support is not included in this first implementation.
+
+While mounted, the card refreshes every 30 minutes. Cards at identical coordinates share a bounded 30-minute in-memory cache within the page. Reloads/devices have separate caches. Failed requests time out after 15 seconds and retry after 5 minutes; previously received data is retained with a warning. Invalid/missing coordinates never trigger a request. Source/place changes and disconnects ignore late responses. The update label is receipt time, not provider issue time. Direct forecasts use Celsius, mm and m/s. No server-side proxy or persistent background polling is installed.
+
+Validation: 18 unit tests; existing graph regressions; local browser theme, localization and subscription tests; live browser request for Berlin returned 48 plotted forecast hours without a weather entity, verifying CORS, mapping, attribution and the editor source toggle. Not yet deployed in Home Assistant. All-languages translation work remains incomplete (own messages currently en/nb/de).

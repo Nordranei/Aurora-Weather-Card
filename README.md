@@ -45,7 +45,7 @@ Aurora Weather Card combines modern weather visualization with a calm Scandinavi
 
 ## Weather data
 
-Aurora Weather Card currently uses a Home Assistant `weather.*` entity as its data source.
+By default, Aurora Weather Card uses a Home Assistant `weather.*` entity. An optional **Direct — Open-Meteo** source fetches weather for the selected coordinates without a weather entity.
 
 MET Norway / Met.no is recommended, but another compatible Home Assistant weather entity can be used.
 
@@ -95,7 +95,9 @@ theme: aurora_dynamic
 
 | Option | Description |
 | --- | --- |
-| `entity` | Home Assistant `weather.*` entity |
+| `weather_source` | `entity` (default) or `open_meteo` |
+| `entity` | Home Assistant `weather.*` entity; required in entity mode |
+| `color_mode` | `auto` (default), `light`, or `dark`; applies to both views |
 | `location_name` | Custom location name shown in the card |
 | `hours` | Forecast period, 24 or 48 hours |
 | `theme` | Aurora theme/background selection |
@@ -105,18 +107,18 @@ theme: aurora_dynamic
 | `show_wind_gust` | Show wind-gust graph and legend; default `true` |
 | `show_wind_direction` | Show wind-direction arrows; default `true` |
 | `show_weather_icons` | Show forecast weather icons; default `true` |
-| `latitude`, `longitude` | Optional coordinates for local solar calculations |
+| `latitude`, `longitude` | Required forecast coordinates in direct mode; optional solar-location fallback in entity mode |
 | `time_zone` | Optional IANA time zone, for example `Europe/Oslo` |
 
 The GRAPH options apply to compact and expanded views. Existing configurations keep all graph elements enabled.
 
-CONFIG can search for a place name through Open-Meteo geocoding and save the selected coordinates and time zone. ADVANCED provides manual fallback fields. The forecast still comes from the selected `weather.*` entity: changing the display location does not relocate that entity's forecast.
+CONFIG can search for a place name through Open-Meteo geocoding and save the selected coordinates and time zone. ADVANCED provides manual fallback fields. In entity mode, changing the display location does not relocate that entity's forecast. In direct mode, the selected coordinates determine the forecast.
 
-### Upgrading to v1.3.0
+### Upgrading to v1.4.1
 
 Update through HACS and reload your browser. Existing dashboards keep `type: custom:aurora-weather-card`.
 
-For manual installations, replace the resource file and append `?v=1.3.0` to its URL. Development-build users should change `custom:aurora-weather-card-dev` to `custom:aurora-weather-card` when switching to the stable resource.
+For manual installations, replace the resource file and append `?v=1.4.1` to its URL. Development-build users should change `custom:aurora-weather-card-dev` to `custom:aurora-weather-card` when switching to the stable resource.
 
 ## Visual editor
 
@@ -124,9 +126,35 @@ Aurora Weather Card includes a visual configuration editor for Home Assistant.
 
 ![Aurora Weather Card editor](screenshots/editor.png)
 
-## What's new in v1.3.0
+## What's new in v1.4.1
 
-Six graph visibility switches, matching legends, a tabbed editor and location search with local time and solar calculations. The release is based on the tested v1.3-dev Step 9B build.
+- Automatic, light and dark color modes for compact and expanded views.
+- Optional direct Open-Meteo forecasts; the Home Assistant entity remains the default.
+- Hidden/missing gusts no longer leave a legend entry; axes and plot allocation follow graph choices.
+- Forecast receipt time in both views and clearer location-search guidance.
+- Card/editor translations for English, Norwegian Bokmål and German. Other languages use English for Aurora-specific text; weather labels use Home Assistant translations where available.
+- The existing Aurora night atmosphere is retained.
+
+### Direct forecasts
+
+Choose **Direct — Open-Meteo** under Settings → Weather source type, then search and select a place (or enter coordinates under Advanced).
+
+```yaml
+type: custom:aurora-weather-card
+weather_source: open_meteo
+location_name: Berlin
+latitude: 52.52
+longitude: 13.41
+time_zone: Europe/Berlin
+hours: 48
+color_mode: auto
+```
+
+The browser sends selected coordinates to Open-Meteo, without Home Assistant credentials. The free API is for non-commercial use, including personal home automation: [terms](https://open-meteo.com/en/terms). Direct forecasts use °C, mm and m/s. Attribution is displayed in both views.
+
+While the card is open, requests refresh every 30 minutes with a shared in-memory cache per page. Other browsers/devices have separate caches. Failed requests retry after 5 minutes; retained data is labelled with its original receipt time and an error message. “Forecast received” means when the card obtained the data, not when the provider issued it.
+
+Existing configurations keep their weather entity. The new automatic color mode follows Home Assistant; select **Dark** to retain an always-dark card. The isolated test card is separate: use `custom:aurora-weather-card` with the stable HACS resource for production.
 
 ## Previous update: v1.2
 

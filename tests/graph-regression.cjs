@@ -23,6 +23,10 @@ for(const hours of [24,48]) for(let mask=0;mask<64;mask++) {
   const graph=card.renderGraph(expanded);
   selectors.forEach((cls,i)=>assert.equal(graph.includes('class="'+cls+'"'),!!(mask&(1<<i)),cls));
   assert(!graph.includes('NaN'));
+  assert.equal(graph.includes('class="axis-label"'),!!(mask&1));
+  assert.equal(graph.includes('class="rain-unit-label"'),!!(mask&2));
+  assert.equal(graph.includes('class="wind-axis-label"'),!!(mask&12));
+  assert.equal(graph.includes('class="wind-separator"'),!!(mask&3)&&!!(mask&12));
   cases++;
  }
  const rendered=card.render();
@@ -30,7 +34,7 @@ for(const hours of [24,48]) for(let mask=0;mask<64;mask++) {
 }
 card.setConfig({entity:'weather.test'});
 selectors.forEach(cls=>assert(card.renderGraph().includes('class="'+cls+'"')));
-const Editor=classes['aurora-weather-card-editor-v1-3-1'];
+const Editor=classes['aurora-weather-card-editor-v1-4-1'];
 const editor=new Editor(); editor.setConfig({hours:24,entity:'weather.test'});
 let event; context.CustomEvent=class {constructor(type,options){this.type=type;Object.assign(this,options)}};
 editor.dispatchEvent=e=>{event=e};
@@ -47,3 +51,25 @@ assert.equal(card.config.location_name,"Home");
 assert.equal(card.config.theme,"aurora_static");
 selectors.forEach(cls=>assert(card.renderGraph().includes('class="'+cls+'"')));
 console.log("PASS: stable registration and existing v1.2 configuration.");
+
+// Missing gusts are not zero; real zero gusts are still valid.
+card.graphData=Card.prototype.graphData;
+card.setConfig({entity:'weather.test',show_wind:false});
+card.hass={states:{'weather.test':{attributes:{wind_speed_unit:'m/s'}}}};
+const base=Array.from({length:4},(_,i)=>({datetime:new Date(Date.now()+(i+1)*3600000).toISOString(),temperature:12,wind_speed:3}));
+for(const missing of [undefined,null,'']) {
+ card.forecast=base.map(d=>({...d,wind_gust_speed:missing}));
+ assert.equal(card._hasGustData(),false);
+ assert(!card.render().includes('legend-dot gust'));
+ assert(!card.renderGraph().includes('wind-axis-label'));
+}
+card.forecast=base.map(d=>({...d,wind_gust_speed:0}));
+assert.equal(card._hasGustData(),true);
+assert(card.render().includes('legend-dot gust'));
+card.setConfig({entity:'weather.test',show_temperature:false,show_precipitation:false,show_wind_gust:false});
+const onlyWind=card.renderGraph();
+assert(!onlyWind.includes('weather-time-grid'));
+assert(onlyWind.includes('wind-time-grid'));
+card.forecastReceivedAt=new Date();
+assert(card.render().includes('forecast-updated'));
+console.log('PASS missing/null/zero gusts, conditional axes and update label.');

@@ -592,7 +592,7 @@ var en_default = {
   location: "Location",
   location_name: "Place name",
   search_location: "Search for a place",
-  location_help: "Required. Enter the geographical place name. Aurora searches as you type; use the search button to search manually.",
+  location_help: "Required. Search for a place to set its name, local time and sun times. Place search does not change the weather source or forecast. Select the correct weather entity under Weather source to change the forecast location.",
   searching: "Searching \u2026",
   choose_location: "Choose the correct place",
   unknown_timezone: "unknown time zone",
@@ -635,7 +635,20 @@ var en_default = {
   expanded_forecast: "Expanded weather forecast",
   close_expanded: "Close expanded view",
   graph_accessible: "Weather icons, temperature, precipitation, wind and gusts",
-  hours_available: "Available forecast hours: {count}"
+  hours_available: "Available forecast hours: {count}",
+  color_mode: "Color mode",
+  mode_auto: "Automatic",
+  mode_light: "Light",
+  mode_dark: "Dark",
+  color_mode_help: "Automatic follows the Home Assistant theme in normal and expanded views.",
+  forecast_received: "Forecast received: {time}",
+  source_type: "Weather source type",
+  source_entity: "Home Assistant entity",
+  source_direct: "Direct \u2014 Open-Meteo",
+  direct_help: "Fetches forecasts directly for the selected place. Its coordinates are sent to Open-Meteo from this browser. No API key; free service for non-commercial use. Refreshes every 30 minutes.",
+  direct_location_help: "Search and select a place. In direct mode, this location determines the forecast.",
+  direct_location_required: "Select a place or enter valid latitude and longitude under Advanced.",
+  direct_fetch_failed: "Could not refresh Open-Meteo. Retrying in 5 minutes; any displayed forecast is from the last successful update."
 };
 
 // src/locales/nb.json
@@ -650,7 +663,7 @@ var nb_default = {
   location: "STED",
   location_name: "Stedsnavn",
   search_location: "S\xF8k etter sted",
-  location_help: "P\xE5krevd. Skriv det geografiske stedsnavnet. Aurora s\xF8ker automatisk mens du skriver; s\xF8keikonet kan brukes manuelt ved behov.",
+  location_help: "P\xE5krevd. S\xF8k etter stedet for navn, lokal tid og soltider. Steds\xF8k endrer ikke v\xE6rkilden eller prognosen. Velg riktig v\xE6r-entitet under V\xE6rkilde for \xE5 endre v\xE6rstedet.",
   searching: "S\xF8ker \u2026",
   choose_location: "VELG RIKTIG STED",
   unknown_timezone: "ukjent tidssone",
@@ -693,7 +706,20 @@ var nb_default = {
   expanded_forecast: "Utvidet v\xE6rvarsel",
   close_expanded: "Lukk stor visning",
   graph_accessible: "V\xE6rikoner, temperatur, nedb\xF8r, vind og vindkast",
-  hours_available: "{count} timer tilgjengelig"
+  hours_available: "{count} timer tilgjengelig",
+  color_mode: "Fargemodus",
+  mode_auto: "Automatisk",
+  mode_light: "Lyst",
+  mode_dark: "M\xF8rkt",
+  color_mode_help: "Automatisk f\xF8lger temaet i Home Assistant i normalvisning og storvisning.",
+  forecast_received: "Prognose mottatt: {time}",
+  source_type: "Type v\xE6rkilde",
+  source_entity: "Home Assistant-entitet",
+  source_direct: "Direkte \u2014 Open-Meteo",
+  direct_help: "Henter prognosen direkte for valgt sted. Koordinatene sendes til Open-Meteo fra denne nettleseren. Ingen API-n\xF8kkel; gratis tjeneste for ikke-kommersiell bruk. Oppdateres hvert 30. minutt.",
+  direct_location_help: "S\xF8k og velg et sted. I direkte modus bestemmer dette stedet v\xE6rprognosen.",
+  direct_location_required: "Velg et sted, eller oppgi gyldig breddegrad og lengdegrad under Avansert.",
+  direct_fetch_failed: "Kunne ikke oppdatere fra Open-Meteo. Pr\xF8ver igjen om 5 minutter; eventuell vist prognose er fra siste vellykkede oppdatering."
 };
 
 // src/locales/de.json
@@ -708,7 +734,7 @@ var de_default = {
   location: "Standort",
   location_name: "Ortsname",
   search_location: "Ort suchen",
-  location_help: "Erforderlich. Gib den geografischen Ortsnamen ein. Aurora sucht w\xE4hrend der Eingabe; \xFCber die Suchschaltfl\xE4che kannst du manuell suchen.",
+  location_help: "Erforderlich. Die Ortssuche legt Name, Ortszeit und Sonnenzeiten fest. Sie \xE4ndert weder Wetterquelle noch Prognose. W\xE4hle unter Wetterquelle die passende Wetterentit\xE4t, um den Vorhersageort zu \xE4ndern.",
   searching: "Suche l\xE4uft \u2026",
   choose_location: "Richtigen Ort ausw\xE4hlen",
   unknown_timezone: "unbekannte Zeitzone",
@@ -751,7 +777,20 @@ var de_default = {
   expanded_forecast: "Erweiterte Wettervorhersage",
   close_expanded: "Gro\xDFe Ansicht schlie\xDFen",
   graph_accessible: "Wettersymbole, Temperatur, Niederschlag, Wind und B\xF6en",
-  hours_available: "Verf\xFCgbare Vorhersagestunden: {count}"
+  hours_available: "Verf\xFCgbare Vorhersagestunden: {count}",
+  color_mode: "Farbmodus",
+  mode_auto: "Automatisch",
+  mode_light: "Hell",
+  mode_dark: "Dunkel",
+  color_mode_help: "Automatisch folgt dem Design von Home Assistant in der normalen und vergr\xF6\xDFerten Ansicht.",
+  forecast_received: "Prognose empfangen: {time}",
+  source_type: "Art der Wetterquelle",
+  source_entity: "Home-Assistant-Entit\xE4t",
+  source_direct: "Direkt \u2014 Open-Meteo",
+  direct_help: "L\xE4dt die Prognose direkt f\xFCr den gew\xE4hlten Ort. Die Koordinaten werden von diesem Browser an Open-Meteo gesendet. Kein API-Schl\xFCssel; kostenlos f\xFCr nichtkommerzielle Nutzung. Aktualisierung alle 30 Minuten.",
+  direct_location_help: "Suche und w\xE4hle einen Ort. Im Direktmodus bestimmt dieser Ort die Wetterprognose.",
+  direct_location_required: "W\xE4hle einen Ort oder trage g\xFCltige Koordinaten unter Erweitert ein.",
+  direct_fetch_failed: "Open-Meteo konnte nicht aktualisiert werden. Neuer Versuch in 5 Minuten; eine angezeigte Prognose stammt von der letzten erfolgreichen Aktualisierung."
 };
 
 // src/localize.js
@@ -945,7 +984,80 @@ function weatherIconSvg(condition) {
       return cloud();
   }
 }
+var directForecastCache = /* @__PURE__ */ new Map();
+function directCoordinates(config) {
+  const valid = (value) => value !== "" && value != null && Number.isFinite(Number(value));
+  if (!valid(config?.latitude) || !valid(config?.longitude)) return null;
+  const latitude = Number(config.latitude), longitude = Number(config.longitude);
+  if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180) return null;
+  return { latitude, longitude };
+}
+function openMeteoCondition(code, isDay = 1) {
+  if (code === 0) return isDay === 0 ? "clear-night" : "sunny";
+  if (code === 1 || code === 2) return "partlycloudy";
+  if (code === 3) return "cloudy";
+  if (code === 45 || code === 48) return "fog";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "snowy";
+  if (code >= 95) return "lightning-rainy";
+  if ([65, 67, 82].includes(code)) return "pouring";
+  if ([51, 53, 55, 56, 57, 61, 63, 66, 80, 81].includes(code)) return "rainy";
+  return "cloudy";
+}
+function parseDirectForecast(payload) {
+  const h3 = payload?.hourly;
+  if (!Array.isArray(h3?.time)) throw new Error("Invalid hourly forecast");
+  const number = (key, i5) => typeof h3[key]?.[i5] === "number" && Number.isFinite(h3[key][i5]) ? h3[key][i5] : null;
+  const forecast = h3.time.map((time, i5) => ({
+    datetime: typeof time === "number" ? new Date(time * 1e3).toISOString() : null,
+    temperature: number("temperature_2m", i5),
+    precipitation: number("precipitation", i5),
+    wind_speed: number("wind_speed_10m", i5),
+    wind_gust_speed: number("wind_gusts_10m", i5),
+    wind_bearing: number("wind_direction_10m", i5),
+    humidity: number("relative_humidity_2m", i5),
+    pressure: number("pressure_msl", i5),
+    condition: openMeteoCondition(number("weather_code", i5), number("is_day", i5))
+  })).filter((p3) => p3.datetime && p3.temperature !== null);
+  if (forecast.length < 2) throw new Error("Empty hourly forecast");
+  return forecast;
+}
+async function fetchDirectForecast(coords) {
+  const key = coords.latitude + "," + coords.longitude;
+  const cached = directForecastCache.get(key);
+  if (cached && cached.expires > Date.now()) return cached.promise;
+  const entry = { expires: Date.now() + 30 * 60 * 1e3 };
+  entry.promise = (async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15e3);
+    try {
+      const params = new URLSearchParams({
+        latitude: String(coords.latitude),
+        longitude: String(coords.longitude),
+        hourly: "temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m,wind_direction_10m,weather_code,relative_humidity_2m,pressure_msl,is_day",
+        wind_speed_unit: "ms",
+        temperature_unit: "celsius",
+        precipitation_unit: "mm",
+        timeformat: "unixtime",
+        timezone: "auto",
+        forecast_days: "3"
+      });
+      const response = await fetch("https://api.open-meteo.com/v1/forecast?" + params, { signal: controller.signal, credentials: "omit", referrerPolicy: "no-referrer" });
+      if (!response.ok) throw new Error("Open-Meteo HTTP " + response.status);
+      const payload = await response.json();
+      return { forecast: parseDirectForecast(payload), receivedAt: /* @__PURE__ */ new Date(), timeZone: payload.timezone };
+    } catch (error) {
+      entry.expires = Date.now() + 5 * 60 * 1e3;
+      throw error;
+    } finally {
+      clearTimeout(timeout);
+    }
+  })();
+  directForecastCache.set(key, entry);
+  if (directForecastCache.size > 32) directForecastCache.delete(directForecastCache.keys().next().value);
+  return entry.promise;
+}
 function windToMs(value, unit) {
+  if (value == null || value === "" || typeof value === "boolean") return NaN;
   const v2 = Number(value);
   if (!Number.isFinite(v2)) return NaN;
   const u3 = String(unit || "m/s").trim().toLowerCase();
@@ -1073,6 +1185,12 @@ var AuroraWeatherCardEditor = class extends i4 {
     return b2`
       <section class="editor-section">
         <h3>${this._t("weather_source")}</h3>
+        <label>${this._t("source_type")}
+        <select class="editor-input" .value=${this.config?.weather_source || "entity"} @change=${(event) => this._setValue("weather_source", event.target.value)}>
+          <option value="entity" ?selected=${this.config?.weather_source !== "open_meteo"}>${this._t("source_entity")}</option>
+          <option value="open_meteo" ?selected=${this.config?.weather_source === "open_meteo"}>${this._t("source_direct")}</option>
+        </select></label>
+        ${this.config?.weather_source === "open_meteo" ? b2`<div class="helper">${this._t("direct_help")}</div>` : b2`
         <label class="field-label">${this._t("select_entity")}</label>
         <select
           class="editor-input"
@@ -1087,7 +1205,7 @@ var AuroraWeatherCardEditor = class extends i4 {
             >${state.attributes?.friendly_name || state.entity_id}</option>
           `)}
         </select>
-        <div class="helper">${this._t("source_help")}</div>
+        <div class="helper">${this._t("source_help")}</div>`}
       </section>
 
       <section class="editor-section">
@@ -1108,7 +1226,7 @@ var AuroraWeatherCardEditor = class extends i4 {
             @click=${this._runGeocodingDiagnostic}
           >⌕</button>
         </div>
-        <div class="helper">${this._t("location_help")}</div>
+        <div class="helper">${this.config?.weather_source === "open_meteo" ? this._t("direct_location_help") : this._t("location_help")}</div>
 
         ${this.geocodingDiagnostic?.loading ? b2`
           <div class="location-search-status">${this._t("searching")}</div>
@@ -1145,6 +1263,14 @@ var AuroraWeatherCardEditor = class extends i4 {
     ];
     return b2`
       <section class="editor-section">
+        <h3>${this._t("color_mode")}</h3>
+        <div class="segmented" role="group" aria-label="${this._t("color_mode")}">
+          ${["auto", "light", "dark"].map((mode) => b2`
+            <button type="button" class="${(this.config?.color_mode || "auto") === mode ? "active" : ""}"
+              aria-pressed="${(this.config?.color_mode || "auto") === mode}"
+              @click=${() => this._setValue("color_mode", mode)}>${{ auto: this._t("mode_auto"), light: this._t("mode_light"), dark: this._t("mode_dark") }[mode]}</button>`)}
+        </div>
+        <div class="editor-info">${this._t("color_mode_help")}</div>
         <h3>${this._t("theme")}</h3>
         <div class="theme-grid">
           ${themes.map(([value, title, subtitle]) => b2`
@@ -1480,7 +1606,7 @@ var AuroraWeatherCardEditor = class extends i4 {
           </span>
           <div>
             <div class="editor-title">${this._t("editor_title")}</div>
-            <div class="editor-version">v1.3.1-i18n-dev.2</div>
+            <div class="editor-version">v1.4.1</div>
           </div>
         </div>
 
@@ -1958,7 +2084,7 @@ var AuroraWeatherCard = class extends i4 {
     return name;
   }
   static async getConfigElement() {
-    return document.createElement("aurora-weather-card-editor-v1-3-1");
+    return document.createElement("aurora-weather-card-editor-v1-4-1");
   }
   static getStubConfig() {
     return {
@@ -1975,6 +2101,7 @@ var AuroraWeatherCard = class extends i4 {
     super();
     this.status = "idle";
     this.forecast = [];
+    this.forecastReceivedAt = null;
     this.errorMessage = "";
     this.containerWidth = 760;
     this._resizeObserver = void 0;
@@ -1984,13 +2111,14 @@ var AuroraWeatherCard = class extends i4 {
     };
   }
   setConfig(config) {
-    if (config?.entity && !config.entity.startsWith("weather.")) throw new Error(this._t("invalid_entity"));
-    const entityChanged = this.config?.entity !== config?.entity;
+    if (config?.weather_source !== "open_meteo" && config?.entity && !config.entity.startsWith("weather.")) throw new Error(this._t("invalid_entity"));
+    const entityChanged = ["entity", "weather_source", "latitude", "longitude"].some((key) => this.config?.[key] !== config?.[key]);
     this.config = { hours: 48, theme: "aurora_dynamic", ...config };
     if (Number(this.config.hours) > 48) this.config.hours = 48;
     if (entityChanged) {
       this._stopForecastSubscription();
       this.forecast = [];
+      this.forecastReceivedAt = null;
       this.status = "idle";
       this.errorMessage = "";
     }
@@ -2054,13 +2182,55 @@ var AuroraWeatherCard = class extends i4 {
     }
   }
   _stopForecastSubscription() {
+    this._directRequest = void 0;
+    if (this._directTimer) clearTimeout(this._directTimer);
+    this._directTimer = void 0;
     const subscription = this._forecastSubscription;
     this._forecastSubscription = void 0;
     if (this._forecastRetryTimer) clearTimeout(this._forecastRetryTimer);
     this._forecastRetryTimer = void 0;
     if (subscription?.unsubscribe) this._unsubscribeForecast(subscription.unsubscribe);
   }
+  _weatherState() {
+    if (this.config?.weather_source !== "open_meteo") return this.hass?.states?.[this.config?.entity];
+    const point = this.graphData()[0];
+    return { state: point?.condition, attributes: { humidity: point?.humidity, pressure: point?.pressure, wind_speed_unit: "m/s" } };
+  }
+  async _loadDirectForecast() {
+    if (!this.isConnected || this._directRequest) return;
+    const coords = directCoordinates(this.config);
+    if (!coords) {
+      this.status = "error";
+      this.errorMessage = this._t("direct_location_required");
+      return;
+    }
+    const request = {};
+    this._directRequest = request;
+    if (!this.forecast.length) this.status = "loading";
+    const current = () => this.isConnected && this._directRequest === request && this.config?.weather_source === "open_meteo";
+    let delay = 30 * 60 * 1e3;
+    try {
+      const result = await fetchDirectForecast(coords);
+      if (!current()) return;
+      this.forecast = result.forecast;
+      this.forecastReceivedAt = result.receivedAt;
+      this._directTimeZone = result.timeZone;
+      this.errorMessage = "";
+      this.status = "ok";
+      delay = Math.max(1e3, 30 * 60 * 1e3 - (Date.now() - result.receivedAt.getTime()));
+    } catch (error) {
+      if (!current()) return;
+      this.errorMessage = this._t("direct_fetch_failed");
+      this.status = this.forecast.length ? "ok" : "error";
+      delay = 5 * 60 * 1e3;
+    }
+    if (current()) this._directTimer = window.setTimeout(() => {
+      this._directRequest = void 0;
+      void this._loadDirectForecast();
+    }, delay);
+  }
   async loadForecastIfNeeded() {
+    if (this.config?.weather_source === "open_meteo") return this._loadDirectForecast();
     const entity = this.config?.entity;
     const connection = this.hass?.connection;
     if (!this.isConnected) return;
@@ -2072,12 +2242,14 @@ var AuroraWeatherCard = class extends i4 {
     this._forecastSubscription = subscription;
     const isCurrent = () => this.isConnected && this._forecastSubscription === subscription && this.config?.entity === entity && this.hass?.connection === connection;
     this.forecast = [];
+    this.forecastReceivedAt = null;
     this.status = "loading";
     this.errorMessage = "";
     try {
       const unsubscribe = await connection.subscribeMessage((event) => {
         if (!isCurrent()) return;
         this.forecast = Array.isArray(event?.forecast) ? event.forecast : [];
+        this.forecastReceivedAt = this.forecast.length ? /* @__PURE__ */ new Date() : null;
         this.status = "ok";
         this.errorMessage = "";
       }, { type: "weather/subscribe_forecast", forecast_type: "hourly", entity_id: entity });
@@ -2101,7 +2273,7 @@ var AuroraWeatherCard = class extends i4 {
   graphData() {
     const hours = Math.max(6, Math.min(Number(this.config?.hours) || 48, 48));
     const entityState = this.hass?.states?.[this.config?.entity];
-    const windUnit = entityState?.attributes?.wind_speed_unit || "m/s";
+    const windUnit = this.config?.weather_source === "open_meteo" ? "m/s" : entityState?.attributes?.wind_speed_unit || "m/s";
     const now = /* @__PURE__ */ new Date();
     now.setMinutes(0, 0, 0);
     return this.forecast.filter((item) => {
@@ -2114,13 +2286,15 @@ var AuroraWeatherCard = class extends i4 {
       windSpeed: windToMs(item.wind_speed, windUnit),
       windGust: windToMs(item.wind_gust_speed, windUnit),
       windBearing: Number(item.wind_bearing),
-      condition: item.condition || "cloudy"
+      condition: item.condition || "cloudy",
+      humidity: item.humidity,
+      pressure: item.pressure
     })).filter((item) => Number.isFinite(item.time.getTime()) && Number.isFinite(item.temperature));
   }
   atmosphereClass() {
     if (this.config?.theme === "aurora_static") return "atmosphere-static";
     const entityState = this.hass?.states?.[this.config?.entity];
-    const condition = String(entityState?.state || "cloudy");
+    const condition = String(this._weatherState()?.state || "cloudy");
     const month = (/* @__PURE__ */ new Date()).getMonth() + 1;
     const season = [12, 1, 2].includes(month) ? "winter" : [3, 4, 5].includes(month) ? "spring" : [6, 7, 8].includes(month) ? "summer" : "autumn";
     const location = this._effectiveLocation();
@@ -2179,6 +2353,10 @@ var AuroraWeatherCard = class extends i4 {
     return { latitude, longitude, timeZone };
   }
   _effectiveLocation() {
+    if (this.config?.weather_source === "open_meteo") {
+      const coords = directCoordinates(this.config);
+      return { ...coords, timeZone: this.config?.time_zone || this._directTimeZone || "UTC", automatic: false };
+    }
     const automatic = this._weatherLocation();
     const manualLat = Number(this.config?.latitude);
     const manualLon = Number(this.config?.longitude);
@@ -2257,29 +2435,42 @@ var AuroraWeatherCard = class extends i4 {
       }).format(date);
     }
   }
+  _hasGustData() {
+    return this.graphData().some((point) => Number.isFinite(point.windGust));
+  }
+  _renderForecastUpdated() {
+    if (!this.forecastReceivedAt) return A;
+    const time = new Intl.DateTimeFormat(auroraLocale(this.hass), {
+      dateStyle: "short",
+      timeStyle: "short"
+    }).format(this.forecastReceivedAt);
+    return b2`<span class="forecast-updated">${this._t("forecast_received", { time })}</span>`;
+  }
   renderGraph(expanded = false) {
     const showTemperature = this.config?.show_temperature !== false;
     const showPrecipitation = this.config?.show_precipitation !== false;
     const showWind = this.config?.show_wind !== false;
-    const showGust = this.config?.show_wind_gust !== false;
+    const showGust = this.config?.show_wind_gust !== false && this._hasGustData();
     const showWindDirection = this.config?.show_wind_direction !== false;
     const showWeatherIcons = this.config?.show_weather_icons !== false;
     const data = this.graphData();
     if (data.length < 2) return b2`<div class="message">${this._t("too_few_points")}</div>`;
+    const hasWeather = showTemperature || showPrecipitation;
+    const hasWind = showWind || showGust;
     const measuredWidth = expanded ? Math.max(640, Math.min(1320, Math.round(window.innerWidth * 0.88))) : Number(this.containerWidth) || 760;
     const profile = measuredWidth < 600 ? "mobile" : measuredWidth < 1e3 ? "tablet" : "desktop";
     const width = Math.max(320, Math.min(1600, measuredWidth - 20));
     const compactWindExtra = expanded ? 0 : profile === "mobile" ? 12 : profile === "tablet" ? 16 : 18;
-    const height = expanded ? profile === "mobile" ? 330 : profile === "tablet" ? 430 : 500 : (profile === "mobile" ? 174 : profile === "tablet" ? 206 : 238) + compactWindExtra;
-    const left = profile === "mobile" ? 38 : profile === "tablet" ? 48 : 58;
-    const right = profile === "mobile" ? 12 : profile === "tablet" ? 20 : 28;
-    const top = expanded ? profile === "mobile" ? 78 : profile === "tablet" ? 88 : 96 : profile === "mobile" ? 52 : profile === "tablet" ? 58 : 62;
-    const bottom = expanded ? profile === "mobile" ? 54 : profile === "tablet" ? 60 : 65 : profile === "mobile" ? 40 : profile === "tablet" ? 44 : 47;
-    const gap = expanded ? profile === "mobile" ? 18 : profile === "tablet" ? 26 : 30 : profile === "mobile" ? 18 : 20;
+    const height = !hasWeather && !hasWind ? showWeatherIcons ? 110 : 86 : expanded ? profile === "mobile" ? 330 : profile === "tablet" ? 430 : 500 : (profile === "mobile" ? 174 : profile === "tablet" ? 206 : 238) + compactWindExtra;
+    const left = showTemperature || hasWind ? profile === "mobile" ? 38 : profile === "tablet" ? 48 : 58 : 12;
+    const right = showPrecipitation ? profile === "mobile" ? 24 : profile === "tablet" ? 30 : 36 : 12;
+    const top = (expanded ? profile === "mobile" ? 78 : profile === "tablet" ? 88 : 96 : profile === "mobile" ? 52 : profile === "tablet" ? 58 : 62) - (showWeatherIcons ? 0 : 24);
+    const bottom = (expanded ? profile === "mobile" ? 54 : profile === "tablet" ? 60 : 65 : profile === "mobile" ? 40 : profile === "tablet" ? 44 : 47) - (showWindDirection ? 0 : 20);
+    const gap = hasWeather && hasWind ? expanded ? profile === "mobile" ? 18 : profile === "tablet" ? 26 : 30 : profile === "mobile" ? 18 : 20 : 0;
     const available = height - top - bottom - gap;
     const compactBaseAvailable = available - compactWindExtra;
-    const weatherHeight = expanded ? available * 0.66 : compactBaseAvailable * 0.68;
-    const windHeight = expanded ? available * 0.34 : available - weatherHeight;
+    const weatherHeight = !hasWeather ? 0 : !hasWind ? available : expanded ? available * 0.66 : compactBaseAvailable * 0.68;
+    const windHeight = !hasWind ? 0 : !hasWeather ? available : expanded ? available * 0.34 : available - weatherHeight;
     const weatherBottom = top + weatherHeight;
     const windTop = weatherBottom + gap;
     const windBottom = windTop + windHeight;
@@ -2321,8 +2512,8 @@ var AuroraWeatherCard = class extends i4 {
     const validWind = data.filter((d3) => Number.isFinite(d3.windSpeed));
     const validGust = data.filter((d3) => Number.isFinite(d3.windGust));
     const maxWindRaw = Math.max(
-      ...validWind.map((d3) => d3.windSpeed),
-      ...validGust.map((d3) => d3.windGust),
+      ...(showWind ? validWind : []).map((d3) => d3.windSpeed),
+      ...(showGust ? validGust : []).map((d3) => d3.windGust),
       0
     );
     const maxWind = Math.max(18, Math.ceil(maxWindRaw / 6) * 6);
@@ -2361,13 +2552,13 @@ var AuroraWeatherCard = class extends i4 {
             </filter>
           </defs>
 
-          ${yTicks.map((value) => w`
+          ${(showTemperature ? yTicks : []).map((value) => w`
             <line class="grid-line" x1="${left}" y1="${yTemp(value)}" x2="${width - right}" y2="${yTemp(value)}"></line>
             <text class="axis-label" x="${left - 10}" y="${yTemp(value) + 4}" text-anchor="end">${value}°</text>
           `)}
 
           ${daySegments.map(({ d: d3, index, endIndex }, segmentIndex) => w`
-            ${segmentIndex > 0 ? w`<line class="day-line" x1="${x2(index)}" y1="${top}" x2="${x2(index)}" y2="${windBottom}"></line>` : A}
+            ${segmentIndex > 0 && (hasWeather || hasWind) ? w`<line class="day-line" x1="${x2(index)}" y1="${top}" x2="${x2(index)}" y2="${windBottom}"></line>` : A}
             <text class="day-label" x="${(x2(index) + x2(endIndex)) / 2}" y="${Math.max(16, top - (expanded ? 46 : 40))}" text-anchor="middle">${this._formatLocalDay(d3.time)}</text>
           `)}
 
@@ -2376,12 +2567,12 @@ var AuroraWeatherCard = class extends i4 {
           `)}
 
           ${timeLabels.map(({ index }) => w`
-            <line class="time-grid weather-time-grid" x1="${x2(index)}" y1="${top}" x2="${x2(index)}" y2="${weatherBottom}"></line>
-            <line class="time-grid wind-time-grid" x1="${x2(index)}" y1="${windTop}" x2="${x2(index)}" y2="${windBottom}"></line>
+            ${hasWeather ? w`<line class="time-grid weather-time-grid" x1="${x2(index)}" y1="${top}" x2="${x2(index)}" y2="${weatherBottom}"></line>` : A}
+            ${hasWind ? w`<line class="time-grid wind-time-grid" x1="${x2(index)}" y1="${windTop}" x2="${x2(index)}" y2="${windBottom}"></line>` : A}
           `)}
 
-          <text class="rain-unit-label" x="${width - 4}" y="${top - 8}" text-anchor="end">mm</text>
-          ${rainTicks.map((value) => w`
+          ${showPrecipitation ? w`<text class="rain-unit-label" x="${width - 4}" y="${top - 8}" text-anchor="end">mm</text>` : A}
+          ${(showPrecipitation ? rainTicks : []).map((value) => w`
             <text class="rain-axis-label rain-axis-blue" x="${width - 4}" y="${rainY(value) + 4}" text-anchor="end">${Number.isInteger(value) ? value : value.toFixed(1)}</text>
           `)}
 
@@ -2394,12 +2585,12 @@ var AuroraWeatherCard = class extends i4 {
           ${showTemperature ? w`<path class="temperature-area" d="${tempPath} L ${tempPoints.at(-1).x} ${weatherBottom} L ${tempPoints[0].x} ${weatherBottom} Z"></path>
           <path class="temperature-line" d="${tempPath}" filter="url(#softGlow)"></path>` : A}
 
-          <line class="wind-separator" x1="${left}" y1="${windTop - gap / 2}" x2="${width - right}" y2="${windTop - gap / 2}"></line>
-          ${windTicks.map((value) => w`
+          ${hasWeather && hasWind ? w`<line class="wind-separator" x1="${left}" y1="${windTop - gap / 2}" x2="${width - right}" y2="${windTop - gap / 2}"></line>` : A}
+          ${(hasWind ? windTicks : []).map((value) => w`
             <line class="wind-grid" x1="${left}" y1="${yWind(value)}" x2="${width - right}" y2="${yWind(value)}"></line>
             <text class="wind-axis-label" x="${left - 10}" y="${yWind(value) + 4}" text-anchor="end">${value}</text>
           `)}
-          ${expanded ? w`<text class="wind-unit-label" x="${left - 10}" y="${windTop - Math.max(7, gap * 0.28)}" text-anchor="end">m/s</text>` : A}
+          ${hasWind ? w`<text class="wind-unit-label" x="${left - 10}" y="${windTop - Math.max(7, gap * 0.28)}" text-anchor="end">m/s</text>` : A}
           ${showWind && windPath ? w`<path class="wind-line" d="${windPath}" filter="url(#softGlow)"></path>` : A}
           ${showGust && gustPath ? w`<path class="gust-line" d="${gustPath}" filter="url(#softGlow)"></path>` : A}
 
@@ -2417,7 +2608,7 @@ var AuroraWeatherCard = class extends i4 {
     `;
   }
   _expandedInfoData() {
-    const state = this.hass?.states?.[this.config?.entity];
+    const state = this._weatherState();
     const a3 = state?.attributes || {};
     const data = this.graphData();
     const now = data[0] || {};
@@ -2426,6 +2617,7 @@ var AuroraWeatherCard = class extends i4 {
     const rainToday = data.filter((d3) => d3.time?.toDateString?.() === today).reduce((s4, d3) => s4 + (Number(d3.precipitation) || 0), 0);
     const num = (...v2) => {
       for (const x2 of v2) {
+        if (x2 == null || x2 === "") continue;
         const n4 = Number(x2);
         if (Number.isFinite(n4)) return n4;
       }
@@ -2435,7 +2627,7 @@ var AuroraWeatherCard = class extends i4 {
     const dir = cardinalDirection(this.hass, bearing);
     const dirArrow = Number.isFinite(bearing);
     const dirRotation = Number.isFinite(bearing) ? bearing : 0;
-    const sun = this.hass?.states?.["sun.sun"]?.attributes || {};
+    const sun = this.config?.weather_source === "open_meteo" ? {} : this.hass?.states?.["sun.sun"]?.attributes || {};
     const location = this._effectiveLocation();
     const lat = location.latitude, lon = location.longitude;
     const hasLocation = Number.isFinite(lat) && Number.isFinite(lon);
@@ -2494,7 +2686,7 @@ var AuroraWeatherCard = class extends i4 {
       <div class="info-tile">${thermometer}<div><div class="info-label">${this._t("now")}</div><div class="info-value">${val(d3.temp)}°</div></div></div>
       <div class="info-tile">${rain}<div><div class="info-label">${this._t("rain_today")}</div><div class="info-value">${val(d3.rainToday)} <small>mm</small></div></div></div>
       <div class="info-tile">${windIcon("wind-svg")}<div><div class="info-label">${weatherLabel(this.hass, "wind")}</div><div class="info-value">${val(d3.wind)} <small>m/s</small></div><div class="info-sub wind-direction">${d3.dirArrow ? b2`<span class="dir-arrow" style="transform:rotate(${d3.dirRotation}deg)"></span>` : A}<span>${d3.dir}</span></div></div></div>
-      <div class="info-tile">${windIcon("gust-svg")}<div><div class="info-label">${weatherLabel(this.hass, "gust")}</div><div class="info-value">${val(d3.gust)} <small>m/s</small></div></div></div>
+      ${Number.isFinite(d3.gust) ? b2`<div class="info-tile">${windIcon("gust-svg")}<div><div class="info-label">${weatherLabel(this.hass, "gust")}</div><div class="info-value">${val(d3.gust)} <small>m/s</small></div></div></div>` : A}
       <div class="info-tile">${droplet}<div><div class="info-label">${weatherLabel(this.hass, "humidity")}</div><div class="info-value">${val(d3.humidity, 0)}<small>%</small></div></div></div>
       <div class="info-tile">${pressure}<div><div class="info-label">${weatherLabel(this.hass, "pressure")}</div><div class="info-value">${val(d3.pressure, 0)} <small>hPa</small></div></div></div>
       <div class="info-tile">${sun}<div><div class="info-label">${this._t("sun")}</div><div class="info-value sun-value">${d3.sunrise} / ${d3.sunset}</div></div></div>
@@ -2502,11 +2694,13 @@ var AuroraWeatherCard = class extends i4 {
   }
   render() {
     if (!this.config) return A;
-    const entityState = this.config.entity ? this.hass?.states[this.config.entity] : void 0;
+    const entityState = this.config.weather_source !== "open_meteo" && this.config.entity ? this.hass?.states?.[this.config.entity] : void 0;
     const name = this._cleanPlaceName(this.config.location_name || entityState?.attributes?.friendly_name || this.config.entity || this._t("choose_source"));
     const current = this.graphData()[0];
-    const atmosphere = this.atmosphereClass();
-    if (!this.config.entity) {
+    const mode = this.config.color_mode || "auto";
+    const light = mode === "light" || mode !== "dark" && this.hass?.themes?.darkMode === false;
+    const atmosphere = this.atmosphereClass() + (light ? " mode-light" : " mode-dark");
+    if (!this.config.entity && this.config.weather_source !== "open_meteo") {
       return b2`<ha-card class="compact-card ${atmosphere}"><header><div><div class="brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span>Aurora</span></div><div class="title">${this._t("choose_source")}</div></div></header><main lang="${auroraLocale(this.hass)}" dir="${textDirection(this.hass)}"><div class="message">${this._t("select_entity_help")}</div></main></ha-card>`;
     }
     return b2`
@@ -2520,7 +2714,7 @@ var AuroraWeatherCard = class extends i4 {
 
         <main>
           ${this.status === "loading" ? b2`<div class="message">${this._t("loading")}</div>` : A}
-          ${this.status === "error" ? b2`<div class="message error"><b>${this._t("error")}</b> ${this.errorMessage}</div>` : A}
+          ${this.errorMessage ? b2`<div class="message error"><b>${this._t("error")}</b> ${this.errorMessage}</div>` : A}
           ${this.status === "ok" ? this.renderGraph(false) : A}
         </main>
 
@@ -2528,8 +2722,10 @@ var AuroraWeatherCard = class extends i4 {
           ${this.config?.show_temperature !== false ? b2`<span class="legend-item"><span class="legend-dot temp"></span><span>${weatherLabel(this.hass, "temperature")}</span></span>` : A}
           ${this.config?.show_precipitation !== false ? b2`<span class="legend-item"><span class="legend-dot rain"></span><span>${weatherLabel(this.hass, "precipitation")}</span></span>` : A}
           ${this.config?.show_wind !== false ? b2`<span class="legend-item"><span class="legend-dot wind"></span><span>${weatherLabel(this.hass, "wind")}</span></span>` : A}
-          ${this.config?.show_wind_gust !== false ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, "gust")}</span></span>` : A}
-          <span class="version">v1.3.1-i18n-dev.2</span>
+          ${this.config?.show_wind_gust !== false && this._hasGustData() ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, "gust")}</span></span>` : A}
+          ${this._renderForecastUpdated()}
+          ${this.config.weather_source === "open_meteo" ? b2`<a class="provider-credit" href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" @click=${(event) => event.stopPropagation()}>Weather data by Open-Meteo (CC BY 4.0)</a>` : A}
+          <span class="version">v1.4.1</span>
         </footer>
       </ha-card>
 
@@ -2543,13 +2739,15 @@ var AuroraWeatherCard = class extends i4 {
               </div>
               ${current ? b2`<div class="expanded-current">${current.temperature.toFixed(1)}°</div>` : A}
             </header>
-            <div class="expanded-body">${this.renderGraph(true)}
+            <div class="expanded-body">${this.errorMessage ? b2`<div class="message error">${this.errorMessage}</div>` : A}${this.renderGraph(true)}
               ${this._renderExpandedInfo()}</div>
             <footer class="expanded-footer" lang="${auroraLocale(this.hass)}" dir="${textDirection(this.hass)}">
               ${this.config?.show_temperature !== false ? b2`<span class="legend-item"><span class="legend-dot temp"></span><span>${weatherLabel(this.hass, "temperature")}</span></span>` : A}
               ${this.config?.show_precipitation !== false ? b2`<span class="legend-item"><span class="legend-dot rain"></span><span>${weatherLabel(this.hass, "precipitation")}</span></span>` : A}
               ${this.config?.show_wind !== false ? b2`<span class="legend-item"><span class="legend-dot wind"></span><span>${weatherLabel(this.hass, "wind")}</span></span>` : A}
-              ${this.config?.show_wind_gust !== false ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, "gust")}</span></span>` : A}
+              ${this.config?.show_wind_gust !== false && this._hasGustData() ? b2`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, "gust")}</span></span>` : A}
+              ${this._renderForecastUpdated()}
+              ${this.config.weather_source === "open_meteo" ? b2`<a class="provider-credit" href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" @click=${(event) => event.stopPropagation()}>Weather data by Open-Meteo (CC BY 4.0)</a>` : A}
               <span class="expanded-note">${this._t("hours_available", { count: Math.min(Number(this.config?.hours) || 48, this.forecast.length) })}</span>
             </footer>
           </section>
@@ -2563,6 +2761,7 @@ __publicField(AuroraWeatherCard, "properties", {
   config: { state: true },
   status: { state: true },
   forecast: { state: true },
+  forecastReceivedAt: { state: true },
   errorMessage: { state: true },
   containerWidth: { state: true },
   expanded: { state: true }
@@ -2669,33 +2868,6 @@ __publicField(AuroraWeatherCard, "styles", i`
         linear-gradient(145deg, rgba(11,20,33,.995), rgba(5,10,19,.998));
     }
 
-    /* HA light theme: strengthen Aurora's separation from a pale dashboard
-       while keeping the card itself dark and preserving the graph untouched. */
-    @media (prefers-color-scheme: light) {
-      ha-card.atmosphere-dynamic {
-        border-color: rgba(70,196,224,.42);
-        box-shadow:
-          0 12px 30px rgba(15,55,74,.18),
-          0 0 22px rgba(56,202,210,.10),
-          inset 0 1px 0 rgba(255,255,255,.07);
-      }
-      ha-card.atmosphere-dynamic::before {
-        opacity:1;
-        filter:saturate(1.22) brightness(1.10);
-      }
-      .expand-panel.atmosphere-dynamic {
-        border-color: rgba(83,205,235,.48);
-        box-shadow:
-          0 28px 80px rgba(0,0,0,.45),
-          0 0 34px rgba(54,205,214,.12),
-          inset 0 1px 0 rgba(255,255,255,.08);
-      }
-      .expand-panel.atmosphere-dynamic::after {
-        opacity:1;
-        filter:saturate(1.20) brightness(1.08);
-      }
-    }
-
     @media (prefers-reduced-motion: reduce) {
       ha-card.atmosphere-dynamic::before,
       .expand-panel.atmosphere-dynamic::after {
@@ -2761,6 +2933,8 @@ __publicField(AuroraWeatherCard, "styles", i`
     .legend-dot.rain { background: #2aa8ff; }
     .legend-dot.wind { background: #b44cff; }
     .legend-dot.gust { background: repeating-linear-gradient(90deg, #ffd400 0 5px, transparent 5px 8px); box-shadow: none; }
+    .provider-credit { color:var(--secondary-text-color); font-size:10px; }
+    .forecast-updated { flex-basis:100%; font-size:10px; color:var(--secondary-text-color); }
     .version { margin-inline-start: auto; padding-right: 2px; opacity: .55; font-size: 10px; white-space: nowrap; flex: 0 0 auto; }
 
     .day-label { paint-order: stroke; stroke: rgba(17,21,27,.92); stroke-width: 3px; stroke-linejoin: round; }
@@ -2848,7 +3022,7 @@ __publicField(AuroraWeatherCard, "styles", i`
       .current { font-size: 18px; }
       svg { min-height: 0; }
     }
-    .expanded-info{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;padding:8px 12px 12px}
+    .expanded-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px;padding:8px 12px 12px}
     .info-tile{min-width:0;min-height:72px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:12px;border:1px solid rgba(20,154,232,.28);background:linear-gradient(180deg,rgba(10,42,65,.58),rgba(4,20,33,.72));box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 12px rgba(0,126,210,.06)}
     .metric-svg{flex:0 0 34px;width:34px;height:34px;overflow:visible;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px currentColor)}
     .metric-svg .metric-fill{fill:currentColor;stroke:currentColor}.metric-svg .metric-accent{fill:none;stroke:currentColor;stroke-width:3.4}
@@ -2865,13 +3039,48 @@ __publicField(AuroraWeatherCard, "styles", i`
     @media(max-width:900px){.expanded-info{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
     /* Translations can be longer than the original Norwegian labels. */
+
+    /* Shared light palette for normal and expanded views. */
+    .mode-light.mode-light { color-scheme:light; --primary-text-color:#152c40; --secondary-text-color:#40576a; --secondary-background-color:#e0ebf2; --divider-color:#55758c; --error-color:#b42332; color:var(--primary-text-color); background:linear-gradient(145deg,#f7fbff,#e7f0f7); border-color:#9db7cb; box-shadow:0 8px 28px rgba(20,50,75,.14); }
+    ha-card.mode-light::before, .expand-panel.mode-light::after { opacity:.10; filter:none; }
+    .mode-light .brand-name, .mode-light .info-value { color:var(--primary-text-color); }
+    .mode-light .brand-location { color:#00647b; }
+    .mode-light .brand-clock, .mode-light .info-label, .mode-light .info-sub, .mode-light .info-value small, .mode-light .wind-direction { color:var(--secondary-text-color); }
+    .mode-light .info-tile { background:rgba(255,255,255,.75); border-color:#aac4d6; box-shadow:none; }
+    .mode-light .close-button { color:#152c40; background:#d6e5ef; }
+    .mode-light .close-button:hover { background:#bbd3e4; }
+    .mode-light .temperature-line { stroke:#c62030; }
+    .mode-light .wind-line { stroke:#7631b8; }
+    .mode-light .gust-line { stroke:#826000; }
+    .mode-light .rain-bar { fill:#0876bb; }
+    .mode-light .day-label, .mode-light .rain-axis-label { stroke: none; }
+    .mode-light .rain-axis-blue, .mode-light .rain-unit-label { fill:#0068a6; stroke:none; }
+    .mode-light .wind-axis-label, .mode-light .wind-unit-label { fill:#7631b8; }
+    .mode-light .legend-dot.temp { background:#c62030; }
+    .mode-light .legend-dot.rain { background:#0876bb; }
+    .mode-light .legend-dot.wind { background:#7631b8; }
+    .mode-light .legend-dot.gust { background:repeating-linear-gradient(90deg,#826000 0 5px,transparent 5px 8px); }
+    .mode-light .grid-line, .mode-light .wind-grid, .mode-light .day-line { stroke:#67859b; }
+    .mode-light .time-grid { stroke:#7893a6; }
+    .mode-light .wind-direction path { fill:#25485e; stroke:#fff; filter:none; }
+    .mode-light .dir-arrow { background:#40576a; filter:none; }
+    .mode-light .dir-arrow::before { border-color:#40576a; }
+    .mode-light .temp-outline, .mode-light .temp-tick { stroke:#40576a; }
+    .mode-light .metric-svg { filter:none; }
+    .mode-light .rain-svg, .mode-light .humidity-svg { color:#0068a6; }
+    .mode-light .wind-svg { color:#177644; }
+    .mode-light .gust-svg { color:#7631b8; }
+    .mode-light .pressure-svg { color:#40576a; }
+    .mode-light .sun-svg { color:#826000; }
+    .mode-light .expanded-note { opacity:1; }
+    .mode-dark { color-scheme:dark; }
     footer, .expanded-footer { flex-wrap: wrap; white-space: normal; }
     .legend-item { max-width: 100%; overflow-wrap: anywhere; }
     .info-label { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
 
   `);
-if (!customElements.get("aurora-weather-card-editor-v1-3-1")) {
-  customElements.define("aurora-weather-card-editor-v1-3-1", AuroraWeatherCardEditor);
+if (!customElements.get("aurora-weather-card-editor-v1-4-1")) {
+  customElements.define("aurora-weather-card-editor-v1-4-1", AuroraWeatherCardEditor);
 }
 if (!customElements.get("aurora-weather-card")) {
   customElements.define("aurora-weather-card", AuroraWeatherCard);
@@ -2879,7 +3088,7 @@ if (!customElements.get("aurora-weather-card")) {
 window.customCards = window.customCards || [];
 var auroraPickerEntry = {
   type: "aurora-weather-card",
-  name: "Aurora Weather Card v1.3.1-i18n-dev.2",
+  name: "Aurora Weather Card v1.4.1",
   preview: false,
   description: "24/48-hour weather forecast with temperature, precipitation, wind, gusts and Aurora backgrounds",
   getEntitySuggestion: (_hass, entityId) => {
@@ -2897,4 +3106,4 @@ var auroraPickerEntry = {
 var existingAuroraIndex = window.customCards.findIndex((card) => card.type === "aurora-weather-card");
 if (existingAuroraIndex >= 0) window.customCards.splice(existingAuroraIndex, 1, auroraPickerEntry);
 else window.customCards.push(auroraPickerEntry);
-console.info("%c AURORA WEATHER CARD v1.3.1-i18n-dev.2 %c development ", "color:#fff;background:#1577d3;font-weight:700", "color:#1577d3;background:#fff");
+console.info("%c AURORA WEATHER CARD v1.4.1 %c stable ", "color:#fff;background:#1577d3;font-weight:700", "color:#1577d3;background:#fff");

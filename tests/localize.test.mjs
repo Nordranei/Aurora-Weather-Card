@@ -76,7 +76,7 @@ test('rendered card and editor update when HA language changes; dates follow loc
     customElements:{get:n=>classes[n],define:(n,c)=>classes[n]=c},console,Intl,Date};
   vm.runInNewContext(sourceForVm(),context);
   const card=new classes['aurora-weather-card']();
-  const editor=new classes['aurora-weather-card-editor-v1-3-1']();
+  const editor=new classes['aurora-weather-card-editor-v1-4-1']();
   card.setConfig({entity:'weather.test',time_zone:'Europe/Oslo'});
   const date=new Date('2026-11-01T12:00:00Z');
   for(const [language,label] of [['de','Temperatur DE'],['fr','Température FR'],['ar','درجة الحرارة']]) {

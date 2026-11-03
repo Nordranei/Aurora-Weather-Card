@@ -24,6 +24,37 @@ return {points:card.graphData().length,rendered:!!card.shadowRoot.querySelector(
 });
 if(result.points!==48||!result.rendered||external.length||errors.length)throw Error(JSON.stringify({result,external,errors}));
 console.log('PASS real browser: self-contained bundle renders 48 forecast points with external network blocked.',result);
+if(process.argv.includes('--themes')) {
+  for(const width of [360,1000]) {
+    await page.setViewportSize({width,height:1000});
+    for(const mode of ['auto','light','dark']) for(const darkMode of [false,true]) {
+      await page.evaluate(async ({mode,darkMode})=>{
+        const card=window.testCard;
+        card.setConfig({...card.config,color_mode:mode});
+        card.hass={...card.hass,themes:{darkMode}};
+        card.expanded=true;await card.updateComplete;
+        const light=mode==='light'||(mode==='auto'&&!darkMode);
+        for(const selector of ['ha-card','.expand-panel']) {
+          const el=card.shadowRoot.querySelector(selector);
+          if(!el.classList.contains(light?'mode-light':'mode-dark'))throw Error('Wrong mode '+selector);
+          if(getComputedStyle(el).color!==(light?'rgb(21, 44, 64)':'rgb(244, 248, 252)'))throw Error('Text color '+selector);
+          if(light&&!getComputedStyle(el).backgroundImage.includes('247, 251, 255'))throw Error('Light background '+selector);
+          const chart=el.querySelector('.chart-wrap');
+          if(chart && chart.getBoundingClientRect().width>el.getBoundingClientRect().width+2)throw Error('Chart overflow '+selector);
+        }
+        const line=card.shadowRoot.querySelector('.gust-line');
+        if(light&&getComputedStyle(line).stroke!=='rgb(130, 96, 0)')throw Error('Light gust contrast');
+      },{mode,darkMode});
+    }
+  }
+  await page.evaluate(async()=>{const c=window.testCard;c.setConfig({...c.config,color_mode:'light'});c.expanded=false;await c.updateComplete;});
+  await page.waitForTimeout(400);
+  await page.screenshot({path:'../aurora-light-preview.png',animations:'disabled'});
+  await page.evaluate(async()=>{window.testCard.expanded=true;await window.testCard.updateComplete;});
+  await page.screenshot({path:'../aurora-light-expanded-preview.png',animations:'disabled'});
+  await page.evaluate(async()=>{window.testCard.expanded=false;await window.testCard.updateComplete;});
+  console.log('PASS themes: 12 mode/theme/width combinations, both views and light gust contrast.');
+}
 if(process.argv.includes('--i18n')) {
   const languageResults=await page.evaluate(async()=>{
     const card=window.testCard;

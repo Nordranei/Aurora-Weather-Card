@@ -26,16 +26,16 @@ test('initial data, repeated events, empty/null forecasts and no duplicate subsc
  assert.equal(requests.length,1);assert.equal(requests[0].message.type,'weather/subscribe_forecast');
  assert.equal(requests[0].message.forecast_type,'hourly');assert.equal(requests[0].message.entity_id,'weather.a');
  requests[0].callback({forecast:[{temperature:12}]});requests[0].accept();await pending;
- assert.equal(card.forecast[0].temperature,12);requests[0].callback({forecast:[{temperature:22}]});
+ assert(Number.isFinite(card.forecastReceivedAt?.getTime())); const received=card.forecastReceivedAt; card.updated(); assert.equal(card.forecastReceivedAt,received); assert.equal(card.forecast[0].temperature,12);requests[0].callback({forecast:[{temperature:22}]});
  assert.equal(card.forecast[0].temperature,22);assert.equal(card.status,'ok');
- requests[0].callback({forecast:null});assert.equal(card.forecast.length,0);
+ requests[0].callback({forecast:null});assert.equal(card.forecast.length,0);assert.equal(card.forecastReceivedAt,null);
  requests[0].callback({forecast:[]});assert.equal(card.forecast.length,0);
  card.setConfig({entity:'weather.a',hours:24});card.updated();assert.equal(requests.length,1);
 });
 test('entity swap rejects stale events and cleans pending subscription',async()=>{
  const {card,requests}=setup();const first=card.loadForecastIfNeeded();
  card.setConfig({entity:'weather.b'});const second=card.loadForecastIfNeeded();
- requests[0].callback({forecast:[{temperature:99}]});assert.equal(card.forecast.length,0);
+ requests[0].callback({forecast:[{temperature:99}]});assert.equal(card.forecast.length,0);assert.equal(card.forecastReceivedAt,null);
  requests[0].accept();requests[1].accept();await Promise.all([first,second]);
  assert.equal(requests[0].unsubscribed,1);assert.equal(requests[1].message.entity_id,'weather.b');
  requests[1].callback({forecast:[{temperature:5}]});assert.equal(card.forecast[0].temperature,5);

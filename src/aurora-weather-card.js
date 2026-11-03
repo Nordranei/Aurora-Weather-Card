@@ -1,4 +1,4 @@
-// Aurora Weather Card v1.3.1-i18n-dev.2 — baseline: v1.3-dev-step9b
+// Aurora Weather Card v1.4.1 — baseline: v1.3-dev-step9b
 import { LitElement, css, html, nothing, svg } from 'lit';
 import { auroraLocale, weatherLabel, cardinalDirection, translate, textDirection } from './localize.js';
 
@@ -136,7 +136,67 @@ function weatherIconSvg(condition) {
 }
 
 
+
+// Shared per-page cache: coalesce cards at the same place, refresh at most every 30 minutes.
+const directForecastCache = new Map();
+function directCoordinates(config) {
+  const valid = value => value !== '' && value != null && Number.isFinite(Number(value));
+  if (!valid(config?.latitude) || !valid(config?.longitude)) return null;
+  const latitude=Number(config.latitude), longitude=Number(config.longitude);
+  if (Math.abs(latitude)>90 || Math.abs(longitude)>180) return null;
+  return {latitude,longitude};
+}
+function openMeteoCondition(code, isDay=1) {
+  if(code===0) return isDay===0?'clear-night':'sunny';
+  if(code===1||code===2) return 'partlycloudy';
+  if(code===3) return 'cloudy';
+  if(code===45||code===48) return 'fog';
+  if([71,73,75,77,85,86].includes(code)) return 'snowy';
+  if(code>=95) return 'lightning-rainy';
+  if([65,67,82].includes(code)) return 'pouring';
+  if([51,53,55,56,57,61,63,66,80,81].includes(code)) return 'rainy';
+  return 'cloudy';
+}
+function parseDirectForecast(payload) {
+  const h=payload?.hourly;
+  if(!Array.isArray(h?.time)) throw new Error('Invalid hourly forecast');
+  const number=(key,i)=>typeof h[key]?.[i]==='number' && Number.isFinite(h[key][i])?h[key][i]:null;
+  const forecast=h.time.map((time,i)=>({
+    datetime: typeof time==='number'?new Date(time*1000).toISOString():null,
+    temperature:number('temperature_2m',i), precipitation:number('precipitation',i),
+    wind_speed:number('wind_speed_10m',i),wind_gust_speed:number('wind_gusts_10m',i),
+    wind_bearing:number('wind_direction_10m',i),humidity:number('relative_humidity_2m',i),
+    pressure:number('pressure_msl',i),condition:openMeteoCondition(number('weather_code',i),number('is_day',i)),
+  })).filter(p=>p.datetime && p.temperature!==null);
+  if(forecast.length<2) throw new Error('Empty hourly forecast');
+  return forecast;
+}
+async function fetchDirectForecast(coords) {
+  const key=coords.latitude+','+coords.longitude;
+  const cached=directForecastCache.get(key);
+  if(cached && cached.expires>Date.now()) return cached.promise;
+  const entry={expires:Date.now()+30*60*1000};
+  entry.promise=(async()=>{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),15000);
+    try {
+      const params=new URLSearchParams({latitude:String(coords.latitude),longitude:String(coords.longitude),
+        hourly:'temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m,wind_direction_10m,weather_code,relative_humidity_2m,pressure_msl,is_day',
+        wind_speed_unit:'ms',temperature_unit:'celsius',precipitation_unit:'mm',timeformat:'unixtime',timezone:'auto',forecast_days:'3'});
+      const response=await fetch('https://api.open-meteo.com/v1/forecast?'+params,{signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer'});
+      if(!response.ok) throw new Error('Open-Meteo HTTP '+response.status);
+      const payload=await response.json();
+      return {forecast:parseDirectForecast(payload),receivedAt:new Date(),timeZone:payload.timezone};
+    } catch(error) {entry.expires=Date.now()+5*60*1000; throw error;}
+    finally {clearTimeout(timeout);}
+  })();
+  directForecastCache.set(key,entry);
+  if(directForecastCache.size>32) directForecastCache.delete(directForecastCache.keys().next().value);
+  return entry.promise;
+}
+
 function windToMs(value, unit) {
+  if (value == null || value === "" || typeof value === "boolean") return NaN;
   const v = Number(value);
   if (!Number.isFinite(v)) return NaN;
   const u = String(unit || 'm/s').trim().toLowerCase();
@@ -273,6 +333,12 @@ class AuroraWeatherCardEditor extends LitElement {
     return html`
       <section class="editor-section">
         <h3>${this._t('weather_source')}</h3>
+        <label>${this._t('source_type')}
+        <select class="editor-input" .value=${this.config?.weather_source || 'entity'} @change=${event=>this._setValue('weather_source',event.target.value)}>
+          <option value="entity" ?selected=${this.config?.weather_source!=='open_meteo'}>${this._t('source_entity')}</option>
+          <option value="open_meteo" ?selected=${this.config?.weather_source==='open_meteo'}>${this._t('source_direct')}</option>
+        </select></label>
+        ${this.config?.weather_source==='open_meteo' ? html`<div class="helper">${this._t('direct_help')}</div>` : html`
         <label class="field-label">${this._t('select_entity')}</label>
         <select
           class="editor-input"
@@ -287,7 +353,7 @@ class AuroraWeatherCardEditor extends LitElement {
             >${state.attributes?.friendly_name || state.entity_id}</option>
           `)}
         </select>
-        <div class="helper">${this._t('source_help')}</div>
+        <div class="helper">${this._t('source_help')}</div>`}
       </section>
 
       <section class="editor-section">
@@ -308,7 +374,7 @@ class AuroraWeatherCardEditor extends LitElement {
             @click=${this._runGeocodingDiagnostic}
           >⌕</button>
         </div>
-        <div class="helper">${this._t('location_help')}</div>
+        <div class="helper">${this.config?.weather_source==='open_meteo' ? this._t('direct_location_help') : this._t('location_help')}</div>
 
         ${this.geocodingDiagnostic?.loading ? html`
           <div class="location-search-status">${this._t('searching')}</div>
@@ -346,6 +412,14 @@ class AuroraWeatherCardEditor extends LitElement {
     ];
     return html`
       <section class="editor-section">
+        <h3>${this._t('color_mode')}</h3>
+        <div class="segmented" role="group" aria-label="${this._t('color_mode')}">
+          ${['auto','light','dark'].map(mode => html`
+            <button type="button" class="${(this.config?.color_mode || 'auto') === mode ? 'active' : ''}"
+              aria-pressed="${(this.config?.color_mode || 'auto') === mode}"
+              @click=${() => this._setValue('color_mode', mode)}>${({auto:this._t('mode_auto'),light:this._t('mode_light'),dark:this._t('mode_dark')})[mode]}</button>`)}
+        </div>
+        <div class="editor-info">${this._t('color_mode_help')}</div>
         <h3>${this._t('theme')}</h3>
         <div class="theme-grid">
           ${themes.map(([value, title, subtitle]) => html`
@@ -705,7 +779,7 @@ class AuroraWeatherCardEditor extends LitElement {
           </span>
           <div>
             <div class="editor-title">${this._t('editor_title')}</div>
-            <div class="editor-version">v1.3.1-i18n-dev.2</div>
+            <div class="editor-version">v1.4.1</div>
           </div>
         </div>
 
@@ -1181,7 +1255,7 @@ class AuroraWeatherCard extends LitElement {
   }
 
   static async getConfigElement() {
-    return document.createElement('aurora-weather-card-editor-v1-3-1');
+    return document.createElement('aurora-weather-card-editor-v1-4-1');
   }
 
   static properties = {
@@ -1189,6 +1263,7 @@ class AuroraWeatherCard extends LitElement {
     config: { state: true },
     status: { state: true },
     forecast: { state: true },
+    forecastReceivedAt: { state: true },
     errorMessage: { state: true },
     containerWidth: { state: true },
     expanded: { state: true },
@@ -1211,6 +1286,7 @@ class AuroraWeatherCard extends LitElement {
     super();
     this.status = 'idle';
     this.forecast = [];
+    this.forecastReceivedAt = null;
     this.errorMessage = '';
     this.containerWidth = 760;
     this._resizeObserver = undefined;
@@ -1219,13 +1295,14 @@ class AuroraWeatherCard extends LitElement {
   }
 
   setConfig(config) {
-    if (config?.entity && !config.entity.startsWith('weather.')) throw new Error(this._t('invalid_entity'));
-    const entityChanged = this.config?.entity !== config?.entity;
+    if (config?.weather_source !== 'open_meteo' && config?.entity && !config.entity.startsWith('weather.')) throw new Error(this._t('invalid_entity'));
+    const entityChanged = ['entity','weather_source','latitude','longitude'].some(key=>this.config?.[key] !== config?.[key]);
     this.config = { hours: 48, theme: 'aurora_dynamic', ...config };
     if (Number(this.config.hours) > 48) this.config.hours = 48;
     if (entityChanged) {
       this._stopForecastSubscription();
       this.forecast = [];
+    this.forecastReceivedAt = null;
       this.status = 'idle';
       this.errorMessage = '';
     }
@@ -1296,6 +1373,9 @@ class AuroraWeatherCard extends LitElement {
   }
 
   _stopForecastSubscription() {
+    this._directRequest = undefined;
+    if(this._directTimer) clearTimeout(this._directTimer);
+    this._directTimer = undefined;
     const subscription = this._forecastSubscription;
     this._forecastSubscription = undefined;
     if (this._forecastRetryTimer) clearTimeout(this._forecastRetryTimer);
@@ -1303,7 +1383,39 @@ class AuroraWeatherCard extends LitElement {
     if (subscription?.unsubscribe) this._unsubscribeForecast(subscription.unsubscribe);
   }
 
+  _weatherState() {
+    if(this.config?.weather_source!=='open_meteo') return this.hass?.states?.[this.config?.entity];
+    const point=this.graphData()[0];
+    return {state:point?.condition,attributes:{humidity:point?.humidity,pressure:point?.pressure,wind_speed_unit:'m/s'}};
+  }
+
+  async _loadDirectForecast() {
+    if(!this.isConnected || this._directRequest) return;
+    const coords=directCoordinates(this.config);
+    if(!coords) {this.status='error';this.errorMessage=this._t('direct_location_required');return;}
+    const request={};this._directRequest=request;
+    if(!this.forecast.length) this.status='loading';
+    const current=()=>this.isConnected && this._directRequest===request && this.config?.weather_source==='open_meteo';
+    let delay=30*60*1000;
+    try {
+      const result=await fetchDirectForecast(coords);
+      if(!current()) return;
+      this.forecast=result.forecast;this.forecastReceivedAt=result.receivedAt;
+      this._directTimeZone=result.timeZone;
+      this.errorMessage='';this.status='ok';
+      delay=Math.max(1000,30*60*1000-(Date.now()-result.receivedAt.getTime()));
+    } catch(error) {
+      if(!current()) return;
+      this.errorMessage=this._t('direct_fetch_failed');
+      this.status=this.forecast.length?'ok':'error';delay=5*60*1000;
+    }
+    if(current()) this._directTimer=window.setTimeout(()=>{
+      this._directRequest=undefined;void this._loadDirectForecast();
+    },delay);
+  }
+
   async loadForecastIfNeeded() {
+    if(this.config?.weather_source==='open_meteo') return this._loadDirectForecast();
     const entity = this.config?.entity;
     const connection = this.hass?.connection;
     if (!this.isConnected) return;
@@ -1318,6 +1430,7 @@ class AuroraWeatherCard extends LitElement {
     const isCurrent = () => this.isConnected && this._forecastSubscription === subscription
       && this.config?.entity === entity && this.hass?.connection === connection;
     this.forecast = [];
+    this.forecastReceivedAt = null;
     this.status = 'loading';
     this.errorMessage = '';
     try {
@@ -1326,6 +1439,7 @@ class AuroraWeatherCard extends LitElement {
       const unsubscribe = await connection.subscribeMessage(event => {
         if (!isCurrent()) return;
         this.forecast = Array.isArray(event?.forecast) ? event.forecast : [];
+        this.forecastReceivedAt = this.forecast.length ? new Date() : null;
         this.status = 'ok';
         this.errorMessage = '';
       }, { type: 'weather/subscribe_forecast', forecast_type: 'hourly', entity_id: entity });
@@ -1351,7 +1465,7 @@ class AuroraWeatherCard extends LitElement {
   graphData() {
     const hours = Math.max(6, Math.min(Number(this.config?.hours) || 48, 48));
     const entityState = this.hass?.states?.[this.config?.entity];
-    const windUnit = entityState?.attributes?.wind_speed_unit || 'm/s';
+    const windUnit = this.config?.weather_source==='open_meteo' ? 'm/s' : entityState?.attributes?.wind_speed_unit || 'm/s';
 
     const now = new Date();
     now.setMinutes(0, 0, 0);
@@ -1370,6 +1484,7 @@ class AuroraWeatherCard extends LitElement {
         windGust: windToMs(item.wind_gust_speed, windUnit),
         windBearing: Number(item.wind_bearing),
         condition: item.condition || 'cloudy',
+        humidity:item.humidity, pressure:item.pressure,
       }))
       .filter((item) => Number.isFinite(item.time.getTime()) && Number.isFinite(item.temperature));
   }
@@ -1378,7 +1493,7 @@ class AuroraWeatherCard extends LitElement {
   atmosphereClass() {
     if (this.config?.theme === 'aurora_static') return 'atmosphere-static';
     const entityState = this.hass?.states?.[this.config?.entity];
-    const condition = String(entityState?.state || 'cloudy');
+    const condition = String(this._weatherState()?.state || 'cloudy');
     const month = new Date().getMonth() + 1;
     const season = [12,1,2].includes(month) ? 'winter' : [3,4,5].includes(month) ? 'spring' : [6,7,8].includes(month) ? 'summer' : 'autumn';
     const location = this._effectiveLocation();
@@ -1459,6 +1574,10 @@ class AuroraWeatherCard extends LitElement {
   }
 
   _effectiveLocation() {
+    if(this.config?.weather_source==='open_meteo') {
+      const coords=directCoordinates(this.config);
+      return {...coords,timeZone:this.config?.time_zone||this._directTimeZone||'UTC',automatic:false};
+    }
     const automatic = this._weatherLocation();
     const manualLat = Number(this.config?.latitude);
     const manualLon = Number(this.config?.longitude);
@@ -1538,16 +1657,30 @@ class AuroraWeatherCard extends LitElement {
     }
   }
 
+  _hasGustData() {
+    return this.graphData().some(point => Number.isFinite(point.windGust));
+  }
+
+  _renderForecastUpdated() {
+    if (!this.forecastReceivedAt) return nothing;
+    const time = new Intl.DateTimeFormat(auroraLocale(this.hass), {
+      dateStyle: 'short', timeStyle: 'short',
+    }).format(this.forecastReceivedAt);
+    return html`<span class="forecast-updated">${this._t('forecast_received', { time })}</span>`;
+  }
+
   renderGraph(expanded = false) {
     const showTemperature = this.config?.show_temperature !== false;
     const showPrecipitation = this.config?.show_precipitation !== false;
     const showWind = this.config?.show_wind !== false;
-    const showGust = this.config?.show_wind_gust !== false;
+    const showGust = this.config?.show_wind_gust !== false && this._hasGustData();
     const showWindDirection = this.config?.show_wind_direction !== false;
     const showWeatherIcons = this.config?.show_weather_icons !== false;
     const data = this.graphData();
     if (data.length < 2) return html`<div class="message">${this._t('too_few_points')}</div>`;
 
+    const hasWeather = showTemperature || showPrecipitation;
+    const hasWind = showWind || showGust;
     const measuredWidth = expanded
       ? Math.max(640, Math.min(1320, Math.round(window.innerWidth * 0.88)))
       : (Number(this.containerWidth) || 760);
@@ -1556,24 +1689,24 @@ class AuroraWeatherCard extends LitElement {
     // give the wind section more vertical room in normal view.
     // The extra height is added only below the temperature/precipitation section.
     const compactWindExtra = expanded ? 0 : (profile === 'mobile' ? 12 : profile === 'tablet' ? 16 : 18);
-    const height = expanded
+    const height = !hasWeather && !hasWind ? (showWeatherIcons ? 110 : 86) : expanded
       ? (profile === 'mobile' ? 330 : profile === 'tablet' ? 430 : 500)
       : (profile === 'mobile' ? 174 : profile === 'tablet' ? 206 : 238) + compactWindExtra;
-    const left = profile === 'mobile' ? 38 : profile === 'tablet' ? 48 : 58;
-    const right = profile === 'mobile' ? 12 : profile === 'tablet' ? 20 : 28;
-    const top = expanded
+    const left = showTemperature || hasWind ? (profile === 'mobile' ? 38 : profile === 'tablet' ? 48 : 58) : 12;
+    const right = showPrecipitation ? (profile === 'mobile' ? 24 : profile === 'tablet' ? 30 : 36) : 12;
+    const top = (expanded
       ? (profile === 'mobile' ? 78 : profile === 'tablet' ? 88 : 96)
-      : (profile === 'mobile' ? 52 : profile === 'tablet' ? 58 : 62);
-    const bottom = expanded
+      : (profile === 'mobile' ? 52 : profile === 'tablet' ? 58 : 62)) - (showWeatherIcons ? 0 : 24);
+    const bottom = (expanded
       ? (profile === 'mobile' ? 54 : profile === 'tablet' ? 60 : 65)
-      : (profile === 'mobile' ? 40 : profile === 'tablet' ? 44 : 47);
-    const gap = expanded ? (profile === 'mobile' ? 18 : profile === 'tablet' ? 26 : 30) : (profile === 'mobile' ? 18 : 20);
+      : (profile === 'mobile' ? 40 : profile === 'tablet' ? 44 : 47)) - (showWindDirection ? 0 : 20);
+    const gap = hasWeather && hasWind ? (expanded ? (profile === 'mobile' ? 18 : profile === 'tablet' ? 26 : 30) : (profile === 'mobile' ? 18 : 20)) : 0;
     const available = height - top - bottom - gap;
     // Preserve the old temperature/rain height in normal view.
     // All added vertical space goes to the wind section.
     const compactBaseAvailable = available - compactWindExtra;
-    const weatherHeight = expanded ? available * 0.66 : compactBaseAvailable * 0.68;
-    const windHeight = expanded ? available * 0.34 : available - weatherHeight;
+    const weatherHeight = !hasWeather ? 0 : !hasWind ? available : expanded ? available * 0.66 : compactBaseAvailable * 0.68;
+    const windHeight = !hasWind ? 0 : !hasWeather ? available : expanded ? available * 0.34 : available - weatherHeight;
     const weatherBottom = top + weatherHeight;
     const windTop = weatherBottom + gap;
     const windBottom = windTop + windHeight;
@@ -1623,8 +1756,8 @@ class AuroraWeatherCard extends LitElement {
     const validWind = data.filter((d) => Number.isFinite(d.windSpeed));
     const validGust = data.filter((d) => Number.isFinite(d.windGust));
     const maxWindRaw = Math.max(
-      ...validWind.map((d) => d.windSpeed),
-      ...validGust.map((d) => d.windGust),
+      ...(showWind ? validWind : []).map((d) => d.windSpeed),
+      ...(showGust ? validGust : []).map((d) => d.windGust),
       0,
     );
     const maxWind = Math.max(18, Math.ceil(maxWindRaw / 6) * 6);
@@ -1682,13 +1815,13 @@ class AuroraWeatherCard extends LitElement {
             </filter>
           </defs>
 
-          ${yTicks.map((value) => svg`
+          ${(showTemperature ? yTicks : []).map((value) => svg`
             <line class="grid-line" x1="${left}" y1="${yTemp(value)}" x2="${width - right}" y2="${yTemp(value)}"></line>
             <text class="axis-label" x="${left - 10}" y="${yTemp(value) + 4}" text-anchor="end">${value}°</text>
           `)}
 
           ${daySegments.map(({ d, index, endIndex }, segmentIndex) => svg`
-            ${segmentIndex > 0 ? svg`<line class="day-line" x1="${x(index)}" y1="${top}" x2="${x(index)}" y2="${windBottom}"></line>` : nothing}
+            ${segmentIndex > 0 && (hasWeather || hasWind) ? svg`<line class="day-line" x1="${x(index)}" y1="${top}" x2="${x(index)}" y2="${windBottom}"></line>` : nothing}
             <text class="day-label" x="${(x(index) + x(endIndex)) / 2}" y="${Math.max(16, top - (expanded ? 46 : 40))}" text-anchor="middle">${this._formatLocalDay(d.time)}</text>
           `)}
 
@@ -1697,12 +1830,12 @@ class AuroraWeatherCard extends LitElement {
           `)}
 
           ${timeLabels.map(({ index }) => svg`
-            <line class="time-grid weather-time-grid" x1="${x(index)}" y1="${top}" x2="${x(index)}" y2="${weatherBottom}"></line>
-            <line class="time-grid wind-time-grid" x1="${x(index)}" y1="${windTop}" x2="${x(index)}" y2="${windBottom}"></line>
+            ${hasWeather ? svg`<line class="time-grid weather-time-grid" x1="${x(index)}" y1="${top}" x2="${x(index)}" y2="${weatherBottom}"></line>` : nothing}
+            ${hasWind ? svg`<line class="time-grid wind-time-grid" x1="${x(index)}" y1="${windTop}" x2="${x(index)}" y2="${windBottom}"></line>` : nothing}
           `)}
 
-          <text class="rain-unit-label" x="${width - 4}" y="${top - 8}" text-anchor="end">mm</text>
-          ${rainTicks.map((value) => svg`
+          ${showPrecipitation ? svg`<text class="rain-unit-label" x="${width - 4}" y="${top - 8}" text-anchor="end">mm</text>` : nothing}
+          ${(showPrecipitation ? rainTicks : []).map((value) => svg`
             <text class="rain-axis-label rain-axis-blue" x="${width - 4}" y="${rainY(value) + 4}" text-anchor="end">${Number.isInteger(value) ? value : value.toFixed(1)}</text>
           `)}
 
@@ -1715,12 +1848,12 @@ class AuroraWeatherCard extends LitElement {
           ${showTemperature ? svg`<path class="temperature-area" d="${tempPath} L ${tempPoints.at(-1).x} ${weatherBottom} L ${tempPoints[0].x} ${weatherBottom} Z"></path>
           <path class="temperature-line" d="${tempPath}" filter="url(#softGlow)"></path>` : nothing}
 
-          <line class="wind-separator" x1="${left}" y1="${windTop - gap / 2}" x2="${width - right}" y2="${windTop - gap / 2}"></line>
-          ${windTicks.map((value) => svg`
+          ${hasWeather && hasWind ? svg`<line class="wind-separator" x1="${left}" y1="${windTop - gap / 2}" x2="${width - right}" y2="${windTop - gap / 2}"></line>` : nothing}
+          ${(hasWind ? windTicks : []).map((value) => svg`
             <line class="wind-grid" x1="${left}" y1="${yWind(value)}" x2="${width - right}" y2="${yWind(value)}"></line>
             <text class="wind-axis-label" x="${left - 10}" y="${yWind(value) + 4}" text-anchor="end">${value}</text>
           `)}
-          ${expanded ? svg`<text class="wind-unit-label" x="${left - 10}" y="${windTop - Math.max(7, gap * 0.28)}" text-anchor="end">m/s</text>` : nothing}
+          ${hasWind ? svg`<text class="wind-unit-label" x="${left - 10}" y="${windTop - Math.max(7, gap * 0.28)}" text-anchor="end">m/s</text>` : nothing}
           ${showWind && windPath ? svg`<path class="wind-line" d="${windPath}" filter="url(#softGlow)"></path>` : nothing}
           ${showGust && gustPath ? svg`<path class="gust-line" d="${gustPath}" filter="url(#softGlow)"></path>` : nothing}
 
@@ -1739,7 +1872,7 @@ class AuroraWeatherCard extends LitElement {
   }
 
   _expandedInfoData() {
-    const state=this.hass?.states?.[this.config?.entity];
+    const state=this._weatherState();
     const a=state?.attributes||{};
     const data=this.graphData();
     const now=data[0]||{};
@@ -1747,12 +1880,12 @@ class AuroraWeatherCard extends LitElement {
     const today=new Date().toDateString();
     const rainToday=data.filter(d=>d.time?.toDateString?.()===today)
       .reduce((s,d)=>s+(Number(d.precipitation)||0),0);
-    const num=(...v)=>{ for(const x of v){ const n=Number(x); if(Number.isFinite(n)) return n; } return null; };
+    const num=(...v)=>{ for(const x of v){ if(x == null || x === "") continue; const n=Number(x); if(Number.isFinite(n)) return n; } return null; };
     const bearing=num(now.windBearing,a.wind_bearing);
     const dir=cardinalDirection(this.hass, bearing);
     const dirArrow=Number.isFinite(bearing);
     const dirRotation=Number.isFinite(bearing)?bearing:0;
-    const sun=this.hass?.states?.['sun.sun']?.attributes||{};
+    const sun=this.config?.weather_source==='open_meteo'?{}:this.hass?.states?.['sun.sun']?.attributes||{};
     const location=this._effectiveLocation();
     const lat=location.latitude, lon=location.longitude;
     const hasLocation=Number.isFinite(lat)&&Number.isFinite(lon);
@@ -1804,7 +1937,7 @@ class AuroraWeatherCard extends LitElement {
       <div class="info-tile">${thermometer}<div><div class="info-label">${this._t('now')}</div><div class="info-value">${val(d.temp)}°</div></div></div>
       <div class="info-tile">${rain}<div><div class="info-label">${this._t('rain_today')}</div><div class="info-value">${val(d.rainToday)} <small>mm</small></div></div></div>
       <div class="info-tile">${windIcon('wind-svg')}<div><div class="info-label">${weatherLabel(this.hass, 'wind')}</div><div class="info-value">${val(d.wind)} <small>m/s</small></div><div class="info-sub wind-direction">${d.dirArrow ? html`<span class="dir-arrow" style="transform:rotate(${d.dirRotation}deg)"></span>` : nothing}<span>${d.dir}</span></div></div></div>
-      <div class="info-tile">${windIcon('gust-svg')}<div><div class="info-label">${weatherLabel(this.hass, 'gust')}</div><div class="info-value">${val(d.gust)} <small>m/s</small></div></div></div>
+      ${Number.isFinite(d.gust) ? html`<div class="info-tile">${windIcon('gust-svg')}<div><div class="info-label">${weatherLabel(this.hass, 'gust')}</div><div class="info-value">${val(d.gust)} <small>m/s</small></div></div></div>` : nothing}
       <div class="info-tile">${droplet}<div><div class="info-label">${weatherLabel(this.hass, 'humidity')}</div><div class="info-value">${val(d.humidity,0)}<small>%</small></div></div></div>
       <div class="info-tile">${pressure}<div><div class="info-label">${weatherLabel(this.hass, 'pressure')}</div><div class="info-value">${val(d.pressure,0)} <small>hPa</small></div></div></div>
       <div class="info-tile">${sun}<div><div class="info-label">${this._t('sun')}</div><div class="info-value sun-value">${d.sunrise} / ${d.sunset}</div></div></div>
@@ -1813,12 +1946,14 @@ class AuroraWeatherCard extends LitElement {
 
   render() {
     if (!this.config) return nothing;
-    const entityState = this.config.entity ? this.hass?.states[this.config.entity] : undefined;
+    const entityState = this.config.weather_source !== 'open_meteo' && this.config.entity ? this.hass?.states?.[this.config.entity] : undefined;
     const name = this._cleanPlaceName(this.config.location_name || entityState?.attributes?.friendly_name || this.config.entity || this._t('choose_source'));
     const current = this.graphData()[0];
-    const atmosphere = this.atmosphereClass();
+    const mode = this.config.color_mode || 'auto';
+    const light = mode === 'light' || (mode !== 'dark' && this.hass?.themes?.darkMode === false);
+    const atmosphere = this.atmosphereClass() + (light ? ' mode-light' : ' mode-dark');
 
-    if (!this.config.entity) {
+    if (!this.config.entity && this.config.weather_source!=='open_meteo') {
       return html`<ha-card class="compact-card ${atmosphere}"><header><div><div class="brand"><span class="aurora-logo" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><radialGradient id="abg" cx="58%" cy="34%" r="72%"><stop offset="0" stop-color="#0c7896"/><stop offset=".5" stop-color="#063a62"/><stop offset="1" stop-color="#07102a"/></radialGradient><linearGradient id="ara" x1="10%" y1="90%" x2="80%" y2="10%"><stop offset="0" stop-color="#5838ff"/><stop offset=".3" stop-color="#1aa8ff"/><stop offset=".58" stop-color="#39f0d0"/><stop offset="1" stop-color="#87ffd6"/></linearGradient><filter id="agl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="url(#abg)" stroke="#18bfe9" stroke-width="1.4"/><path d="M18 72C31 58 29 40 42 24C36 45 48 53 52 66C58 51 69 42 79 23C76 46 83 59 70 76C58 90 34 91 18 72Z" fill="url(#ara)" opacity=".92" filter="url(#agl)"/><path d="M23 76C40 66 43 55 49 39C50 57 62 62 69 75C57 84 39 87 23 76Z" fill="#6746ff" opacity=".42"/></svg></span><span>Aurora</span></div><div class="title">${this._t('choose_source')}</div></div></header><main lang="${auroraLocale(this.hass)}" dir="${textDirection(this.hass)}"><div class="message">${this._t('select_entity_help')}</div></main></ha-card>`;
     }
 
@@ -1833,7 +1968,7 @@ class AuroraWeatherCard extends LitElement {
 
         <main>
           ${this.status === 'loading' ? html`<div class="message">${this._t('loading')}</div>` : nothing}
-          ${this.status === 'error' ? html`<div class="message error"><b>${this._t('error')}</b> ${this.errorMessage}</div>` : nothing}
+          ${this.errorMessage ? html`<div class="message error"><b>${this._t('error')}</b> ${this.errorMessage}</div>` : nothing}
           ${this.status === 'ok' ? this.renderGraph(false) : nothing}
         </main>
 
@@ -1841,8 +1976,10 @@ class AuroraWeatherCard extends LitElement {
           ${this.config?.show_temperature !== false ? html`<span class="legend-item"><span class="legend-dot temp"></span><span>${weatherLabel(this.hass, 'temperature')}</span></span>` : nothing}
           ${this.config?.show_precipitation !== false ? html`<span class="legend-item"><span class="legend-dot rain"></span><span>${weatherLabel(this.hass, 'precipitation')}</span></span>` : nothing}
           ${this.config?.show_wind !== false ? html`<span class="legend-item"><span class="legend-dot wind"></span><span>${weatherLabel(this.hass, 'wind')}</span></span>` : nothing}
-          ${this.config?.show_wind_gust !== false ? html`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, 'gust')}</span></span>` : nothing}
-          <span class="version">v1.3.1-i18n-dev.2</span>
+          ${this.config?.show_wind_gust !== false && this._hasGustData() ? html`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, 'gust')}</span></span>` : nothing}
+          ${this._renderForecastUpdated()}
+          ${this.config.weather_source==='open_meteo' ? html`<a class="provider-credit" href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" @click=${event=>event.stopPropagation()}>Weather data by Open-Meteo (CC BY 4.0)</a>` : nothing}
+          <span class="version">v1.4.1</span>
         </footer>
       </ha-card>
 
@@ -1856,13 +1993,15 @@ class AuroraWeatherCard extends LitElement {
               </div>
               ${current ? html`<div class="expanded-current">${current.temperature.toFixed(1)}°</div>` : nothing}
             </header>
-            <div class="expanded-body">${this.renderGraph(true)}
+            <div class="expanded-body">${this.errorMessage ? html`<div class="message error">${this.errorMessage}</div>` : nothing}${this.renderGraph(true)}
               ${this._renderExpandedInfo()}</div>
             <footer class="expanded-footer" lang="${auroraLocale(this.hass)}" dir="${textDirection(this.hass)}">
               ${this.config?.show_temperature !== false ? html`<span class="legend-item"><span class="legend-dot temp"></span><span>${weatherLabel(this.hass, 'temperature')}</span></span>` : nothing}
               ${this.config?.show_precipitation !== false ? html`<span class="legend-item"><span class="legend-dot rain"></span><span>${weatherLabel(this.hass, 'precipitation')}</span></span>` : nothing}
               ${this.config?.show_wind !== false ? html`<span class="legend-item"><span class="legend-dot wind"></span><span>${weatherLabel(this.hass, 'wind')}</span></span>` : nothing}
-              ${this.config?.show_wind_gust !== false ? html`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, 'gust')}</span></span>` : nothing}
+              ${this.config?.show_wind_gust !== false && this._hasGustData() ? html`<span class="legend-item"><span class="legend-dot gust"></span><span>${weatherLabel(this.hass, 'gust')}</span></span>` : nothing}
+              ${this._renderForecastUpdated()}
+              ${this.config.weather_source==='open_meteo' ? html`<a class="provider-credit" href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" @click=${event=>event.stopPropagation()}>Weather data by Open-Meteo (CC BY 4.0)</a>` : nothing}
               <span class="expanded-note">${this._t('hours_available', { count: Math.min(Number(this.config?.hours) || 48, this.forecast.length) })}</span>
             </footer>
           </section>
@@ -1973,33 +2112,6 @@ class AuroraWeatherCard extends LitElement {
         linear-gradient(145deg, rgba(11,20,33,.995), rgba(5,10,19,.998));
     }
 
-    /* HA light theme: strengthen Aurora's separation from a pale dashboard
-       while keeping the card itself dark and preserving the graph untouched. */
-    @media (prefers-color-scheme: light) {
-      ha-card.atmosphere-dynamic {
-        border-color: rgba(70,196,224,.42);
-        box-shadow:
-          0 12px 30px rgba(15,55,74,.18),
-          0 0 22px rgba(56,202,210,.10),
-          inset 0 1px 0 rgba(255,255,255,.07);
-      }
-      ha-card.atmosphere-dynamic::before {
-        opacity:1;
-        filter:saturate(1.22) brightness(1.10);
-      }
-      .expand-panel.atmosphere-dynamic {
-        border-color: rgba(83,205,235,.48);
-        box-shadow:
-          0 28px 80px rgba(0,0,0,.45),
-          0 0 34px rgba(54,205,214,.12),
-          inset 0 1px 0 rgba(255,255,255,.08);
-      }
-      .expand-panel.atmosphere-dynamic::after {
-        opacity:1;
-        filter:saturate(1.20) brightness(1.08);
-      }
-    }
-
     @media (prefers-reduced-motion: reduce) {
       ha-card.atmosphere-dynamic::before,
       .expand-panel.atmosphere-dynamic::after {
@@ -2065,6 +2177,8 @@ class AuroraWeatherCard extends LitElement {
     .legend-dot.rain { background: #2aa8ff; }
     .legend-dot.wind { background: #b44cff; }
     .legend-dot.gust { background: repeating-linear-gradient(90deg, #ffd400 0 5px, transparent 5px 8px); box-shadow: none; }
+    .provider-credit { color:var(--secondary-text-color); font-size:10px; }
+    .forecast-updated { flex-basis:100%; font-size:10px; color:var(--secondary-text-color); }
     .version { margin-inline-start: auto; padding-right: 2px; opacity: .55; font-size: 10px; white-space: nowrap; flex: 0 0 auto; }
 
     .day-label { paint-order: stroke; stroke: rgba(17,21,27,.92); stroke-width: 3px; stroke-linejoin: round; }
@@ -2152,7 +2266,7 @@ class AuroraWeatherCard extends LitElement {
       .current { font-size: 18px; }
       svg { min-height: 0; }
     }
-    .expanded-info{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;padding:8px 12px 12px}
+    .expanded-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px;padding:8px 12px 12px}
     .info-tile{min-width:0;min-height:72px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:12px;border:1px solid rgba(20,154,232,.28);background:linear-gradient(180deg,rgba(10,42,65,.58),rgba(4,20,33,.72));box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 12px rgba(0,126,210,.06)}
     .metric-svg{flex:0 0 34px;width:34px;height:34px;overflow:visible;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px currentColor)}
     .metric-svg .metric-fill{fill:currentColor;stroke:currentColor}.metric-svg .metric-accent{fill:none;stroke:currentColor;stroke-width:3.4}
@@ -2169,6 +2283,41 @@ class AuroraWeatherCard extends LitElement {
     @media(max-width:900px){.expanded-info{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
     /* Translations can be longer than the original Norwegian labels. */
+
+    /* Shared light palette for normal and expanded views. */
+    .mode-light.mode-light { color-scheme:light; --primary-text-color:#152c40; --secondary-text-color:#40576a; --secondary-background-color:#e0ebf2; --divider-color:#55758c; --error-color:#b42332; color:var(--primary-text-color); background:linear-gradient(145deg,#f7fbff,#e7f0f7); border-color:#9db7cb; box-shadow:0 8px 28px rgba(20,50,75,.14); }
+    ha-card.mode-light::before, .expand-panel.mode-light::after { opacity:.10; filter:none; }
+    .mode-light .brand-name, .mode-light .info-value { color:var(--primary-text-color); }
+    .mode-light .brand-location { color:#00647b; }
+    .mode-light .brand-clock, .mode-light .info-label, .mode-light .info-sub, .mode-light .info-value small, .mode-light .wind-direction { color:var(--secondary-text-color); }
+    .mode-light .info-tile { background:rgba(255,255,255,.75); border-color:#aac4d6; box-shadow:none; }
+    .mode-light .close-button { color:#152c40; background:#d6e5ef; }
+    .mode-light .close-button:hover { background:#bbd3e4; }
+    .mode-light .temperature-line { stroke:#c62030; }
+    .mode-light .wind-line { stroke:#7631b8; }
+    .mode-light .gust-line { stroke:#826000; }
+    .mode-light .rain-bar { fill:#0876bb; }
+    .mode-light .day-label, .mode-light .rain-axis-label { stroke: none; }
+    .mode-light .rain-axis-blue, .mode-light .rain-unit-label { fill:#0068a6; stroke:none; }
+    .mode-light .wind-axis-label, .mode-light .wind-unit-label { fill:#7631b8; }
+    .mode-light .legend-dot.temp { background:#c62030; }
+    .mode-light .legend-dot.rain { background:#0876bb; }
+    .mode-light .legend-dot.wind { background:#7631b8; }
+    .mode-light .legend-dot.gust { background:repeating-linear-gradient(90deg,#826000 0 5px,transparent 5px 8px); }
+    .mode-light .grid-line, .mode-light .wind-grid, .mode-light .day-line { stroke:#67859b; }
+    .mode-light .time-grid { stroke:#7893a6; }
+    .mode-light .wind-direction path { fill:#25485e; stroke:#fff; filter:none; }
+    .mode-light .dir-arrow { background:#40576a; filter:none; }
+    .mode-light .dir-arrow::before { border-color:#40576a; }
+    .mode-light .temp-outline, .mode-light .temp-tick { stroke:#40576a; }
+    .mode-light .metric-svg { filter:none; }
+    .mode-light .rain-svg, .mode-light .humidity-svg { color:#0068a6; }
+    .mode-light .wind-svg { color:#177644; }
+    .mode-light .gust-svg { color:#7631b8; }
+    .mode-light .pressure-svg { color:#40576a; }
+    .mode-light .sun-svg { color:#826000; }
+    .mode-light .expanded-note { opacity:1; }
+    .mode-dark { color-scheme:dark; }
     footer, .expanded-footer { flex-wrap: wrap; white-space: normal; }
     .legend-item { max-width: 100%; overflow-wrap: anywhere; }
     .info-label { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
@@ -2177,19 +2326,19 @@ class AuroraWeatherCard extends LitElement {
 }
 
 
-if (!customElements.get('aurora-weather-card-editor-v1-3-1')) {
-  customElements.define('aurora-weather-card-editor-v1-3-1', AuroraWeatherCardEditor);
+if (!customElements.get('aurora-weather-card-editor-v1-4-1')) {
+  customElements.define('aurora-weather-card-editor-v1-4-1', AuroraWeatherCardEditor);
 }
 
 if (!customElements.get('aurora-weather-card')) {
   customElements.define('aurora-weather-card', AuroraWeatherCard);
 }
 
-// Register Aurora Weather Card v1.3.1-i18n-dev.2 in the Home Assistant card picker.
+// Register Aurora Weather Card v1.4.1 in the Home Assistant card picker.
 window.customCards = window.customCards || [];
 const auroraPickerEntry = {
   type: 'aurora-weather-card',
-  name: 'Aurora Weather Card v1.3.1-i18n-dev.2',
+  name: 'Aurora Weather Card v1.4.1',
   preview: false,
   description: '24/48-hour weather forecast with temperature, precipitation, wind, gusts and Aurora backgrounds',
   getEntitySuggestion: (_hass, entityId) => {
@@ -2208,4 +2357,4 @@ const existingAuroraIndex = window.customCards.findIndex((card) => card.type ===
 if (existingAuroraIndex >= 0) window.customCards.splice(existingAuroraIndex, 1, auroraPickerEntry);
 else window.customCards.push(auroraPickerEntry);
 
-console.info('%c AURORA WEATHER CARD v1.3.1-i18n-dev.2 %c development ', 'color:#fff;background:#1577d3;font-weight:700', 'color:#1577d3;background:#fff');
+console.info('%c AURORA WEATHER CARD v1.4.1 %c stable ', 'color:#fff;background:#1577d3;font-weight:700', 'color:#1577d3;background:#fff');

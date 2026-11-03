@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 This project follows Semantic Versioning.
 
+## [1.4.1] - 2026-11-03
+
+### Added
+- Automatic, Light and Dark appearance modes in both card views.
+- Optional direct Open-Meteo hourly forecasts for selected coordinates, with attribution, 30-minute cache, timeout and retry handling.
+- English, Norwegian Bokmål and German card/editor translations; Home Assistant weather labels and English fallback for other languages.
+- Forecast receipt date/time in compact and expanded views.
+
+### Fixed
+- Hide unavailable gusts and their legend; preserve valid zero values.
+- Match axes, grids, plot allocation and wind scale to enabled graph series.
+- Clarify that place search changes forecast location only in direct mode.
+- Improve light-mode contrast and long translated labels.
+
+### Compatibility
+- Existing weather entities and public card type remain supported and are the default.
+- Original Aurora night atmosphere retained; experimental curtain effect excluded.
+- Direct API is intended for non-commercial use. Full Aurora-specific translation coverage beyond en/nb/de is not included.
+
 ## [1.3.1] - 2026-10-19
 
 ### Fixed

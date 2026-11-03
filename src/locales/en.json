@@ -9,7 +9,7 @@
   "location": "Location",
   "location_name": "Place name",
   "search_location": "Search for a place",
-  "location_help": "Required. Enter the geographical place name. Aurora searches as you type; use the search button to search manually.",
+  "location_help": "Required. Search for a place to set its name, local time and sun times. Place search does not change the weather source or forecast. Select the correct weather entity under Weather source to change the forecast location.",
   "searching": "Searching …",
   "choose_location": "Choose the correct place",
   "unknown_timezone": "unknown time zone",
@@ -52,5 +52,18 @@
   "expanded_forecast": "Expanded weather forecast",
   "close_expanded": "Close expanded view",
   "graph_accessible": "Weather icons, temperature, precipitation, wind and gusts",
-  "hours_available": "Available forecast hours: {count}"
+  "hours_available": "Available forecast hours: {count}",
+  "color_mode": "Color mode",
+  "mode_auto": "Automatic",
+  "mode_light": "Light",
+  "mode_dark": "Dark",
+  "color_mode_help": "Automatic follows the Home Assistant theme in normal and expanded views.",
+  "forecast_received": "Forecast received: {time}",
+  "source_type": "Weather source type",
+  "source_entity": "Home Assistant entity",
+  "source_direct": "Direct — Open-Meteo",
+  "direct_help": "Fetches forecasts directly for the selected place. Its coordinates are sent to Open-Meteo from this browser. No API key; free service for non-commercial use. Refreshes every 30 minutes.",
+  "direct_location_help": "Search and select a place. In direct mode, this location determines the forecast.",
+  "direct_location_required": "Select a place or enter valid latitude and longitude under Advanced.",
+  "direct_fetch_failed": "Could not refresh Open-Meteo. Retrying in 5 minutes; any displayed forecast is from the last successful update."
 }

@@ -9,7 +9,7 @@
   "location": "Standort",
   "location_name": "Ortsname",
   "search_location": "Ort suchen",
-  "location_help": "Erforderlich. Gib den geografischen Ortsnamen ein. Aurora sucht während der Eingabe; über die Suchschaltfläche kannst du manuell suchen.",
+  "location_help": "Erforderlich. Die Ortssuche legt Name, Ortszeit und Sonnenzeiten fest. Sie ändert weder Wetterquelle noch Prognose. Wähle unter Wetterquelle die passende Wetterentität, um den Vorhersageort zu ändern.",
   "searching": "Suche läuft …",
   "choose_location": "Richtigen Ort auswählen",
   "unknown_timezone": "unbekannte Zeitzone",
@@ -52,5 +52,18 @@
   "expanded_forecast": "Erweiterte Wettervorhersage",
   "close_expanded": "Große Ansicht schließen",
   "graph_accessible": "Wettersymbole, Temperatur, Niederschlag, Wind und Böen",
-  "hours_available": "Verfügbare Vorhersagestunden: {count}"
+  "hours_available": "Verfügbare Vorhersagestunden: {count}",
+  "color_mode": "Farbmodus",
+  "mode_auto": "Automatisch",
+  "mode_light": "Hell",
+  "mode_dark": "Dunkel",
+  "color_mode_help": "Automatisch folgt dem Design von Home Assistant in der normalen und vergrößerten Ansicht.",
+  "forecast_received": "Prognose empfangen: {time}",
+  "source_type": "Art der Wetterquelle",
+  "source_entity": "Home-Assistant-Entität",
+  "source_direct": "Direkt — Open-Meteo",
+  "direct_help": "Lädt die Prognose direkt für den gewählten Ort. Die Koordinaten werden von diesem Browser an Open-Meteo gesendet. Kein API-Schlüssel; kostenlos für nichtkommerzielle Nutzung. Aktualisierung alle 30 Minuten.",
+  "direct_location_help": "Suche und wähle einen Ort. Im Direktmodus bestimmt dieser Ort die Wetterprognose.",
+  "direct_location_required": "Wähle einen Ort oder trage gültige Koordinaten unter Erweitert ein.",
+  "direct_fetch_failed": "Open-Meteo konnte nicht aktualisiert werden. Neuer Versuch in 5 Minuten; eine angezeigte Prognose stammt von der letzten erfolgreichen Aktualisierung."
 }
