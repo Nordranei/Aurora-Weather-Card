@@ -8,19 +8,21 @@ Aurora Weather Card combines modern weather visualization with a calm Scandinavi
 
 ## Screenshots
 
+Version 1.4.1 with live Berlin forecasts from the optional Open-Meteo source and an English interface.
+
 ### Expanded 48-hour view
 
-![Aurora Weather Card v1.2 expanded dark](screenshots/aurora-v1.2-expanded-dark.png)
+![Aurora Weather Card v1.4.1 expanded dark](screenshots/aurora-v1.4.1-expanded-dark.png)
 
 ### Compact view
 
-![Aurora Weather Card v1.2 compact dark](screenshots/aurora-v1.2-compact-dark.png)
+![Aurora Weather Card v1.4.1 compact dark](screenshots/aurora-v1.4.1-compact-dark.png)
 
 ### Light mode
 
-![Aurora Weather Card v1.2 compact light](screenshots/aurora-v1.2-compact-light.png)
+![Aurora Weather Card v1.4.1 compact light](screenshots/aurora-v1.4.1-compact-light.png)
 
-![Aurora Weather Card v1.2 expanded light](screenshots/aurora-v1.2-expanded-light.png)
+![Aurora Weather Card v1.4.1 expanded light](screenshots/aurora-v1.4.1-expanded-light.png)
 
 ## Features
 
@@ -124,7 +126,13 @@ For manual installations, replace the resource file and append `?v=1.4.1` to its
 
 Aurora Weather Card includes a visual configuration editor for Home Assistant.
 
-![Aurora Weather Card editor](screenshots/editor.png)
+### Weather source
+
+![Aurora Weather Card v1.4.1 weather source editor](screenshots/aurora-v1.4.1-editor-source.png)
+
+### Appearance
+
+![Aurora Weather Card v1.4.1 appearance editor](screenshots/aurora-v1.4.1-editor-appearance.png)
 
 ## What's new in v1.4.1
 
